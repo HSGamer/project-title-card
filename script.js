@@ -80,8 +80,34 @@ async function uploadFile() {
     });
 }
 
+async function exportOptions() {
+    let options = getOptionsFromForm();
+    let blob = new Blob([JSON.stringify(options)], {type: "application/json"});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'options.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+async function importOptions() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.click();
+
+    input.addEventListener('change', async () => {
+        let reader = new FileReader();
+        reader.onload = () => setOptionsToForm(JSON.parse(reader.result));
+        reader.readAsText(input.files[0]);
+    });
+}
+
 document.getElementById('btnReview').addEventListener('click', previewSVG);
 document.getElementById('btnDownload').addEventListener('click', downloadSVG);
 document.getElementById('btnDownloadPNG').addEventListener('click', downloadPNG);
 document.getElementById('btnUpload').addEventListener('click', uploadFile);
+document.getElementById('btnExport').addEventListener('click', exportOptions);
+document.getElementById('btnImport').addEventListener('click', importOptions);
 setOptionsToForm(defaultOptions);
