@@ -21,7 +21,7 @@ async function resolveImageLink(imageLink) {
     return canvas.toDataURL("image/png");
 }
 
-async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLink, title, titleStyle, description, descriptionStyle}) {
+async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLink, title, titleStyle, description, descriptionStyle}, isPreview = false) {
     // Create SVG element
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("width", "400");
@@ -44,7 +44,7 @@ async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLi
     image.setAttribute("y", "50");
     image.setAttribute("width", "300");
     image.setAttribute("height", "300");
-    image.setAttribute("href", await resolveImageLink(imageLink));
+    image.setAttribute("href", isPreview ? imageLink : await resolveImageLink(imageLink));
     svg.appendChild(image);
 
     // Create title
@@ -82,10 +82,12 @@ async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLi
 }
 
 const defaultOptions = {
-    backgroundStyle: "fill:white; stroke:green; stroke-width:2; fill-opacity:1",
+    backgroundStyle: "fill:white; stroke:black; stroke-width:2; fill-opacity:1",
     imageLink: "https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg",
     title: "MaskedGUI",
     titleStyle: "fill: black; font-weight: bold; font-family: Verdana;",
     description: "Description",
-    descriptionStyle: "fill: black; font-family: Verdana;"
+    descriptionStyle: "fill: black; font-family: Verdana;",
+    borderRadius: "10",
+    borderMargin: "10"
 };
