@@ -40,27 +40,30 @@ async function downloadSVG() {
 }
 
 async function downloadPNG() {
+    let resizePercentage = prompt('Enter resize percentage (1-100)', '100');
+    if (resizePercentage === null) return;
+    resizePercentage = parseInt(resizePercentage);
+    if (isNaN(resizePercentage) || resizePercentage < 1 || resizePercentage > 100) {
+        alert('Invalid resize percentage');
+        return;
+    }
+
     let svg = await generateSVG(getOptionsFromForm());
     let svgData = new XMLSerializer().serializeToString(svg);
-    let blob = new Blob([svgData], {type: "image/svg+xml"});
-    let url = URL.createObjectURL(blob);
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
     let img = new Image();
-    img.src = url;
-    img.onload = function () {
-        let canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        canvas.toBlob(function (blob) {
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = 'Card.png';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    }
+    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    img.onload = () => {
+        canvas.width = img.width * resizePercentage / 100;
+        canvas.height = img.height * resizePercentage / 100;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        let url = canvas.toDataURL('image/png');
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'Card.png';
+        a.click();
+    };
 }
 
 async function uploadFile() {
