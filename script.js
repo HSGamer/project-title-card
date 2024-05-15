@@ -8,6 +8,7 @@ function getOptionsFromForm() {
     options.titleStyle = document.getElementById('titleStyle').value;
     options.description = document.getElementById('description').value;
     options.descriptionStyle = document.getElementById('descriptionStyle').value;
+    options.defs = document.getElementById('defs').value;
     return options;
 }
 
@@ -20,6 +21,7 @@ function setOptionsToForm(options) {
     document.getElementById('titleStyle').value = options.titleStyle;
     document.getElementById('description').value = options.description;
     document.getElementById('descriptionStyle').value = options.descriptionStyle;
+    document.getElementById('defs').value = options.defs;
 }
 
 async function previewSVG() {

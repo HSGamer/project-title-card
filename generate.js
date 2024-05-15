@@ -21,11 +21,18 @@ async function resolveImageLink(imageLink) {
     return canvas.toDataURL("image/png");
 }
 
-async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLink, title, titleStyle, description, descriptionStyle}, isPreview = false) {
+async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLink, title, titleStyle, description, descriptionStyle, defs}, isPreview = false) {
     // Create SVG element
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("width", "400");
     svg.setAttribute("height", "600");
+
+    // Create defs
+    if (defs) {
+        const defsElement = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        defsElement.innerHTML = defs;
+        svg.appendChild(defsElement);
+    }
 
     // Create background
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
