@@ -9,6 +9,7 @@ function getOptionsFromForm() {
     options.description = document.getElementById('description').value;
     options.descriptionStyle = document.getElementById('descriptionStyle').value;
     options.defs = document.getElementById('defs').value;
+    options.generateType = document.getElementById('generateType').value;
     return options;
 }
 
@@ -22,21 +23,25 @@ function setOptionsToForm(options) {
     document.getElementById('description').value = options.description;
     document.getElementById('descriptionStyle').value = options.descriptionStyle;
     document.getElementById('defs').value = options.defs;
+    document.getElementById('generateType').value = options.generateType;
 }
 
 async function previewSVG() {
-    let svg = await generateSVG(getOptionsFromForm(), true);
+    let options = getOptionsFromForm();
+    let svg = await generateCard(options);
     document.getElementById('svgContainer').innerHTML = new XMLSerializer().serializeToString(svg);
 }
 
 async function downloadSVG() {
-    let svg = await generateSVG(getOptionsFromForm());
+    let options = getOptionsFromForm();
+    options.imageLink = await resolveImageLink(options.imageLink);
+    let svg = await generate(options);
     let svgData = new XMLSerializer().serializeToString(svg);
     let blob = new Blob([svgData], {type: "image/svg+xml"});
     let url = URL.createObjectURL(blob);
     let a = document.createElement('a');
     a.href = url;
-    a.download = 'Card.svg';
+    a.download = 'card.svg';
     a.click();
     URL.revokeObjectURL(url);
 }
@@ -50,7 +55,9 @@ async function downloadPNG() {
         return;
     }
 
-    let svg = await generateSVG(getOptionsFromForm());
+    let options = getOptionsFromForm();
+    options.imageLink = await resolveImageLink(options.imageLink);
+    let svg = await generate(options);
     let svgData = new XMLSerializer().serializeToString(svg);
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -63,7 +70,7 @@ async function downloadPNG() {
         let url = canvas.toDataURL('image/png');
         let a = document.createElement('a');
         a.href = url;
-        a.download = 'Card.png';
+        a.download = 'card.png';
         a.click();
     };
 }
@@ -91,7 +98,7 @@ async function exportOptions() {
     let url = URL.createObjectURL(blob);
     let a = document.createElement('a');
     a.href = url;
-    a.download = 'options.json';
+    a.download = 'card-options.json';
     a.click();
     URL.revokeObjectURL(url);
 }
@@ -109,10 +116,21 @@ async function importOptions() {
     });
 }
 
+function loadGenerateTypes() {
+    let select = document.getElementById('generateType');
+    for (let type of Object.keys(generateTypes)) {
+        let option = document.createElement('option');
+        option.value = type;
+        option.innerText = type;
+        select.appendChild(option);
+    }
+}
+
 document.getElementById('btnReview').addEventListener('click', previewSVG);
 document.getElementById('btnDownload').addEventListener('click', downloadSVG);
 document.getElementById('btnDownloadPNG').addEventListener('click', downloadPNG);
 document.getElementById('btnUpload').addEventListener('click', uploadFile);
 document.getElementById('btnExport').addEventListener('click', exportOptions);
 document.getElementById('btnImport').addEventListener('click', importOptions);
+loadGenerateTypes();
 setOptionsToForm(defaultOptions);

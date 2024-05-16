@@ -3,10 +3,13 @@
     <rect width="400" height="600" rx="20" ry="20" style="fill:white;stroke:green;stroke-width:10;fill-opacity:1"/>
 
     <!-- Image -->
-    <image x="50" y="50" width="300" height="300" href="https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg" />
+    <image x="50" y="50" width="300" height="300"
+           href="https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg"/>
 
     <!-- Title -->
-    <text x="200" y="400" font-family="Verdana" font-size="35" font-weight="bold" fill="black" text-anchor="middle">MaskedGUI</text>
+    <text x="200" y="400" font-family="Verdana" font-size="35" font-weight="bold" fill="black" text-anchor="middle">
+        MaskedGUI
+    </text>
 
     <!-- Multiline Description -->
     <text x="200" y="450" font-family="Verdana" font-size="25" fill="black" text-anchor="middle">

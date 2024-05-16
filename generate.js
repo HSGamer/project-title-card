@@ -1,27 +1,15 @@
-async function resolveImageLink(imageLink) {
-    // Create canvas
-    const canvas = document.createElement("canvas");
-    canvas.width = 300;
-    canvas.height = 300;
-    const ctx = canvas.getContext("2d");
-
-    // Create image
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.src = imageLink;
-
-    await new Promise((resolve) => {
-        image.onload = () => {
-            ctx.drawImage(image, 0, 0, 300, 300);
-            resolve();
-        };
-    })
-
-    // Convert canvas to base64
-    return canvas.toDataURL("image/png");
-}
-
-async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLink, title, titleStyle, description, descriptionStyle, defs}, isPreview = false) {
+//region Generate
+async function generateCard({
+                                borderRadius,
+                                borderMargin,
+                                backgroundStyle,
+                                imageLink,
+                                title,
+                                titleStyle,
+                                description,
+                                descriptionStyle,
+                                defs
+                            }) {
     // Create SVG element
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("width", "400");
@@ -51,7 +39,7 @@ async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLi
     image.setAttribute("y", "50");
     image.setAttribute("width", "300");
     image.setAttribute("height", "300");
-    image.setAttribute("href", isPreview ? imageLink : await resolveImageLink(imageLink));
+    image.setAttribute("href", imageLink);
     svg.appendChild(image);
 
     // Create title
@@ -88,6 +76,16 @@ async function generateSVG({borderRadius, borderMargin, backgroundStyle, imageLi
     return svg;
 }
 
+//endregion
+
+const generateTypes = {
+    card: generateCard
+}
+
+async function generate({generateType, ...options}) {
+    return await (generateType ? generateTypes[generateType] : generateTypes.card)(options);
+}
+
 const defaultOptions = {
     backgroundStyle: "fill:white; stroke:black; stroke-width:2; fill-opacity:1",
     imageLink: "https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg",
@@ -96,5 +94,7 @@ const defaultOptions = {
     description: "Description",
     descriptionStyle: "fill: black; font-family: Verdana;",
     borderRadius: "10",
-    borderMargin: "10"
+    borderMargin: "10",
+    defs: "",
+    generateType: "card"
 };
