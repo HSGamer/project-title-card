@@ -1,5 +1,5 @@
 //region Generate
-async function generateCard({
+async function _card({
                                 borderRadius,
                                 borderMargin,
                                 backgroundStyle,
@@ -76,10 +76,87 @@ async function generateCard({
     return svg;
 }
 
+async function _widecard({
+                             borderRadius,
+                             borderMargin,
+                             backgroundStyle,
+                             imageLink,
+                             title,
+                             titleStyle,
+                             description,
+                             descriptionStyle,
+                             defs
+                         }) {
+    // Create SVG element
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "800");
+    svg.setAttribute("height", "300");
+
+    // Create defs
+    if (defs) {
+        const defsElement = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        defsElement.innerHTML = defs;
+        svg.appendChild(defsElement);
+    }
+
+    // Create background
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("rx", borderRadius || "0");
+    rect.setAttribute("ry", borderRadius || "0");
+    rect.setAttribute("x", borderMargin || "0");
+    rect.setAttribute("y", borderMargin || "0");
+    rect.setAttribute("width", (800 - 2 * (borderMargin || 0)).toString());
+    rect.setAttribute("height", (300 - 2 * (borderMargin || 0)).toString());
+    rect.setAttribute("style", backgroundStyle);
+    svg.appendChild(rect);
+
+    // Create image
+    const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    image.setAttribute("x", "20");
+    image.setAttribute("y", "20");
+    image.setAttribute("width", "260");
+    image.setAttribute("height", "260");
+    image.setAttribute("href", imageLink);
+    svg.appendChild(image);
+
+    // Create title
+    const titleElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    titleElement.setAttribute("x", "300");
+    titleElement.setAttribute("y", "90");
+    titleElement.setAttribute("font-size", "50");
+    titleElement.setAttribute("text-anchor", "start");
+    titleElement.setAttribute("style", titleStyle);
+    titleElement.textContent = title;
+    svg.appendChild(titleElement);
+
+    // Create description
+    const descriptionElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    descriptionElement.setAttribute("x", "300");
+    descriptionElement.setAttribute("y", "140");
+    descriptionElement.setAttribute("font-size", "30");
+    descriptionElement.setAttribute("text-anchor", "start");
+    descriptionElement.setAttribute("style", descriptionStyle);
+
+    // Add tspan elements for each line in the description
+    const lines = description.split('\n');
+    let firstLine = true;
+    for (let line of lines) {
+        const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        tspan.setAttribute("x", "300");
+        tspan.setAttribute("dy", `${firstLine ? 0 : 1.2}em`);
+        tspan.textContent = line;
+        descriptionElement.appendChild(tspan);
+        firstLine = false;
+    }
+    svg.appendChild(descriptionElement);
+
+    return svg;
+}
 //endregion
 
 const generateTypes = {
-    card: generateCard
+    card: _card,
+    widecard: _widecard
 }
 
 async function generate({generateType, ...options}) {

@@ -14,7 +14,7 @@
     <!-- Multiline Description -->
     <text x="200" y="450" font-family="Verdana" font-size="25" fill="black" text-anchor="middle">
         <tspan x="200">A GUI library for Minecraft</tspan>
-        <tspan x="200" dy="1.2em">with masked images.</tspan>
+        <tspan x="200" dy="1.2em">with masked elements.</tspan>
         <tspan x="200" dy="1.2em">It supports all Minecraft</tspan>
     </text>
 </svg>

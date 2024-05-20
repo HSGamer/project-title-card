@@ -28,7 +28,7 @@ function setOptionsToForm(options) {
 
 async function previewSVG() {
     let options = getOptionsFromForm();
-    let svg = await generateCard(options);
+    let svg = await generate(options);
     document.getElementById('svgContainer').innerHTML = new XMLSerializer().serializeToString(svg);
 }
 
