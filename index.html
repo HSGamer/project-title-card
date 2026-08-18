@@ -2,63 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Project Title Card</title>
-    <link href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-    <script src="js/generate.js"></script>
-    <script src="js/util.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate and customize SVG and PNG title cards with custom typography, gradients, and images.">
+    <title>Project Title Card - Accessible SVG & PNG Card Generator</title>
 </head>
 <body>
-<main class="grid">
-    <section class="container">
-        <form id="svgOptionsForm">
-            <div role="group">
-                <input id="btnReview" type="button" value="Review">
-                <input class="secondary" id="btnDownload" type="button" value="Download">
-                <input class="outline secondary" id="btnDownloadPNG" type="button" value="Download PNG">
-            </div>
-
-            <label for="title">Title</label>
-            <input id="title" name="title" type="text">
-
-            <label for="description">Description</label>
-            <textarea id="description" name="description" rows="4"></textarea>
-
-            <label for="generateType">Generate Type</label>
-            <select id="generateType" name="generateType"></select>
-
-            <label for="backgroundStyle">Background Style</label>
-            <input id="backgroundStyle" name="backgroundStyle" type="text">
-
-            <label for="borderRadius">Border Radius</label>
-            <input id="borderRadius" name="borderRadius" type="number">
-
-            <label for="borderMargin">Border Margin</label>
-            <input id="borderMargin" name="borderMargin" type="number">
-
-            <label for="imageLink">Image Link</label>
-            <fieldset role="group">
-                <input id="imageLink" name="imageLink" type="text">
-                <input class="outline secondary" id="btnUpload" type="button" value="Upload File">
-            </fieldset>
-
-            <label for="titleStyle">Title Style</label>
-            <input id="titleStyle" name="titleStyle" type="text">
-
-            <label for="descriptionStyle">Description Style</label>
-            <input id="descriptionStyle" name="descriptionStyle" type="text">
-
-            <label for="defs">Defs</label>
-            <textarea id="defs" name="defs" rows="4"></textarea>
-
-            <div role="group">
-                <input id="btnImport" type="button" value="Import">
-                <input class="secondary" id="btnExport" type="button" value="Export">
-            </div>
-        </form>
-    </section>
-    <section id="svgContainer"></section>
-</main>
-
-<script src="js/script.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
