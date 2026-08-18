@@ -1,7 +1,6 @@
 version: 2
 updates:
-  # Maintain dependencies for npm
-  - package-ecosystem: "npm"
+  - package-ecosystem: "deno"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -10,8 +9,7 @@ updates:
       dependencies:
         patterns:
           - "*"
-
-  # Maintain dependencies for GitHub Actions
+  
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
