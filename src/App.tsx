@@ -60,7 +60,7 @@ export const App: React.FC = () => {
 
         <main id="main-content" tabIndex={-1}>
           <Container size="xl" py="lg">
-            <Grid gap="xl">
+            <Grid gutter="xl">
               <Grid.Col span={{ base: 12, md: 6 }}>
                 <CardForm
                   options={options}

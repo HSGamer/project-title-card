@@ -1,0 +1,26 @@
+{
+  "tasks": {
+    "bundle:watch": "deno bundle --watch --platform=browser --outdir=dist index.html",
+    "serve": "deno run --allow-net --allow-read jsr:@std/http/file-server dist -p 8000 --cors",
+    "dev": "deno bundle --platform=browser --outdir=dist index.html && (deno task bundle:watch & deno task serve)",
+    "build": "deno check --sloppy-imports src/main.tsx && deno bundle --platform=browser --minify --outdir=dist index.html",
+    "preview": "deno run --allow-net --allow-read jsr:@std/http/file-server dist -p 8000",
+    "check": "deno check --sloppy-imports src/main.tsx"
+  },
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "lib": ["deno.window", "dom", "dom.iterable", "esnext"]
+  },
+  "imports": {
+    "@mantine/core": "npm:@mantine/core@^7.17.1",
+    "@mantine/hooks": "npm:@mantine/hooks@^7.17.1",
+    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
+    "@tabler/icons-react": "npm:@tabler/icons-react@^3.31.0",
+    "@types/react": "npm:@types/react@^19.0.0",
+    "@types/react-dom": "npm:@types/react-dom@^19.0.0",
+    "react": "npm:react@^19.0.0",
+    "react-dom": "npm:react-dom@^19.0.0"
+  }
+}
