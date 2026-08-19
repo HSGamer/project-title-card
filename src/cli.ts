@@ -155,8 +155,21 @@ export async function main(args: string[] = Deno.args): Promise<void> {
       "align",
       "logo-pos",
       "widescreen-layout",
+      "banner-variant",
+      "card-variant",
+      "wide-variant",
+      "variant",
       "badge-width",
       "badge-height",
+      "badge-variant",
+      "badge-label",
+      "label-bg",
+      "label-color",
+      "split-pos",
+      "status-text",
+      "status-color",
+      "status-style",
+      "status-pos",
       "scale",
     ],
     boolean: [
@@ -247,7 +260,8 @@ export async function main(args: string[] = Deno.args): Promise<void> {
   }
 
   // 3. Format override
-  const format = (flags.format as GenerateType) || options.generateType;
+  const rawFormat = flags.format || flags.f;
+  const format = (rawFormat === "wide" ? "widecard" : rawFormat as GenerateType) || options.generateType;
   if (format && format !== options.generateType) {
     const desc = "description" in options
       ? options.description
@@ -256,49 +270,8 @@ export async function main(args: string[] = Deno.args): Promise<void> {
       options = {
         ...options,
         generateType: "widecard",
+        wideVariant: "standard",
         imagePosition: "left",
-        description: desc,
-        descriptionFont: {
-          color: "#94a3b8",
-          fontFamily: "Inter, sans-serif",
-          fontWeight: "500",
-          fontSize: 24,
-          lineHeight: 1.3,
-          opacity: 1,
-        },
-        titleFont: { ...options.titleFont, fontSize: 44 },
-      } as WideCardOptions;
-    } else if (format === "widescreen") {
-      options = {
-        ...options,
-        generateType: "widescreen",
-        layoutStyle: "split",
-        description: desc,
-        descriptionFont: {
-          color: "#94a3b8",
-          fontFamily: "Inter, sans-serif",
-          fontWeight: "500",
-          fontSize: 24,
-          lineHeight: 1.3,
-          opacity: 1,
-        },
-        titleFont: { ...options.titleFont, fontSize: 42 },
-      } as WidescreenCardOptions;
-    } else if (format === "badge") {
-      options = {
-        ...options,
-        generateType: "badge",
-        badgeWidth: 400,
-        badgeHeight: 120,
-        iconPosition: "left",
-        titleFont: { ...options.titleFont, fontSize: 32 },
-        image: { ...options.image, size: 70 },
-      } as BadgeCardOptions;
-    } else {
-      options = {
-        ...options,
-        generateType: "card",
-        textAlign: "center",
         description: desc,
         descriptionFont: {
           color: "#94a3b8",
@@ -308,7 +281,63 @@ export async function main(args: string[] = Deno.args): Promise<void> {
           lineHeight: 1.3,
           opacity: 1,
         },
+        titleFont: { ...options.titleFont, fontSize: 42 },
+        image: { ...options.image, size: 170 },
+      } as WideCardOptions;
+    } else if (format === "widescreen") {
+      options = {
+        ...options,
+        generateType: "widescreen",
+        layoutStyle: "split",
+        bannerVariant: "split",
+        description: desc,
+        descriptionFont: {
+          color: "#94a3b8",
+          fontFamily: "Inter, sans-serif",
+          fontWeight: "500",
+          fontSize: 22,
+          lineHeight: 1.3,
+          opacity: 1,
+        },
+        titleFont: { ...options.titleFont, fontSize: 40 },
+        image: { ...options.image, size: 200 },
+      } as WidescreenCardOptions;
+    } else if (format === "badge") {
+      options = {
+        ...options,
+        generateType: "badge",
+        badgeVariant: "standard",
+        badgeWidth: 400,
+        badgeHeight: 120,
+        iconPosition: "left",
+        badgeLabel: "BUILD",
+        labelBackground: "#1e293b",
+        labelColor: "#94a3b8",
+        splitPosition: 0,
+        statusText: "OPERATIONAL",
+        statusColor: "#10b981",
+        statusStyle: "pill",
+        statusPosition: "right",
+        titleFont: { ...options.titleFont, fontSize: 32 },
+        image: { ...options.image, size: 60 },
+      } as BadgeCardOptions;
+    } else {
+      options = {
+        ...options,
+        generateType: "card",
+        cardVariant: "standard",
+        textAlign: "center",
+        description: desc,
+        descriptionFont: {
+          color: "#94a3b8",
+          fontFamily: "Inter, sans-serif",
+          fontWeight: "500",
+          fontSize: 20,
+          lineHeight: 1.3,
+          opacity: 1,
+        },
         titleFont: { ...options.titleFont, fontSize: 34 },
+        image: { ...options.image, size: 220 },
       } as StandardCardOptions;
     }
   }
@@ -391,19 +420,54 @@ export async function main(args: string[] = Deno.args): Promise<void> {
   if (flags.align && "textAlign" in options) {
     options.textAlign = flags.align as StandardCardOptions["textAlign"];
   }
+  const cardVar = flags["card-variant"] || flags.variant;
+  if (cardVar && "cardVariant" in options) {
+    options.cardVariant = cardVar as StandardCardOptions["cardVariant"];
+  }
   if (flags["logo-pos"] && "imagePosition" in options) {
     options.imagePosition =
       flags["logo-pos"] as WideCardOptions["imagePosition"];
   }
-  if (flags["widescreen-layout"] && "layoutStyle" in options) {
-    options.layoutStyle =
-      flags["widescreen-layout"] as WidescreenCardOptions["layoutStyle"];
+  if (flags["wide-variant"] && "wideVariant" in options) {
+    options.wideVariant = flags["wide-variant"] as WideCardOptions["wideVariant"];
+  }
+  const wsLay = flags["banner-variant"] || flags["widescreen-layout"];
+  if (wsLay && "layoutStyle" in options) {
+    options.layoutStyle = wsLay as WidescreenCardOptions["layoutStyle"];
+    options.bannerVariant = wsLay as WidescreenCardOptions["bannerVariant"];
   }
   if (flags["badge-width"] && "badgeWidth" in options) {
     options.badgeWidth = Number(flags["badge-width"]);
   }
   if (flags["badge-height"] && "badgeHeight" in options) {
     options.badgeHeight = Number(flags["badge-height"]);
+  }
+  if (flags["badge-variant"] && "badgeVariant" in options) {
+    options.badgeVariant = flags["badge-variant"] as BadgeCardOptions["badgeVariant"];
+  }
+  if (flags["badge-label"] && "badgeLabel" in options) {
+    options.badgeLabel = flags["badge-label"];
+  }
+  if (flags["label-bg"] && "labelBackground" in options) {
+    options.labelBackground = flags["label-bg"];
+  }
+  if (flags["label-color"] && "labelColor" in options) {
+    options.labelColor = flags["label-color"];
+  }
+  if (flags["split-pos"] && "splitPosition" in options) {
+    options.splitPosition = Number(flags["split-pos"]);
+  }
+  if (flags["status-text"] && "statusText" in options) {
+    options.statusText = flags["status-text"];
+  }
+  if (flags["status-color"] && "statusColor" in options) {
+    options.statusColor = flags["status-color"];
+  }
+  if (flags["status-style"] && "statusStyle" in options) {
+    options.statusStyle = flags["status-style"] as BadgeCardOptions["statusStyle"];
+  }
+  if (flags["status-pos"] && "statusPosition" in options) {
+    options.statusPosition = flags["status-pos"] as BadgeCardOptions["statusPosition"];
   }
 
   // Output handling

@@ -72,11 +72,12 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         return {
           ...base,
           generateType: "widecard",
+          wideVariant: "standard",
           imagePosition: "left",
           description: desc,
-          descriptionFont: { ...descFont, fontSize: 24 },
-          titleFont: { ...base.titleFont, fontSize: 44 },
-          image: { ...base.image, size: 220 },
+          descriptionFont: { ...descFont, fontSize: 22 },
+          titleFont: { ...base.titleFont, fontSize: 42 },
+          image: { ...base.image, size: 170 },
         } as WideCardOptions;
       }
       if (newFormat === "widescreen") {
@@ -84,32 +85,43 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           ...base,
           generateType: "widescreen",
           layoutStyle: "split",
+          bannerVariant: "split",
           description: desc,
-          descriptionFont: { ...descFont, fontSize: 24 },
-          titleFont: { ...base.titleFont, fontSize: 42 },
-          image: { ...base.image, size: 240 },
+          descriptionFont: { ...descFont, fontSize: 22 },
+          titleFont: { ...base.titleFont, fontSize: 40 },
+          image: { ...base.image, size: 200 },
         } as WidescreenCardOptions;
       }
       if (newFormat === "badge") {
         return {
           ...base,
           generateType: "badge",
+          badgeVariant: "standard",
           badgeWidth: 400,
           badgeHeight: 120,
           iconPosition: "left",
+          badgeLabel: "BUILD",
+          labelBackground: "#1e293b",
+          labelColor: "#94a3b8",
+          splitPosition: 0,
+          statusText: "OPERATIONAL",
+          statusColor: "#10b981",
+          statusStyle: "pill",
+          statusPosition: "right",
           titleFont: { ...base.titleFont, fontSize: 32 },
-          image: { ...base.image, size: 70 },
+          image: { ...base.image, size: 60 },
         } as BadgeCardOptions;
       }
       // Standard card
       return {
         ...base,
         generateType: "card",
+        cardVariant: "standard",
         textAlign: "center",
         description: desc,
-        descriptionFont: { ...descFont, fontSize: 22 },
+        descriptionFont: { ...descFont, fontSize: 20 },
         titleFont: { ...base.titleFont, fontSize: 34 },
-        image: { ...base.image, size: 260 },
+        image: { ...base.image, size: 220 },
       } as StandardCardOptions;
     });
   };

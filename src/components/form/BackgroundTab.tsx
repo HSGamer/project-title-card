@@ -92,7 +92,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
             <button
               type="button"
               key={mode.value}
-              class={`btn btn-sm text-xs min-w-0 px-1 ${
+              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
                 (options.background?.type || "solid") === mode.value
                   ? "btn-active btn-primary shadow-xs font-semibold"
                   : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -106,7 +106,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                   },
                 }))}
             >
-              <span class="truncate">{mode.label}</span>
+              <span>{mode.label}</span>
             </button>
           ))}
         </div>
@@ -208,7 +208,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 <button
                   type="button"
                   key={d.value}
-                  class={`btn btn-sm text-xs min-w-0 px-1 ${
+                  class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
                     (options.background?.gradientDirection || "to-br") ===
                         d.value
                       ? "btn-active btn-primary shadow-xs font-semibold"
@@ -223,7 +223,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                       },
                     }))}
                 >
-                  <span class="truncate">{d.label}</span>
+                  <span>{d.label}</span>
                 </button>
               ))}
             </div>

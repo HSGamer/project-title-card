@@ -63,6 +63,7 @@ export function renderTitle(
   y: number,
   fontConfig: CardOptions["titleFont"],
   anchor: "start" | "middle" | "end" = "middle",
+  dominantBaseline?: string,
 ): void {
   const displayText = fontConfig.uppercase
     ? (text || "").toUpperCase()
@@ -79,6 +80,12 @@ export function renderTitle(
       y,
       fill: fontConfig.color || "#ffffff",
       "text-anchor": anchor,
+      ...(dominantBaseline
+        ? {
+          "dominant-baseline": dominantBaseline,
+          "alignment-baseline": dominantBaseline,
+        }
+        : {}),
     });
 
   if (fontConfig.letterSpacing) {

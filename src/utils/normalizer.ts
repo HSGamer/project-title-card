@@ -2,7 +2,9 @@ import {
   BackgroundType,
   BadgeCardOptions,
   BorderStyle,
+  BannerVariant,
   CardOptions,
+  CardVariant,
   DescriptionFontWeight,
   GenerateType,
   GradientDirection,
@@ -12,6 +14,7 @@ import {
   TextAlign,
   TitleFontWeight,
   WideCardOptions,
+  WideVariant,
   WidescreenCardOptions,
   WidescreenLayout,
 } from "../types.ts";
@@ -525,9 +528,14 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       rawObj.imagePosition === "right" || rawObj.logoPlacement === "right"
         ? "right"
         : "left";
+    const validWideVariants = ["standard", "split", "centered", "minimal", "badge"];
+    const wideVariant: WideVariant = validWideVariants.includes(String(rawObj.wideVariant))
+      ? (rawObj.wideVariant as WideVariant)
+      : "standard";
 
     const wide: WideCardOptions = {
       generateType: "widecard",
+      wideVariant,
       title,
       description,
       imagePosition: imgPos,
@@ -541,16 +549,19 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
   }
 
   if (format === "widescreen") {
-    const wsLayout: WidescreenLayout =
-      rawObj.layoutStyle === "centered" || rawObj.layoutStyle === "banner"
-        ? rawObj.layoutStyle
-        : "split";
+    const validWsLayouts = ["split", "centered", "banner", "hero", "minimal"];
+    const layoutStyle: WidescreenLayout = validWsLayouts.includes(
+      String(rawObj.bannerVariant || rawObj.layoutStyle),
+    )
+      ? ((rawObj.bannerVariant || rawObj.layoutStyle) as WidescreenLayout)
+      : "split";
 
     const ws: WidescreenCardOptions = {
       generateType: "widescreen",
+      bannerVariant: layoutStyle,
+      layoutStyle,
       title,
       description,
-      layoutStyle: wsLayout,
       background,
       border,
       titleFont,
@@ -567,13 +578,30 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       rawObj.iconPosition === "right" || rawObj.iconPosition === "none"
         ? rawObj.iconPosition
         : "left";
+    const validVariants = ["standard", "pill", "split", "status", "outline"];
+    const badgeVariant = validVariants.includes(String(rawObj.badgeVariant))
+      ? (rawObj.badgeVariant as BadgeCardOptions["badgeVariant"])
+      : "standard";
+
+    const splitPos = parseFloat(String(rawObj.splitPosition || "0")) || 0;
+    const statusStyle = rawObj.statusStyle === "dot" ? "dot" : "pill";
+    const statusPos = rawObj.statusPosition === "left" ? "left" : "right";
 
     const badge: BadgeCardOptions = {
       generateType: "badge",
+      badgeVariant,
       title,
       badgeWidth: badgeW,
       badgeHeight: badgeH,
       iconPosition: iconPos,
+      badgeLabel: typeof rawObj.badgeLabel === "string" ? rawObj.badgeLabel : "BUILD",
+      labelBackground: typeof rawObj.labelBackground === "string" ? rawObj.labelBackground : "#1e293b",
+      labelColor: typeof rawObj.labelColor === "string" ? rawObj.labelColor : "#94a3b8",
+      splitPosition: splitPos,
+      statusText: typeof rawObj.statusText === "string" ? rawObj.statusText : "OPERATIONAL",
+      statusColor: typeof rawObj.statusColor === "string" ? rawObj.statusColor : "#10b981",
+      statusStyle,
+      statusPosition: statusPos,
       background,
       border,
       titleFont,
@@ -584,8 +612,14 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
 
   // Standard Card (default)
   const textAlign: TextAlign = rawObj.textAlign === "left" ? "left" : "center";
+  const validCardVariants = ["standard", "hero", "compact", "minimal", "split"];
+  const cardVariant: CardVariant = validCardVariants.includes(String(rawObj.cardVariant))
+    ? (rawObj.cardVariant as CardVariant)
+    : "standard";
+
   const standard: StandardCardOptions = {
     generateType: "card",
+    cardVariant,
     title,
     description,
     textAlign,

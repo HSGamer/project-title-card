@@ -156,7 +156,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
               <button
                 type="button"
                 key={shape.value}
-                class={`btn btn-sm text-xs min-w-0 px-1 ${
+                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
                   (options.image?.shape || "rounded") === shape.value
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -167,7 +167,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
                     image: { ...prev.image, shape: shape.value },
                   }))}
               >
-                <span class="truncate">{shape.label}</span>
+                <span>{shape.label}</span>
               </button>
             ))}
           </div>

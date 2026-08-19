@@ -29,53 +29,37 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
 
   return (
     <div class="flex flex-col gap-4">
-      {/* Border Style & Width */}
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
-        <div class="flex flex-col gap-1.5 w-full">
-          <div class="flex justify-between items-center min-h-[22px]">
-            <label class="text-xs font-semibold text-base-content flex items-center gap-1">
-              <span>Border Style</span>
-              <FieldGuide fieldKey="border" />
-            </label>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full">
-            {borderStyles.map((st) => (
-              <button
-                type="button"
-                key={st.value}
-                class={`btn btn-sm text-xs min-w-0 px-1 ${
-                  (options.border?.style || "solid") === st.value
-                    ? "btn-active btn-primary shadow-xs font-semibold"
-                    : "btn-ghost bg-base-200 hover:bg-base-300"
-                }`}
-                onClick={() =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    border: { ...prev.border, style: st.value },
-                  }))}
-              >
-                <span class="truncate">{st.label}</span>
-              </button>
-            ))}
-          </div>
+      {/* 1. Border Style */}
+      <div class="flex flex-col gap-1.5 w-full">
+        <div class="flex justify-between items-center min-h-[22px]">
+          <label class="text-xs font-semibold text-base-content flex items-center gap-1">
+            <span>Border Style</span>
+            <FieldGuide fieldKey="border" />
+          </label>
         </div>
-
-        <SliderControl
-          label="Border Thickness"
-          value={options.border?.width ?? 2}
-          min={0}
-          max={16}
-          step={1}
-          presets={[0, 1, 2, 4]}
-          onChange={(val) =>
-            setOptions((prev) => ({
-              ...prev,
-              border: { ...prev.border, width: val },
-            }))}
-        />
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full">
+          {borderStyles.map((st) => (
+            <button
+              type="button"
+              key={st.value}
+              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                (options.border?.style || "solid") === st.value
+                  ? "btn-active btn-primary shadow-xs font-semibold"
+                  : "btn-ghost bg-base-200 hover:bg-base-300"
+              }`}
+              onClick={() =>
+                setOptions((prev) => ({
+                  ...prev,
+                  border: { ...prev.border, style: st.value },
+                }))}
+            >
+              <span>{st.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Border Color */}
+      {/* 2. Border Color */}
       <div class="flex flex-col gap-1.5 w-full">
         <div class="flex justify-between items-center min-h-[22px]">
           <span class="text-xs font-semibold text-base-content">
@@ -122,10 +106,24 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
         </div>
       </div>
 
-      {/* Border Radius & Margin */}
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
+      {/* 3. Border Sizing Controls */}
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-start">
         <SliderControl
-          label="Border Corner Radius"
+          label="Thickness"
+          value={options.border?.width ?? 2}
+          min={0}
+          max={16}
+          step={1}
+          presets={[0, 1, 2, 4]}
+          onChange={(val) =>
+            setOptions((prev) => ({
+              ...prev,
+              border: { ...prev.border, width: val },
+            }))}
+        />
+
+        <SliderControl
+          label="Corner Radius"
           value={options.border?.radius ?? 16}
           min={0}
           max={60}
@@ -139,7 +137,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
         />
 
         <SliderControl
-          label="Border Margin"
+          label="Outer Margin"
           value={options.border?.margin ?? 10}
           min={0}
           max={40}
@@ -155,7 +153,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
 
       <div class="divider my-0"></div>
 
-      {/* Shadow & Glow Effects */}
+      {/* 4. Shadow & Glow Effects */}
       <div class="flex flex-col gap-1.5 w-full">
         <div class="flex justify-between items-center min-h-[22px]">
           <label class="text-xs font-semibold text-base-content flex items-center gap-1">
@@ -163,12 +161,12 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
             <FieldGuide fieldKey="shadow" />
           </label>
         </div>
-        <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 w-full">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 w-full">
           {shadowEffects.map((sh) => (
             <button
               type="button"
               key={sh.value}
-              class={`btn btn-sm text-xs min-w-0 px-1 ${
+              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
                 (options.border?.shadow || "soft") === sh.value
                   ? "btn-active btn-primary shadow-xs font-semibold"
                   : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -179,7 +177,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
                   border: { ...prev.border, shadow: sh.value },
                 }))}
             >
-              <span class="truncate">{sh.label}</span>
+              <span>{sh.label}</span>
             </button>
           ))}
         </div>
