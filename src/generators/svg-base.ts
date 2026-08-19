@@ -54,30 +54,37 @@ export function createBaseSvg(
   });
 
   // 1. Accessibility Metadata
-  const titleElem = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "title",
-  );
-  titleElem.textContent = options.title
-    ? `${typeLabel}: ${options.title}`
-    : typeLabel;
-  draw.node.appendChild(titleElem);
-
-  if (includeDesc && "description" in options && options.description) {
-    const descElem = document.createElementNS(
+  if (typeof globalThis.document?.createElementNS === "function") {
+    const titleElem = globalThis.document.createElementNS(
       "http://www.w3.org/2000/svg",
-      "desc",
+      "title",
     );
-    descElem.textContent = options.description;
-    draw.node.appendChild(descElem);
+    titleElem.textContent = options.title
+      ? `${typeLabel}: ${options.title}`
+      : typeLabel;
+    draw.node.appendChild(titleElem);
+
+    if (includeDesc && "description" in options && options.description) {
+      const descElem = globalThis.document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "desc",
+      );
+      descElem.textContent = options.description;
+      draw.node.appendChild(descElem);
+    }
   }
 
-  // 2. Load Web Fonts in Browser DOM
-  if (options.titleFont?.fontFamily) {
-    loadWebFont(options.titleFont.fontFamily);
-  }
-  if ("descriptionFont" in options && options.descriptionFont?.fontFamily) {
-    loadWebFont(options.descriptionFont.fontFamily);
+  // 2. Load Web Fonts in Browser DOM (if in browser)
+  if (
+    typeof globalThis.window !== "undefined" &&
+    typeof globalThis.document?.head?.appendChild === "function"
+  ) {
+    if (options.titleFont?.fontFamily) {
+      loadWebFont(options.titleFont.fontFamily);
+    }
+    if ("descriptionFont" in options && options.descriptionFont?.fontFamily) {
+      loadWebFont(options.descriptionFont.fontFamily);
+    }
   }
 
   // 3. Build Defs
