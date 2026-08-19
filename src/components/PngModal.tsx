@@ -12,9 +12,9 @@ import {
   Title
 } from '@mantine/core';
 import { IconDownload, IconPhoto } from '@tabler/icons-react';
-import { CardOptions } from '../types';
-import { downloadPNG } from '../utils/download';
-import { getCardDimensions } from '../utils/dimensions';
+import { CardOptions } from '../types.ts';
+import { downloadPNG } from '../utils/export.ts';
+import { getCardDimensions } from '../utils/dimensions.ts';
 
 interface PngModalProps {
   opened: boolean;
@@ -40,7 +40,7 @@ export const PngModal: React.FC<PngModalProps> = ({ opened, onClose, options }) 
         : `${filename.trim()}.png`;
       await downloadPNG(options, scale, safeFilename);
       onClose();
-    } catch (err) {
+    } catch (_err) {
       alert('Error generating PNG. Please check image CORS or format.');
     } finally {
       setLoading(false);

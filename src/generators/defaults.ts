@@ -1,0 +1,182 @@
+import {
+  CardOptions,
+  StandardCardOptions,
+  WideCardOptions,
+  WidescreenCardOptions,
+  BadgeCardOptions
+} from '../types.ts';
+
+export const defaultStandardOptions: StandardCardOptions = {
+  generateType: 'card',
+  title: 'MaskedGUI',
+  description: 'Fast • Lightweight • Type-Safe\nZero Dependencies',
+  textAlign: 'center',
+  image: {
+    url: 'https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg',
+    shape: 'rounded',
+    size: 260,
+    show: true
+  },
+  background: {
+    type: 'solid',
+    color: '#0f172a',
+    gradientStart: '#ea580c',
+    gradientEnd: '#7c3aed',
+    gradientDirection: 'to-br',
+    opacity: 1
+  },
+  border: {
+    color: '#334155',
+    width: 2,
+    style: 'solid',
+    radius: 16,
+    margin: 10,
+    shadow: 'soft'
+  },
+  titleFont: {
+    color: '#f8fafc',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '800',
+    fontSize: 34,
+    letterSpacing: 0,
+    uppercase: false
+  },
+  descriptionFont: {
+    color: '#94a3b8',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '500',
+    fontSize: 22,
+    lineHeight: 1.3,
+    opacity: 1
+  }
+};
+
+export const defaultWideOptions: WideCardOptions = {
+  generateType: 'widecard',
+  title: 'MaskedGUI',
+  description: 'A modern, high-performance inventory GUI library for developers',
+  imagePosition: 'left',
+  image: {
+    url: 'https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg',
+    shape: 'rounded',
+    size: 220,
+    show: true
+  },
+  background: {
+    type: 'solid',
+    color: '#0f172a',
+    gradientStart: '#ea580c',
+    gradientEnd: '#7c3aed',
+    gradientDirection: 'to-br',
+    opacity: 1
+  },
+  border: {
+    color: '#334155',
+    width: 2,
+    style: 'solid',
+    radius: 16,
+    margin: 10,
+    shadow: 'soft'
+  },
+  titleFont: {
+    color: '#f8fafc',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '800',
+    fontSize: 44,
+    letterSpacing: 0,
+    uppercase: false
+  },
+  descriptionFont: {
+    color: '#94a3b8',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '500',
+    fontSize: 24,
+    lineHeight: 1.3,
+    opacity: 1
+  }
+};
+
+export const defaultWidescreenOptions: WidescreenCardOptions = {
+  generateType: 'widescreen',
+  title: 'MaskedGUI',
+  description: 'Fast • Lightweight • Type-Safe\nZero Dependency Inventory UI Framework',
+  layoutStyle: 'split',
+  image: {
+    url: 'https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg',
+    shape: 'rounded',
+    size: 240,
+    show: true
+  },
+  background: {
+    type: 'solid',
+    color: '#0f172a',
+    gradientStart: '#ea580c',
+    gradientEnd: '#7c3aed',
+    gradientDirection: 'to-br',
+    opacity: 1
+  },
+  border: {
+    color: '#334155',
+    width: 2,
+    style: 'solid',
+    radius: 16,
+    margin: 10,
+    shadow: 'soft'
+  },
+  titleFont: {
+    color: '#f8fafc',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '800',
+    fontSize: 42,
+    letterSpacing: 0,
+    uppercase: false
+  },
+  descriptionFont: {
+    color: '#94a3b8',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '500',
+    fontSize: 24,
+    lineHeight: 1.3,
+    opacity: 1
+  }
+};
+
+export const defaultBadgeOptions: BadgeCardOptions = {
+  generateType: 'badge',
+  title: 'MaskedGUI',
+  badgeWidth: 400,
+  badgeHeight: 120,
+  iconPosition: 'left',
+  image: {
+    url: 'https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg',
+    shape: 'rounded',
+    size: 70,
+    show: true
+  },
+  background: {
+    type: 'solid',
+    color: '#0f172a',
+    gradientStart: '#ea580c',
+    gradientEnd: '#7c3aed',
+    gradientDirection: 'to-br',
+    opacity: 1
+  },
+  border: {
+    color: '#334155',
+    width: 2,
+    style: 'solid',
+    radius: 14,
+    margin: 8,
+    shadow: 'soft'
+  },
+  titleFont: {
+    color: '#f8fafc',
+    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '800',
+    fontSize: 32,
+    letterSpacing: 0,
+    uppercase: false
+  }
+};
+
+export const defaultOptions: CardOptions = defaultStandardOptions;

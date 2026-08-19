@@ -22,8 +22,8 @@ import {
   IconMoon,
   IconSun
 } from '@tabler/icons-react';
-import { CardOptions } from '../types';
-import { getCardDimensionsLabel } from '../utils/dimensions';
+import { CardOptions } from '../types.ts';
+import { getCardDimensionsLabel } from '../utils/dimensions.ts';
 
 interface CardPreviewProps {
   svgElement: SVGSVGElement | null;

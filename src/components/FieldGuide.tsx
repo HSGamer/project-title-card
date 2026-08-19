@@ -1,7 +1,7 @@
 import React from 'react';
 import { Popover, ActionIcon, Text, Title, Stack } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { FIELD_GUIDES } from '../data/suggestions';
+import { FIELD_GUIDES } from '../data/suggestions.ts';
 
 interface FieldGuideProps {
   fieldKey: keyof typeof FIELD_GUIDES;

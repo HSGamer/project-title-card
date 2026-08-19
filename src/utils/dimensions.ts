@@ -1,4 +1,4 @@
-import { CardOptions } from '../types';
+import { CardOptions } from '../types.ts';
 
 export interface CardDimensions {
   width: number;
@@ -12,8 +12,8 @@ export function getCardDimensions(options: CardOptions): CardDimensions {
     case 'widescreen':
       return { width: 720, height: 405 };
     case 'badge': {
-      const width = Math.max(100, Math.min(2000, parseFloat(options.badgeWidth || '400') || 400));
-      const height = Math.max(40, Math.min(1000, parseFloat(options.badgeHeight || '120') || 120));
+      const width = Math.max(100, Math.min(2000, options.badgeWidth || 400));
+      const height = Math.max(40, Math.min(1000, options.badgeHeight || 120));
       return { width, height };
     }
     case 'card':

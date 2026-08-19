@@ -1,8 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Paper,
-  TextInput,
-  Textarea,
   Button,
   Group,
   Stack,
@@ -11,34 +9,32 @@ import {
   Text,
   Badge,
   Box,
-  SegmentedControl,
-  Tooltip
+  Tabs
 } from '@mantine/core';
 import {
   IconDownload,
   IconEye,
   IconFileTypePng,
-  IconUpload,
   IconFileExport,
   IconFileImport,
-  IconX,
-  IconPlus,
-  IconPhoto
+  IconLayout,
+  IconPalette,
+  IconFrame,
+  IconTypography
 } from '@tabler/icons-react';
-import { CardOptions, GenerateType } from '../types';
-import { exportOptions, importOptions } from '../utils/download';
-import { FieldGuide } from './FieldGuide';
-import { SliderControl } from './SliderControl';
 import {
-  TITLE_SUGGESTIONS,
-  DESCRIPTION_SUGGESTIONS,
-  BACKGROUND_STYLE_SUGGESTIONS,
-  TITLE_STYLE_SUGGESTIONS,
-  DESCRIPTION_STYLE_SUGGESTIONS,
-  LOGO_SUGGESTIONS,
-  SuggestionChip
-} from '../data/suggestions';
-import { QUICK_DEFS_SNIPPETS } from '../data/presets';
+  CardOptions,
+  GenerateType,
+  StandardCardOptions,
+  WideCardOptions,
+  WidescreenCardOptions,
+  BadgeCardOptions
+} from '../types.ts';
+import { exportOptions, importOptions } from '../utils/export.ts';
+import { LayoutTab } from './form/LayoutTab.tsx';
+import { BackgroundTab } from './form/BackgroundTab.tsx';
+import { BorderTab } from './form/BorderTab.tsx';
+import { TypographyTab } from './form/TypographyTab.tsx';
 
 interface CardFormProps {
   options: CardOptions;
@@ -55,43 +51,77 @@ export const CardForm: React.FC<CardFormProps> = ({
   onDownloadSVG,
   onOpenPNGModal
 }) => {
+  const [activeTab, setActiveTab] = useState<string | null>('layout');
   const jsonFileResetRef = useRef<() => void>(null);
-  const imageFileResetRef = useRef<() => void>(null);
 
-  const handleChange = (name: keyof CardOptions, value: string) => {
-    setOptions((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleApplyBackgroundSuggestion = (chip: SuggestionChip) => {
+  // Format switcher preserving common visual state
+  const handleFormatChange = (newFormat: GenerateType) => {
     setOptions((prev) => {
-      let updatedDefs = prev.defs || '';
-      if (chip.defsSnippet && !updatedDefs.includes(chip.defsSnippet.slice(0, 30))) {
-        updatedDefs = (updatedDefs ? updatedDefs + '\n' : '') + chip.defsSnippet;
-      }
-      return {
-        ...prev,
-        backgroundStyle: chip.value,
-        defs: updatedDefs
+      const base = {
+        title: prev.title,
+        background: { ...prev.background },
+        border: { ...prev.border },
+        titleFont: { ...prev.titleFont },
+        image: { ...prev.image }
       };
-    });
-  };
+      const desc =
+        'description' in prev ? prev.description : 'Fast • Lightweight • Type-Safe\nZero Dependencies';
+      const descFont =
+        'descriptionFont' in prev
+          ? { ...prev.descriptionFont }
+          : {
+              color: '#94a3b8',
+              fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontWeight: '500' as const,
+              fontSize: 22,
+              lineHeight: 1.3,
+              opacity: 1
+            };
 
-  const handleImageUpload = (file: File | null) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        handleChange('imageLink', reader.result);
+      if (newFormat === 'widecard') {
+        return {
+          ...base,
+          generateType: 'widecard',
+          imagePosition: 'left',
+          description: desc,
+          descriptionFont: { ...descFont, fontSize: 24 },
+          titleFont: { ...base.titleFont, fontSize: 44 },
+          image: { ...base.image, size: 220 }
+        } as WideCardOptions;
       }
-      imageFileResetRef.current?.();
-    };
-    reader.onerror = () => {
-      imageFileResetRef.current?.();
-    };
-    reader.readAsDataURL(file);
+      if (newFormat === 'widescreen') {
+        return {
+          ...base,
+          generateType: 'widescreen',
+          layoutStyle: 'split',
+          description: desc,
+          descriptionFont: { ...descFont, fontSize: 24 },
+          titleFont: { ...base.titleFont, fontSize: 42 },
+          image: { ...base.image, size: 240 }
+        } as WidescreenCardOptions;
+      }
+      if (newFormat === 'badge') {
+        return {
+          ...base,
+          generateType: 'badge',
+          badgeWidth: 400,
+          badgeHeight: 120,
+          iconPosition: 'left',
+          titleFont: { ...base.titleFont, fontSize: 32 },
+          image: { ...base.image, size: 70 }
+        } as BadgeCardOptions;
+      }
+      // Standard card
+      return {
+        ...base,
+        generateType: 'card',
+        textAlign: 'center',
+        description: desc,
+        descriptionFont: { ...descFont, fontSize: 22 },
+        titleFont: { ...base.titleFont, fontSize: 34 },
+        image: { ...base.image, size: 260 }
+      } as StandardCardOptions;
+    });
   };
 
   const handleJsonImport = async (file: File | null) => {
@@ -106,12 +136,6 @@ export const CardForm: React.FC<CardFormProps> = ({
     }
   };
 
-  const radiusNum = parseFloat(options.borderRadius) || 0;
-  const marginNum = parseFloat(options.borderMargin) || 0;
-  const badgeWNum = parseFloat(options.badgeWidth || '400') || 400;
-  const badgeHNum = parseFloat(options.badgeHeight || '120') || 120;
-  const isDataUrl = options.imageLink?.startsWith('data:');
-
   return (
     <Paper
       component="section"
@@ -122,7 +146,7 @@ export const CardForm: React.FC<CardFormProps> = ({
       withBorder
     >
       <form id="svgOptionsForm" onSubmit={(e) => e.preventDefault()} aria-label="Card Configuration Form">
-        <Stack gap="lg">
+        <Stack gap="md">
           {/* Top Quick Actions Bar */}
           <Box>
             <Group grow>
@@ -160,395 +184,54 @@ export const CardForm: React.FC<CardFormProps> = ({
 
           <Group justify="space-between" align="center">
             <Title order={2} size="h4" id="card-form-heading">
-              Card Settings
+              Card Customizer
             </Title>
             <Badge variant="dot" color="blue" size="sm">
               Live Interactive
             </Badge>
           </Group>
 
-          {/* 1. Layout Aspect Ratio */}
-          <Box>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="sm" fw={600}>
-                  Layout Format
-                </Text>
-                <FieldGuide fieldKey="generateType" />
-              </Group>
-            </Group>
-            <SegmentedControl
-              fullWidth
-              value={options.generateType || 'card'}
-              onChange={(val) => handleChange('generateType', (val as GenerateType) || 'card')}
-              data={[
-                { label: 'Card', value: 'card' },
-                { label: 'Wide', value: 'widecard' },
-                { label: 'Widescreen', value: 'widescreen' },
-                { label: 'Badge', value: 'badge' }
-              ]}
-              aria-label="Select card dimensions layout"
-            />
-          </Box>
+          {/* Main Configuration Tabs */}
+          <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius="md">
+            <Tabs.List grow mb="md">
+              <Tabs.Tab value="layout" leftSection={<IconLayout size={15} />}>
+                Layout
+              </Tabs.Tab>
+              <Tabs.Tab value="background" leftSection={<IconPalette size={15} />}>
+                Background
+              </Tabs.Tab>
+              <Tabs.Tab value="border" leftSection={<IconFrame size={15} />}>
+                Border & Shadow
+              </Tabs.Tab>
+              <Tabs.Tab value="typography" leftSection={<IconTypography size={15} />}>
+                Typography
+              </Tabs.Tab>
+            </Tabs.List>
 
-          {/* Badge Dimensions (Shown when Badge format is active) */}
-          {options.generateType === 'badge' && (
-            <Paper p="sm" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-default-hover)' }}>
-              <Stack gap="sm">
-                <Text size="xs" fw={700} c="blue">
-                  Badge Custom Dimensions
-                </Text>
-                <Group grow align="flex-start">
-                  <SliderControl
-                    label="Width"
-                    fieldKey="badgeWidth"
-                    value={badgeWNum}
-                    min={100}
-                    max={1000}
-                    step={5}
-                    presets={[250, 320, 400, 500, 600]}
-                    onChange={(val) => handleChange('badgeWidth', String(val))}
-                    labelSize="xs"
-                  />
-                  <SliderControl
-                    label="Height"
-                    fieldKey="badgeHeight"
-                    value={badgeHNum}
-                    min={40}
-                    max={400}
-                    step={5}
-                    presets={[60, 80, 100, 120, 160]}
-                    onChange={(val) => handleChange('badgeHeight', String(val))}
-                    labelSize="xs"
-                  />
-                </Group>
-              </Stack>
-            </Paper>
-          )}
-
-          {/* 2. Card Title */}
-          <Box>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="sm" fw={600}>
-                  Title
-                </Text>
-                <FieldGuide fieldKey="title" />
-              </Group>
-            </Group>
-            <TextInput
-              id="title"
-              name="title"
-              value={options.title || ''}
-              onChange={(e) => handleChange('title', e.currentTarget.value)}
-              placeholder="e.g. MaskedGUI"
-            />
-            {/* Title Suggestions */}
-            <Group gap="xs" mt="xs">
-              <Text size="xs" c="dimmed">
-                Suggestions:
-              </Text>
-              {TITLE_SUGGESTIONS.map((chip) => (
-                <Button
-                  key={chip.label}
-                  size="compact-xs"
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => handleChange('title', chip.value)}
-                >
-                  {chip.label}
-                </Button>
-              ))}
-            </Group>
-          </Box>
-
-          {/* 3. Card Description */}
-          <Box style={{ opacity: options.generateType === 'badge' ? 0.6 : 1, transition: 'opacity 0.2s ease' }}>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="sm" fw={600}>
-                  Description
-                </Text>
-                {options.generateType === 'badge' && (
-                  <Badge size="xs" variant="outline" color="gray">
-                    Not used in Badge mode
-                  </Badge>
-                )}
-                <FieldGuide fieldKey="description" />
-              </Group>
-            </Group>
-            <Textarea
-              id="description"
-              name="description"
-              rows={3}
-              autosize
-              minRows={3}
-              maxRows={6}
-              disabled={options.generateType === 'badge'}
-              value={options.description || ''}
-              onChange={(e) => handleChange('description', e.currentTarget.value)}
-              placeholder={options.generateType === 'badge' ? '(Description is disabled in Badge mode)' : 'Enter description lines...'}
-            />
-            {/* Description Suggestions */}
-            {options.generateType !== 'badge' && (
-              <Group gap="xs" mt="xs">
-                <Text size="xs" c="dimmed">
-                  Templates:
-                </Text>
-                {DESCRIPTION_SUGGESTIONS.map((chip) => (
-                  <Button
-                    key={chip.label}
-                    size="compact-xs"
-                    variant="subtle"
-                    color="gray"
-                    onClick={() => handleChange('description', chip.value)}
-                  >
-                    {chip.label}
-                  </Button>
-                ))}
-              </Group>
-            )}
-          </Box>
-
-          {/* 4. Background Style */}
-          <Box>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="sm" fw={600}>
-                  Background Style
-                </Text>
-                <FieldGuide fieldKey="backgroundStyle" />
-              </Group>
-            </Group>
-            <TextInput
-              id="backgroundStyle"
-              name="backgroundStyle"
-              value={options.backgroundStyle || ''}
-              onChange={(e) => handleChange('backgroundStyle', e.currentTarget.value)}
-              placeholder="fill: white; stroke: black; stroke-width: 2;"
-              style={{ fontFamily: 'monospace' }}
-            />
-            {/* Background Style Suggestions */}
-            <Group gap="xs" mt="xs">
-              <Text size="xs" c="dimmed">
-                Color Presets:
-              </Text>
-              {BACKGROUND_STYLE_SUGGESTIONS.map((chip) => (
-                <Tooltip key={chip.label} label={chip.description || chip.value} withArrow>
-                  <Button
-                    size="compact-xs"
-                    variant="light"
-                    color="blue"
-                    onClick={() => handleApplyBackgroundSuggestion(chip)}
-                  >
-                    {chip.label}
-                  </Button>
-                </Tooltip>
-              ))}
-            </Group>
-          </Box>
-
-          {/* 5. Border Radius & Margin */}
-          <Group grow align="flex-start">
-            <SliderControl
-              label="Border Radius"
-              fieldKey="borderRadius"
-              value={radiusNum}
-              min={0}
-              max={60}
-              presets={[0, 8, 16, 24]}
-              onChange={(val) => handleChange('borderRadius', String(val))}
-            />
-            <SliderControl
-              label="Border Margin"
-              fieldKey="borderMargin"
-              value={marginNum}
-              min={0}
-              max={40}
-              presets={[0, 5, 10, 15]}
-              onChange={(val) => handleChange('borderMargin', String(val))}
-            />
-          </Group>
-
-          {/* 6. Image / Logo */}
-          <Box>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="sm" fw={600}>
-                  Card Logo / Image
-                </Text>
-                {isDataUrl && (
-                  <Badge size="xs" variant="light" color="indigo" leftSection={<IconPhoto size={10} />}>
-                    Uploaded Image
-                  </Badge>
-                )}
-                <FieldGuide fieldKey="imageLink" />
-              </Group>
-              {options.imageLink && (
-                <Button
-                  size="compact-xs"
-                  variant="subtle"
-                  color="red"
-                  leftSection={<IconX size={12} />}
-                  onClick={() => handleChange('imageLink', '')}
-                >
-                  Clear Image
-                </Button>
-              )}
-            </Group>
-            <TextInput
-              id="imageLink"
-              name="imageLink"
-              value={options.imageLink || ''}
-              onChange={(e) => handleChange('imageLink', e.currentTarget.value)}
-              placeholder="Paste image URL or upload local file..."
-              rightSection={
-                <FileButton resetRef={imageFileResetRef} onChange={handleImageUpload} accept="image/*">
-                  {(props) => (
-                    <Button
-                      {...props}
-                      id="btnUpload"
-                      size="xs"
-                      variant="light"
-                      leftSection={<IconUpload size={14} aria-hidden="true" />}
-                    >
-                      Upload
-                    </Button>
-                  )}
-                </FileButton>
-              }
-              rightSectionWidth={95}
-            />
-            {/* Logo suggestions */}
-            <Group gap="xs" mt="xs">
-              <Text size="xs" c="dimmed">
-                Demo Logos:
-              </Text>
-              {LOGO_SUGGESTIONS.map((chip) => (
-                <Button
-                  key={chip.label}
-                  size="compact-xs"
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => handleChange('imageLink', chip.value)}
-                >
-                  {chip.label}
-                </Button>
-              ))}
-            </Group>
-          </Box>
-
-          {/* 7. Typography Styles */}
-          <Group grow align="flex-start">
-            <Box>
-              <Group justify="space-between" align="center" mb={4}>
-                <Group gap={4}>
-                  <Text size="sm" fw={600}>
-                    Title Style
-                  </Text>
-                  <FieldGuide fieldKey="titleStyle" />
-                </Group>
-              </Group>
-              <TextInput
-                id="titleStyle"
-                name="titleStyle"
-                value={options.titleStyle || ''}
-                onChange={(e) => handleChange('titleStyle', e.currentTarget.value)}
-                style={{ fontFamily: 'monospace' }}
+            {/* TAB 1: LAYOUT & CONTENT */}
+            <Tabs.Panel value="layout">
+              <LayoutTab
+                options={options}
+                setOptions={setOptions}
+                onFormatChange={handleFormatChange}
               />
-              <Group gap="xs" mt="xs">
-                {TITLE_STYLE_SUGGESTIONS.map((chip) => (
-                  <Button
-                    key={chip.label}
-                    size="compact-xs"
-                    variant="subtle"
-                    color="gray"
-                    onClick={() => handleChange('titleStyle', chip.value)}
-                  >
-                    {chip.label}
-                  </Button>
-                ))}
-              </Group>
-            </Box>
+            </Tabs.Panel>
 
-            <Box>
-              <Group justify="space-between" align="center" mb={4}>
-                <Group gap={4}>
-                  <Text size="sm" fw={600}>
-                    Description Style
-                  </Text>
-                  <FieldGuide fieldKey="descriptionStyle" />
-                </Group>
-              </Group>
-              <TextInput
-                id="descriptionStyle"
-                name="descriptionStyle"
-                value={options.descriptionStyle || ''}
-                onChange={(e) => handleChange('descriptionStyle', e.currentTarget.value)}
-                style={{ fontFamily: 'monospace' }}
-              />
-              <Group gap="xs" mt="xs">
-                {DESCRIPTION_STYLE_SUGGESTIONS.map((chip) => (
-                  <Button
-                    key={chip.label}
-                    size="compact-xs"
-                    variant="subtle"
-                    color="gray"
-                    onClick={() => handleChange('descriptionStyle', chip.value)}
-                  >
-                    {chip.label}
-                  </Button>
-                ))}
-              </Group>
-            </Box>
-          </Group>
+            {/* TAB 2: BACKGROUND & PALETTE */}
+            <Tabs.Panel value="background">
+              <BackgroundTab options={options} setOptions={setOptions} />
+            </Tabs.Panel>
 
-          {/* 8. SVG Defs (Gradients & Filters) */}
-          <Box>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="sm" fw={600}>
-                  SVG &lt;defs&gt; (Gradients & Filters)
-                </Text>
-                <FieldGuide fieldKey="defs" />
-              </Group>
-            </Group>
-            <Textarea
-              id="defs"
-              name="defs"
-              rows={3}
-              autosize
-              minRows={3}
-              maxRows={6}
-              value={options.defs || ''}
-              onChange={(e) => handleChange('defs', e.currentTarget.value)}
-              placeholder="<linearGradient id='...'>...</linearGradient>"
-              style={{ fontFamily: 'monospace', fontSize: '12px' }}
-            />
-            {/* Quick defs snippets */}
-            <Group gap="xs" mt="xs">
-              <Text size="xs" c="dimmed">
-                Insert Snippets:
-              </Text>
-              {QUICK_DEFS_SNIPPETS.map((snippet) => (
-                <Button
-                  key={snippet.name}
-                  size="compact-xs"
-                  variant="light"
-                  color="violet"
-                  leftSection={<IconPlus size={12} />}
-                  onClick={() =>
-                    setOptions((prev) => ({
-                      ...prev,
-                      defs: (prev.defs ? prev.defs + '\n' : '') + snippet.snippet
-                    }))
-                  }
-                >
-                  {snippet.name}
-                </Button>
-              ))}
-            </Group>
-          </Box>
+            {/* TAB 3: BORDER & SHADOW */}
+            <Tabs.Panel value="border">
+              <BorderTab options={options} setOptions={setOptions} />
+            </Tabs.Panel>
+
+            {/* TAB 4: TYPOGRAPHY */}
+            <Tabs.Panel value="typography">
+              <TypographyTab options={options} setOptions={setOptions} />
+            </Tabs.Panel>
+          </Tabs>
 
           {/* Bottom Import & Export Presets */}
           <Box pt="sm" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>

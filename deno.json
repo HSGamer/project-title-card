@@ -3,9 +3,9 @@
     "bundle:watch": "deno bundle --watch --platform=browser --outdir=dist index.html",
     "serve": "deno run --allow-net --allow-read jsr:@std/http/file-server dist -p 8000 --cors",
     "dev": "deno bundle --platform=browser --outdir=dist index.html && (deno task bundle:watch & deno task serve)",
-    "build": "deno check --sloppy-imports src/main.tsx && deno bundle --platform=browser --minify --outdir=dist index.html",
+    "build": "deno check src/main.tsx && deno bundle --platform=browser --minify --outdir=dist index.html",
     "preview": "deno run --allow-net --allow-read jsr:@std/http/file-server dist -p 8000",
-    "check": "deno check --sloppy-imports src/main.tsx"
+    "check": "deno check src/main.tsx"
   },
   "nodeModulesDir": "auto",
   "compilerOptions": {

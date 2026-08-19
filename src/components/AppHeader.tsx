@@ -8,11 +8,12 @@ import {
   Tooltip,
   useMantineColorScheme,
   useComputedColorScheme,
-  Container
+  Container,
+  Badge
 } from '@mantine/core';
 import { IconSparkles, IconSun, IconMoon } from '@tabler/icons-react';
-import { CardOptions } from '../types';
-import { PRESETS } from '../data/presets';
+import { CardOptions } from '../types.ts';
+import { PRESET_THEMES, PresetTheme } from '../data/presets.ts';
 
 interface AppHeaderProps {
   setOptions: React.Dispatch<React.SetStateAction<CardOptions>>;
@@ -28,11 +29,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ setOptions }) => {
     setColorScheme(isDark ? 'light' : 'dark');
   };
 
-  const handleApplyPreset = (presetOptions: Partial<CardOptions>) => {
-    setOptions((prev) => ({
-      ...prev,
-      ...presetOptions
-    }));
+  const handleApplyPreset = (preset: PresetTheme) => {
+    setOptions((prev) => {
+      const updated = {
+        ...prev,
+        background: { ...prev.background, ...preset.background },
+        border: { ...prev.border, ...preset.border },
+        titleFont: { ...prev.titleFont, ...preset.titleFont },
+        ...('descriptionFont' in prev
+          ? { descriptionFont: { ...prev.descriptionFont, ...preset.descriptionFont } }
+          : {})
+      } as CardOptions;
+      return updated;
+    });
   };
 
   return (
@@ -48,9 +57,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ setOptions }) => {
     >
       <Container size="xl" py="sm">
         <Group justify="space-between" align="center">
-          <Title order={1} size="h3" style={{ letterSpacing: '-0.5px' }}>
-            Project Title Card
-          </Title>
+          <Group gap="xs">
+            <Title order={1} size="h3" style={{ letterSpacing: '-0.5px' }}>
+              Project Title Card
+            </Title>
+            <Badge variant="light" color="blue" size="sm">
+              Visual Studio
+            </Badge>
+          </Group>
 
           <Group gap="sm">
             <Menu shadow="md" width={220} position="bottom-end">
@@ -59,19 +73,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ setOptions }) => {
                   variant="default"
                   size="sm"
                   leftSection={<IconSparkles size={16} aria-hidden="true" />}
-                  aria-label="Select a style preset"
+                  aria-label="Select a style theme preset"
                   aria-haspopup="menu"
                 >
-                  Presets
+                  Style Themes
                 </Button>
               </Menu.Target>
 
-              <Menu.Dropdown aria-label="Style Presets">
-                <Menu.Label>Style Presets</Menu.Label>
-                {PRESETS.map((preset) => (
+              <Menu.Dropdown aria-label="Style Theme Presets">
+                <Menu.Label>Theme Presets</Menu.Label>
+                {PRESET_THEMES.map((preset) => (
                   <Menu.Item
                     key={preset.id}
-                    onClick={() => handleApplyPreset(preset.options)}
+                    onClick={() => handleApplyPreset(preset)}
                     role="menuitem"
                   >
                     {preset.name}

@@ -1,108 +1,276 @@
-import { CardOptions } from '../types';
+import {
+  BackgroundConfig,
+  BorderConfig,
+  TitleFontConfig,
+  DescriptionFontConfig,
+  ImageConfig
+} from '../types.ts';
 
-export interface Preset {
+export interface PresetTheme {
   id: string;
   name: string;
   category: string;
-  options: Partial<CardOptions>;
+  background: BackgroundConfig;
+  border: BorderConfig;
+  titleFont: Partial<TitleFontConfig>;
+  descriptionFont: Partial<DescriptionFontConfig>;
+  image?: Partial<ImageConfig>;
 }
 
-export const PRESETS: Preset[] = [
+export const PRESET_THEMES: PresetTheme[] = [
   {
-    id: 'default',
-    name: 'Classic Card',
-    category: 'Standard',
-    options: {
-      backgroundStyle: 'fill:white; stroke:black; stroke-width:2; fill-opacity:1',
-      titleStyle: 'fill: black; font-weight: bold; font-family: Verdana;',
-      descriptionStyle: 'fill: black; font-family: Verdana;',
-      borderRadius: '10',
-      borderMargin: '10',
-      defs: ''
-    }
-  },
-  {
-    id: 'dark-slate',
+    id: 'modern-dark',
     name: 'Modern Dark Slate',
     category: 'Dark',
-    options: {
-      backgroundStyle: 'fill: #0f172a; stroke: #334155; stroke-width: 2',
-      titleStyle: 'fill: #f8fafc; font-weight: 800; font-family: system-ui, sans-serif;',
-      descriptionStyle: 'fill: #94a3b8; font-weight: 500; font-family: system-ui, sans-serif;',
-      borderRadius: '16',
-      borderMargin: '12',
-      defs: ''
+    background: {
+      type: 'solid',
+      color: '#0f172a',
+      gradientStart: '#0f172a',
+      gradientEnd: '#1e293b',
+      gradientDirection: 'to-b',
+      opacity: 1
+    },
+    border: {
+      color: '#334155',
+      width: 2,
+      style: 'solid',
+      radius: 16,
+      margin: 10,
+      shadow: 'soft'
+    },
+    titleFont: {
+      color: '#f8fafc',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#94a3b8',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
     }
   },
   {
-    id: 'sunset-gradient',
+    id: 'sunset-aurora',
     name: 'Sunset Aurora Gradient',
     category: 'Gradient',
-    options: {
-      backgroundStyle: 'fill: url(#sunsetGrad); stroke: rgba(255,255,255,0.4); stroke-width: 2',
-      titleStyle: 'fill: #ffffff; font-weight: 800; font-family: system-ui, sans-serif;',
-      descriptionStyle: 'fill: #fef08a; font-weight: 500; font-family: system-ui, sans-serif;',
-      borderRadius: '20',
-      borderMargin: '10',
-      defs: '<linearGradient id="sunsetGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ea580c"/><stop offset="50%" stop-color="#db2777"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>'
+    background: {
+      type: 'gradient',
+      color: '#ea580c',
+      gradientStart: '#ea580c',
+      gradientMiddle: '#db2777',
+      gradientEnd: '#7c3aed',
+      gradientDirection: 'to-br',
+      opacity: 1
+    },
+    border: {
+      color: 'rgba(255, 255, 255, 0.35)',
+      width: 2,
+      style: 'solid',
+      radius: 20,
+      margin: 10,
+      shadow: 'soft'
+    },
+    titleFont: {
+      color: '#ffffff',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#fef08a',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
     }
   },
   {
     id: 'cyberpunk-neon',
-    name: 'Cyberpunk Neon',
+    name: 'Cyberpunk Neon Glow',
     category: 'Vibrant',
-    options: {
-      backgroundStyle: 'fill: #090a0f; stroke: #06b6d4; stroke-width: 3',
-      titleStyle: 'fill: #22d3ee; font-weight: 900; font-family: system-ui, sans-serif;',
-      descriptionStyle: 'fill: #f472b6; font-weight: 600; font-family: system-ui, sans-serif;',
-      borderRadius: '12',
-      borderMargin: '10',
-      defs: '<filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+    background: {
+      type: 'solid',
+      color: '#090a0f',
+      gradientStart: '#090a0f',
+      gradientEnd: '#1e1b4b',
+      gradientDirection: 'to-br',
+      opacity: 1
+    },
+    border: {
+      color: '#06b6d4',
+      width: 3,
+      style: 'solid',
+      radius: 14,
+      margin: 10,
+      shadow: 'glow',
+      glowColor: '#06b6d4'
+    },
+    titleFont: {
+      color: '#22d3ee',
+      fontFamily: '"JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace',
+      fontWeight: '900',
+      letterSpacing: 1
+    },
+    descriptionFont: {
+      color: '#f472b6',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '600'
     }
   },
   {
     id: 'emerald-forest',
-    name: 'Emerald Forest',
+    name: 'Emerald Nature',
     category: 'Dark',
-    options: {
-      backgroundStyle: 'fill: #022c22; stroke: #10b981; stroke-width: 2',
-      titleStyle: 'fill: #ecfdf5; font-weight: 800; font-family: system-ui, sans-serif;',
-      descriptionStyle: 'fill: #a7f3d0; font-weight: 500; font-family: system-ui, sans-serif;',
-      borderRadius: '16',
-      borderMargin: '12',
-      defs: ''
+    background: {
+      type: 'gradient',
+      color: '#022c22',
+      gradientStart: '#022c22',
+      gradientEnd: '#059669',
+      gradientDirection: 'to-br',
+      opacity: 1
+    },
+    border: {
+      color: '#10b981',
+      width: 2,
+      style: 'solid',
+      radius: 16,
+      margin: 10,
+      shadow: 'soft'
+    },
+    titleFont: {
+      color: '#ecfdf5',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#a7f3d0',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
     }
   },
   {
-    id: 'clean-light',
+    id: 'ocean-blue',
+    name: 'Ocean Breeze',
+    category: 'Gradient',
+    background: {
+      type: 'gradient',
+      color: '#0284c7',
+      gradientStart: '#0284c7',
+      gradientEnd: '#0d9488',
+      gradientDirection: 'to-r',
+      opacity: 1
+    },
+    border: {
+      color: 'rgba(255, 255, 255, 0.4)',
+      width: 2,
+      style: 'solid',
+      radius: 18,
+      margin: 10,
+      shadow: 'soft'
+    },
+    titleFont: {
+      color: '#ffffff',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#bae6fd',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
+    }
+  },
+  {
+    id: 'purple-nebula',
+    name: 'Purple Cosmic Nebula',
+    category: 'Gradient',
+    background: {
+      type: 'gradient',
+      color: '#3b0764',
+      gradientStart: '#3b0764',
+      gradientMiddle: '#7c3aed',
+      gradientEnd: '#c084fc',
+      gradientDirection: 'to-br',
+      opacity: 1
+    },
+    border: {
+      color: 'rgba(255, 255, 255, 0.3)',
+      width: 2,
+      style: 'solid',
+      radius: 18,
+      margin: 10,
+      shadow: 'soft'
+    },
+    titleFont: {
+      color: '#ffffff',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#f3e8ff',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
+    }
+  },
+  {
+    id: 'classic-light',
     name: 'Clean Light & Blue',
     category: 'Minimal',
-    options: {
-      backgroundStyle: 'fill: #f8fafc; stroke: #cbd5e1; stroke-width: 2',
-      titleStyle: 'fill: #1e3a8a; font-weight: 800; font-family: system-ui, sans-serif;',
-      descriptionStyle: 'fill: #475569; font-weight: 500; font-family: system-ui, sans-serif;',
-      borderRadius: '14',
-      borderMargin: '10',
-      defs: ''
+    background: {
+      type: 'solid',
+      color: '#f8fafc',
+      gradientStart: '#f8fafc',
+      gradientEnd: '#e2e8f0',
+      gradientDirection: 'to-b',
+      opacity: 1
+    },
+    border: {
+      color: '#cbd5e1',
+      width: 2,
+      style: 'solid',
+      radius: 14,
+      margin: 10,
+      shadow: 'subtle'
+    },
+    titleFont: {
+      color: '#1e3a8a',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#475569',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
+    }
+  },
+  {
+    id: 'frosted-glass',
+    name: 'Frosted Glass Minimal',
+    category: 'Minimal',
+    background: {
+      type: 'glass',
+      color: 'rgba(255, 255, 255, 0.85)',
+      gradientStart: '#ffffff',
+      gradientEnd: '#f1f5f9',
+      gradientDirection: 'to-b',
+      opacity: 0.9
+    },
+    border: {
+      color: '#e2e8f0',
+      width: 2,
+      style: 'solid',
+      radius: 20,
+      margin: 10,
+      shadow: 'soft'
+    },
+    titleFont: {
+      color: '#0f172a',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '800'
+    },
+    descriptionFont: {
+      color: '#64748b',
+      fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontWeight: '500'
     }
   }
 ];
 
-export const QUICK_DEFS_SNIPPETS = [
-  {
-    name: 'Linear Gradient (Blue to Purple)',
-    snippet: '<linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">\n  <stop offset="0%" stop-color="#3b82f6"/>\n  <stop offset="100%" stop-color="#9333ea"/>\n</linearGradient>'
-  },
-  {
-    name: 'Linear Gradient (Sunset Orange)',
-    snippet: '<linearGradient id="sunsetGrad" x1="0%" y1="0%" x2="100%" y2="100%">\n  <stop offset="0%" stop-color="#ea580c"/>\n  <stop offset="50%" stop-color="#db2777"/>\n  <stop offset="100%" stop-color="#7c3aed"/>\n</linearGradient>'
-  },
-  {
-    name: 'Radial Glow / Dark Vignette',
-    snippet: '<radialGradient id="vignette" cx="50%" cy="50%" r="50%">\n  <stop offset="0%" stop-color="#1e293b"/>\n  <stop offset="100%" stop-color="#020617"/>\n</radialGradient>'
-  },
-  {
-    name: 'Glow Filter',
-    snippet: '<filter id="glow" x="-20%" y="-20%" width="140%" height="140%">\n  <feGaussianBlur stdDeviation="4" result="blur" />\n  <feMerge>\n    <feMergeNode in="blur" />\n    <feMergeNode in="SourceGraphic" />\n  </feMerge>\n</filter>'
-  }
-];
+// Presets alias for menu
+export const PRESETS = PRESET_THEMES;

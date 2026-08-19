@@ -1,43 +1,35 @@
-import { CardOptions, GenerateType } from '../types';
-import { defaultOptions, generateSVG } from './generate';
-import { resolveImageLink } from './image';
+import { CardOptions } from '../types.ts';
+import { generateSVG } from '../generators/index.ts';
+import { resolveImageLink } from './image.ts';
+import { normalizeCardOptions } from './normalizer.ts';
 
-export function normalizeCardOptions(raw: Partial<CardOptions> | Record<string, any>): CardOptions {
-  const getStr = (val: any, fallback: string): string => {
-    if (val === undefined || val === null) return fallback;
-    return String(val);
-  };
+/**
+ * Resolves both logo image and background image links into inline data URLs before exporting
+ */
+async function resolveAllImages(options: CardOptions): Promise<CardOptions> {
+  const resolvedLogoUrl = await resolveImageLink(options.image.url);
 
-  let genType: GenerateType = 'card';
-  if (
-    raw.generateType === 'widecard' ||
-    raw.generateType === 'widescreen' ||
-    raw.generateType === 'badge' ||
-    raw.generateType === 'card'
-  ) {
-    genType = raw.generateType;
+  let resolvedBgUrl = options.background.imageUrl;
+  if (options.background.type === 'image' && options.background.imageUrl) {
+    resolvedBgUrl = await resolveImageLink(options.background.imageUrl);
   }
 
   return {
-    backgroundStyle: getStr(raw.backgroundStyle, defaultOptions.backgroundStyle),
-    imageLink: getStr(raw.imageLink, defaultOptions.imageLink),
-    title: getStr(raw.title, defaultOptions.title),
-    titleStyle: getStr(raw.titleStyle, defaultOptions.titleStyle),
-    description: getStr(raw.description, defaultOptions.description),
-    descriptionStyle: getStr(raw.descriptionStyle, defaultOptions.descriptionStyle),
-    borderRadius: getStr(raw.borderRadius, defaultOptions.borderRadius),
-    borderMargin: getStr(raw.borderMargin, defaultOptions.borderMargin),
-    defs: getStr(raw.defs, defaultOptions.defs),
-    generateType: genType,
-    badgeWidth: getStr(raw.badgeWidth, defaultOptions.badgeWidth || '400'),
-    badgeHeight: getStr(raw.badgeHeight, defaultOptions.badgeHeight || '120')
-  };
+    ...options,
+    image: {
+      ...options.image,
+      url: resolvedLogoUrl
+    },
+    background: {
+      ...options.background,
+      imageUrl: resolvedBgUrl
+    }
+  } as CardOptions;
 }
 
 export async function downloadSVG(options: CardOptions, filename = 'card.svg'): Promise<void> {
-  const resolvedImage = await resolveImageLink(options.imageLink);
-  const optionsWithResolvedImage = { ...options, imageLink: resolvedImage };
-  const svg = await generateSVG(optionsWithResolvedImage);
+  const optionsWithResolvedImages = await resolveAllImages(options);
+  const svg = generateSVG(optionsWithResolvedImages);
   const svgData = new XMLSerializer().serializeToString(svg);
   const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -58,9 +50,8 @@ export async function downloadPNG(
     throw new Error('Invalid resize percentage');
   }
 
-  const resolvedImage = await resolveImageLink(options.imageLink);
-  const optionsWithResolvedImage = { ...options, imageLink: resolvedImage };
-  const svg = await generateSVG(optionsWithResolvedImage);
+  const optionsWithResolvedImages = await resolveAllImages(options);
+  const svg = generateSVG(optionsWithResolvedImages);
   const svgData = new XMLSerializer().serializeToString(svg);
 
   const canvas = document.createElement('canvas');
@@ -97,7 +88,7 @@ export function exportOptions(options: CardOptions, filename = 'card-options.jso
   URL.revokeObjectURL(url);
 }
 
-export async function importOptions(file: File): Promise<CardOptions> {
+export function importOptions(file: File): Promise<CardOptions> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

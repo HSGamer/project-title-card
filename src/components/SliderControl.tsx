@@ -1,11 +1,11 @@
 import React from 'react';
 import { Box, Group, Slider, NumberInput, Button, Text } from '@mantine/core';
-import { FieldGuide } from './FieldGuide';
-import { FIELD_GUIDES } from '../data/suggestions';
+import { FieldGuide } from './FieldGuide.tsx';
+import { FIELD_GUIDES } from '../data/suggestions.ts';
 
 interface SliderControlProps {
   label: string;
-  fieldKey: keyof typeof FIELD_GUIDES;
+  fieldKey?: keyof typeof FIELD_GUIDES;
   value: number;
   min: number;
   max: number;
@@ -39,7 +39,7 @@ export const SliderControl: React.FC<SliderControlProps> = ({
           <Text size={labelSize} fw={600}>
             {label} ({value}{unit})
           </Text>
-          <FieldGuide fieldKey={fieldKey} />
+          {fieldKey && <FieldGuide fieldKey={fieldKey} />}
         </Group>
       </Group>
       <Group align="center" gap="xs" mb="xs">

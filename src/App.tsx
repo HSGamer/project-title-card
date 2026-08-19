@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MantineProvider, Container, Grid, Box } from '@mantine/core';
-import { CardOptions } from './types';
-import { defaultOptions, generateSVG } from './utils/generate';
-import { downloadSVG } from './utils/download';
-import { AppHeader } from './components/AppHeader';
-import { CardForm } from './components/CardForm';
-import { CardPreview } from './components/CardPreview';
-import { PngModal } from './components/PngModal';
+import { CardOptions } from './types.ts';
+import { defaultOptions, generateSVG } from './generators/index.ts';
+import { downloadSVG } from './utils/export.ts';
+import { AppHeader } from './components/AppHeader.tsx';
+import { CardForm } from './components/CardForm.tsx';
+import { CardPreview } from './components/CardPreview.tsx';
+import { PngModal } from './components/PngModal.tsx';
 
 export const App: React.FC = () => {
   const [options, setOptions] = useState<CardOptions>(defaultOptions);
@@ -38,7 +38,7 @@ export const App: React.FC = () => {
       await downloadSVG(options);
       setStatusMessage('SVG downloaded successfully');
       setTimeout(() => setStatusMessage(''), 3000);
-    } catch (err) {
+    } catch (_err) {
       alert('Failed to download SVG');
     }
   };
