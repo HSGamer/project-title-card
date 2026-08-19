@@ -135,17 +135,17 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
   return (
     <div class="flex flex-col gap-4">
       {/* Font Catalog Toolbar */}
-      <div class="bg-base-200 p-3 rounded-xl border border-base-300 flex flex-col gap-2.5">
-        <div class="flex justify-between items-center h-5">
+      <div class="bg-base-200 p-3 sm:p-4 rounded-xl border border-base-300 flex flex-col gap-2.5">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
           <div class="flex items-center gap-1.5">
-            <IconTypography size={16} class="text-primary" />
+            <IconTypography size={16} class="text-primary flex-shrink-0" />
             <span class="text-xs font-bold">
-              Font Catalog & Local System Fonts
+              Font Catalog & System Fonts
             </span>
           </div>
           <button
             type="button"
-            class={`btn btn-xs btn-outline gap-1 ${
+            class={`btn btn-xs btn-outline gap-1 w-full sm:w-auto ${
               isScanningFonts ? "loading" : ""
             }`}
             onClick={handleScanSystemFonts}
@@ -163,17 +163,17 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             }`}
           >
             {scanMessage.type === "success"
-              ? <IconCheck size={14} />
-              : <IconAlertCircle size={14} />}
+              ? <IconCheck size={14} class="flex-shrink-0" />
+              : <IconAlertCircle size={14} class="flex-shrink-0" />}
             <span>{scanMessage.text}</span>
           </div>
         )}
 
         {/* Add custom font input */}
-        <div class="flex items-center gap-1.5 h-8">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <input
             type="text"
-            class="input input-bordered input-sm flex-1 text-xs"
+            class="input input-bordered input-sm flex-1 text-xs w-full"
             placeholder="Type any Google Font name (e.g. Space Grotesk)..."
             value={customFontInput}
             onInput={(e) => setCustomFontInput(e.currentTarget.value)}
@@ -184,32 +184,34 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               }
             }}
           />
-          <button
-            type="button"
-            class="btn btn-sm btn-outline text-xs"
-            disabled={!customFontInput.trim()}
-            onClick={() => handleAddCustomFont("title")}
-          >
-            Apply Title
-          </button>
-          {options.generateType !== "badge" && (
+          <div class="flex gap-1.5">
             <button
               type="button"
-              class="btn btn-sm btn-ghost text-xs"
+              class="btn btn-sm btn-outline text-xs flex-1 sm:flex-none"
               disabled={!customFontInput.trim()}
-              onClick={() => handleAddCustomFont("description")}
+              onClick={() => handleAddCustomFont("title")}
             >
-              Apply Desc
+              Apply Title
             </button>
-          )}
+            {options.generateType !== "badge" && (
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost text-xs flex-1 sm:flex-none"
+                disabled={!customFontInput.trim()}
+                onClick={() => handleAddCustomFont("description")}
+              >
+                Apply Desc
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* 1. Title Typography */}
       <div class="flex flex-col gap-3">
-        <div class="flex justify-between items-center h-5">
+        <div class="flex justify-between items-center min-h-[22px]">
           <label class="text-xs font-bold flex items-center gap-1 text-primary">
-            Title Typography
+            <span>Title Typography</span>
             <FieldGuide fieldKey="titleTypography" />
           </label>
           <label class="cursor-pointer flex items-center gap-1.5 py-0">
@@ -231,7 +233,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
         </div>
 
         <div class="flex flex-col gap-1.5 w-full">
-          <div class="flex justify-between items-center h-5">
+          <div class="flex justify-between items-center min-h-[22px]">
             <span class="text-xs font-semibold text-base-content">
               Font Family
             </span>
@@ -262,9 +264,9 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
           </select>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
           <div class="flex flex-col gap-1.5 w-full">
-            <div class="flex justify-between items-center h-5">
+            <div class="flex justify-between items-center min-h-[22px]">
               <span class="text-xs font-semibold text-base-content">
                 Font Weight
               </span>
@@ -291,15 +293,15 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
           </div>
 
           <div class="flex flex-col gap-1.5 w-full">
-            <div class="flex justify-between items-center h-5">
+            <div class="flex justify-between items-center min-h-[22px]">
               <span class="text-xs font-semibold text-base-content">
                 Title Color
               </span>
             </div>
-            <div class="flex items-center gap-2 h-8">
+            <div class="flex items-center gap-2">
               <input
                 type="color"
-                class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                class="w-9 h-9 sm:w-8 sm:h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
                 value={options.titleFont?.color || "#f8fafc"}
                 onInput={(e) =>
                   setOptions((prev) => ({
@@ -327,7 +329,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
           <SliderControl
             label="Font Size"
             value={options.titleFont?.fontSize || 34}
@@ -363,15 +365,15 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
       {/* 2. Description Typography (Disabled in Badge mode) */}
       {options.generateType !== "badge" && (
         <div class="flex flex-col gap-3">
-          <div class="flex justify-between items-center h-5">
+          <div class="flex justify-between items-center min-h-[22px]">
             <label class="text-xs font-bold flex items-center gap-1 text-primary">
-              Description Typography
+              <span>Description Typography</span>
               <FieldGuide fieldKey="descriptionTypography" />
             </label>
           </div>
 
           <div class="flex flex-col gap-1.5 w-full">
-            <div class="flex justify-between items-center h-5">
+            <div class="flex justify-between items-center min-h-[22px]">
               <span class="text-xs font-semibold text-base-content">
                 Font Family
               </span>
@@ -415,9 +417,9 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             </select>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
             <div class="flex flex-col gap-1.5 w-full">
-              <div class="flex justify-between items-center h-5">
+              <div class="flex justify-between items-center min-h-[22px]">
                 <span class="text-xs font-semibold text-base-content">
                   Font Weight
                 </span>
@@ -451,15 +453,15 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             </div>
 
             <div class="flex flex-col gap-1.5 w-full">
-              <div class="flex justify-between items-center h-5">
+              <div class="flex justify-between items-center min-h-[22px]">
                 <span class="text-xs font-semibold text-base-content">
                   Description Color
                 </span>
               </div>
-              <div class="flex items-center gap-2 h-8">
+              <div class="flex items-center gap-2">
                 <input
                   type="color"
-                  class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                  class="w-9 h-9 sm:w-8 sm:h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
                   value={"descriptionFont" in options
                     ? options.descriptionFont?.color || "#94a3b8"
                     : "#94a3b8"}
@@ -499,7 +501,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
             <SliderControl
               label="Font Size"
               value={"descriptionFont" in options

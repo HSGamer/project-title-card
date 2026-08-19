@@ -14,14 +14,14 @@ export const FieldGuide: FunctionalComponent<FieldGuideProps> = (
 
   return (
     <div
-      class="tooltip tooltip-right inline-flex items-center z-10"
+      class="tooltip tooltip-top sm:tooltip-right inline-flex items-center z-10"
       data-tip={`${guide.title}: ${guide.content}`}
     >
       <span
-        class="text-base-content/50 hover:text-primary transition-colors cursor-help inline-flex items-center ml-1"
+        class="text-base-content/50 hover:text-primary transition-colors cursor-help inline-flex items-center ml-0.5 p-0.5"
         aria-label={`Guide for ${guide.title}`}
       >
-        <IconInfoCircle size={15} />
+        <IconInfoCircle size={14} />
       </span>
     </div>
   );

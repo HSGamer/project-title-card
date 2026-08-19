@@ -20,11 +20,20 @@
 }
 
 /* ==========================================================================
-   2. SVG Preview Rendering
+   2. SVG Preview Rendering & Responsiveness
    ========================================================================== */
+#svgContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 #svgContainer svg {
+  width: 100%;
   max-width: 100%;
   height: auto;
+  display: block;
   border-radius: 12px;
   box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.2),
@@ -38,6 +47,7 @@
 input[type="color"] {
   -webkit-appearance: none;
   padding: 2px;
+  cursor: pointer;
 }
 input[type="color"]::-webkit-color-swatch-wrapper {
   padding: 0;
@@ -47,3 +57,21 @@ input[type="color"]::-moz-color-swatch {
   border: none;
   border-radius: 6px;
 }
+
+/* ==========================================================================
+   4. Mobile-Friendly Interactive Elements
+   ========================================================================== */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide scrollbar for clean horizontal pill/tab scrolling on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

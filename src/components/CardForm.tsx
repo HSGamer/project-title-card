@@ -133,16 +133,16 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
 
   return (
     <section
-      class="card bg-base-100 shadow-md border border-base-300 p-4"
+      class="card bg-base-100 shadow-md border border-base-300 p-3 sm:p-4"
       aria-labelledby="card-form-heading"
     >
       {/* Header bar matching CardPreview */}
-      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-base-300 min-h-[38px]">
-        <div class="flex items-center gap-2">
-          <h2 id="card-form-heading" class="text-base font-bold">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-3 sm:mb-4 pb-3 border-b border-base-300 min-h-[38px]">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <h2 id="card-form-heading" class="text-sm sm:text-base font-bold">
             Card Customizer
           </h2>
-          <span class="badge badge-primary badge-sm font-semibold">
+          <span class="badge badge-primary badge-xs sm:badge-sm font-semibold hidden sm:inline-flex">
             Live Interactive
           </span>
         </div>
@@ -150,7 +150,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <div class="flex items-center gap-1.5">
           <button
             type="button"
-            class="btn btn-xs btn-primary gap-1 shadow-sm font-medium"
+            class="btn btn-xs btn-primary gap-1 shadow-xs font-semibold px-2 sm:px-2.5"
             onClick={onReview}
             aria-label="Refresh SVG Preview"
           >
@@ -159,7 +159,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           </button>
           <button
             type="button"
-            class="btn btn-xs btn-outline gap-1 font-medium"
+            class="btn btn-xs btn-outline gap-1 font-medium px-2 sm:px-2.5"
             onClick={onDownloadSVG}
             aria-label="Download Card as SVG file"
           >
@@ -168,7 +168,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           </button>
           <button
             type="button"
-            class="btn btn-xs btn-outline gap-1 font-medium"
+            class="btn btn-xs btn-outline gap-1 font-medium px-2 sm:px-2.5"
             onClick={onOpenPNGModal}
             aria-label="Open PNG Download options dialog"
           >
@@ -179,50 +179,65 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
       </div>
 
       {/* Main Tabs */}
-      <div role="tablist" class="tabs tabs-boxed bg-base-200 p-1 mb-4">
+      <div
+        role="tablist"
+        class="grid grid-cols-4 gap-1 bg-base-200 p-1 rounded-xl mb-4"
+      >
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 ${
-            activeTab === "layout" ? "tab-active" : ""
+          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+            activeTab === "layout"
+              ? "btn-primary shadow-xs"
+              : "btn-ghost text-base-content/70 hover:bg-base-300"
           }`}
           onClick={() => setActiveTab("layout")}
+          aria-selected={activeTab === "layout"}
         >
-          <IconLayout size={15} />
-          Layout
+          <IconLayout size={15} class="flex-shrink-0" />
+          <span class="truncate">Layout</span>
         </button>
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 ${
-            activeTab === "background" ? "tab-active" : ""
+          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+            activeTab === "background"
+              ? "btn-primary shadow-xs"
+              : "btn-ghost text-base-content/70 hover:bg-base-300"
           }`}
           onClick={() => setActiveTab("background")}
+          aria-selected={activeTab === "background"}
         >
-          <IconPalette size={15} />
-          Background
+          <IconPalette size={15} class="flex-shrink-0" />
+          <span class="truncate">Background</span>
         </button>
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 ${
-            activeTab === "border" ? "tab-active" : ""
+          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+            activeTab === "border"
+              ? "btn-primary shadow-xs"
+              : "btn-ghost text-base-content/70 hover:bg-base-300"
           }`}
           onClick={() => setActiveTab("border")}
+          aria-selected={activeTab === "border"}
         >
-          <IconFrame size={15} />
-          Border & Shadow
+          <IconFrame size={15} class="flex-shrink-0" />
+          <span class="truncate">Border</span>
         </button>
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 ${
-            activeTab === "typography" ? "tab-active" : ""
+          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+            activeTab === "typography"
+              ? "btn-primary shadow-xs"
+              : "btn-ghost text-base-content/70 hover:bg-base-300"
           }`}
           onClick={() => setActiveTab("typography")}
+          aria-selected={activeTab === "typography"}
         >
-          <IconTypography size={15} />
-          Typography
+          <IconTypography size={15} class="flex-shrink-0" />
+          <span class="truncate">Typography</span>
         </button>
       </div>
 
@@ -247,11 +262,11 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
       </div>
 
       {/* Bottom Import & Export Presets */}
-      <div class="flex flex-wrap justify-between items-center gap-2 pt-4 mt-6 border-t border-base-300">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 pt-4 mt-6 border-t border-base-300">
         <span class="text-xs text-base-content/60">
           Save or load card settings:
         </span>
-        <div class="flex gap-2">
+        <div class="grid grid-cols-2 sm:flex gap-2">
           <input
             type="file"
             ref={jsonFileInputRef}
@@ -261,7 +276,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           />
           <button
             type="button"
-            class="btn btn-xs btn-outline gap-1"
+            class="btn btn-xs btn-outline gap-1 text-xs"
             onClick={() => jsonFileInputRef.current?.click()}
           >
             <IconFileImport size={14} />
@@ -269,7 +284,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           </button>
           <button
             type="button"
-            class="btn btn-xs btn-outline gap-1"
+            class="btn btn-xs btn-outline gap-1 text-xs"
             onClick={() => exportOptions(options)}
           >
             <IconFileExport size={14} />

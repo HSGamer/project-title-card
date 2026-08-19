@@ -51,13 +51,13 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
 
   return (
     <div class="flex flex-col gap-3">
-      <div class="flex justify-between items-center h-5">
+      <div class="flex justify-between items-center min-h-[24px]">
         <label class="text-xs font-semibold text-base-content flex items-center gap-1">
-          Card Logo / Image
+          <span>Card Logo / Image</span>
           {isDataUrl && (
-            <span class="badge badge-sm badge-neutral gap-1 text-[10px] h-4">
+            <span class="badge badge-sm badge-neutral gap-1 text-[10px] py-0 px-1.5">
               <IconPhoto size={10} />
-              Uploaded File
+              Uploaded
             </span>
           )}
           <FieldGuide fieldKey="image" />
@@ -95,10 +95,10 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
         </div>
       </div>
 
-      <div class="flex gap-2 h-8">
+      <div class="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
-          class="input input-bordered input-sm flex-1 font-mono text-xs"
+          class="input input-bordered input-sm flex-1 font-mono text-xs w-full"
           value={options.image?.url || ""}
           onInput={(e) =>
             setOptions((prev) => ({
@@ -116,22 +116,22 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
         />
         <button
           type="button"
-          class="btn btn-sm btn-outline gap-1 text-xs"
+          class="btn btn-sm btn-outline gap-1 text-xs w-full sm:w-auto"
           onClick={() => fileInputRef.current?.click()}
         >
           <IconUpload size={14} />
-          Upload
+          Upload Image
         </button>
       </div>
 
       {/* Demo Logo suggestions */}
-      <div class="flex flex-wrap items-center gap-1">
-        <span class="text-xs text-base-content/60">Demo Logos:</span>
+      <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+        <span class="text-[11px] text-base-content/60 font-medium">Demo:</span>
         {LOGO_SUGGESTIONS.map((chip) => (
           <button
             type="button"
             key={chip.label}
-            class="btn btn-xs btn-outline btn-ghost"
+            class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-base-200 hover:bg-base-300 text-base-content/80 transition-colors"
             onClick={() =>
               setOptions((prev) => ({
                 ...prev,
@@ -144,22 +144,22 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
       </div>
 
       {/* Image shape and sizing */}
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start mt-1">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start mt-1">
         <div class="flex flex-col gap-1.5 w-full">
-          <div class="flex justify-between items-center h-5">
+          <div class="flex justify-between items-center min-h-[22px]">
             <span class="text-xs font-semibold text-base-content">
               Image Shape
             </span>
           </div>
-          <div class="join w-full">
+          <div class="grid grid-cols-3 gap-1.5 w-full">
             {imageShapes.map((shape) => (
               <button
                 type="button"
                 key={shape.value}
-                class={`join-item btn btn-sm flex-1 text-xs ${
+                class={`btn btn-sm text-xs min-w-0 px-1 ${
                   (options.image?.shape || "rounded") === shape.value
-                    ? "btn-active btn-primary"
-                    : "btn-ghost bg-base-200"
+                    ? "btn-active btn-primary shadow-xs font-semibold"
+                    : "btn-ghost bg-base-200 hover:bg-base-300"
                 }`}
                 onClick={() =>
                   setOptions((prev) => ({
@@ -167,7 +167,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
                     image: { ...prev.image, shape: shape.value },
                   }))}
               >
-                {shape.label}
+                <span class="truncate">{shape.label}</span>
               </button>
             ))}
           </div>

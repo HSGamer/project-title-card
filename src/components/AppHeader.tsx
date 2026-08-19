@@ -35,28 +35,31 @@ export const AppHeader: FunctionalComponent<AppHeaderProps> = ({
   };
 
   return (
-    <header class="navbar bg-base-100 border-b border-base-300 sticky top-0 z-40 px-4 lg:px-8 shadow-sm">
-      <div class="flex-1 flex items-center gap-2">
-        <h1 class="text-lg font-bold tracking-tight">Project Title Card</h1>
-        <span class="badge badge-primary badge-sm font-semibold">
+    <header class="navbar bg-base-100 border-b border-base-300 sticky top-0 z-40 px-3 sm:px-4 lg:px-8 shadow-xs min-h-[52px]">
+      <div class="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0 mr-2">
+        <h1 class="text-sm sm:text-base md:text-lg font-bold tracking-tight truncate">
+          Project Title Card
+        </h1>
+        <span class="badge badge-primary badge-xs sm:badge-sm font-semibold hidden sm:inline-flex">
           Visual Studio
         </span>
       </div>
 
-      <div class="flex-none flex items-center gap-2">
+      <div class="flex-none flex items-center gap-1.5 sm:gap-2">
         {/* Style Themes Dropdown */}
         <div class="dropdown dropdown-end">
           <div
             tabindex={0}
             role="button"
-            class="btn btn-sm btn-ghost gap-1.5 border border-base-300 font-medium"
+            class="btn btn-sm btn-ghost gap-1 sm:gap-1.5 border border-base-300 font-medium px-2.5 sm:px-3 text-xs"
           >
-            <IconSparkles size={16} class="text-warning" />
-            Style Themes
+            <IconSparkles size={15} class="text-warning flex-shrink-0" />
+            <span class="hidden sm:inline">Style Themes</span>
+            <span class="sm:hidden">Themes</span>
           </div>
           <ul
             tabindex={0}
-            class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-56 z-50 border border-base-300"
+            class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 sm:w-56 z-50 border border-base-300 max-h-80 overflow-y-auto"
           >
             <li class="menu-title text-xs uppercase tracking-wider">
               Theme Presets
@@ -92,8 +95,8 @@ export const AppHeader: FunctionalComponent<AppHeaderProps> = ({
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
           >
             {isDark
-              ? <IconSun size={18} class="text-warning" />
-              : <IconMoon size={18} class="text-base-content/80" />}
+              ? <IconSun size={17} class="text-warning" />
+              : <IconMoon size={17} class="text-base-content/80" />}
           </button>
         </div>
       </div>

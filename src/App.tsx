@@ -1,5 +1,6 @@
 import { FunctionalComponent } from "preact";
 import { useCallback, useEffect, useState } from "preact/hooks";
+import { IconEdit, IconEye } from "@tabler/icons-preact";
 import { CardOptions } from "./types.ts";
 import { defaultOptions, generateSVG } from "./generators/index.ts";
 import { downloadSVG } from "./utils/export.ts";
@@ -13,6 +14,7 @@ export const App: FunctionalComponent = () => {
   const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
   const [isPngModalOpen, setIsPngModalOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
+  const [mobileView, setMobileView] = useState<"form" | "preview">("form");
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof globalThis !== "undefined" && globalThis.matchMedia) {
       return globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -45,6 +47,7 @@ export const App: FunctionalComponent = () => {
 
   const handleReview = () => {
     updatePreview(options);
+    setMobileView("preview");
     setStatusMessage("Preview refreshed");
     setTimeout(() => setStatusMessage(""), 3000);
   };
@@ -82,18 +85,61 @@ export const App: FunctionalComponent = () => {
 
       <main
         id="main-content"
-        class="flex-1 container mx-auto px-4 py-6 max-w-7xl"
+        class="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl"
         tabIndex={-1}
       >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          <CardForm
-            options={options}
-            setOptions={setOptions}
-            onReview={handleReview}
-            onDownloadSVG={handleDownloadSVG}
-            onOpenPNGModal={() => setIsPngModalOpen(true)}
-          />
-          <CardPreview svgElement={svgElement} options={options} />
+        {/* Mobile View Switcher (Visible on < lg screens) */}
+        <div class="lg:hidden flex mb-4 bg-base-100 p-1 rounded-2xl border border-base-300 shadow-xs">
+          <button
+            type="button"
+            class={`flex-1 btn btn-sm gap-1.5 text-xs font-semibold rounded-xl transition-all ${
+              mobileView === "form"
+                ? "btn-primary shadow-xs"
+                : "btn-ghost text-base-content/70 hover:bg-base-200"
+            }`}
+            onClick={() => setMobileView("form")}
+          >
+            <IconEdit size={15} />
+            <span>Customize</span>
+          </button>
+          <button
+            type="button"
+            class={`flex-1 btn btn-sm gap-1.5 text-xs font-semibold rounded-xl transition-all ${
+              mobileView === "preview"
+                ? "btn-primary shadow-xs"
+                : "btn-ghost text-base-content/70 hover:bg-base-200"
+            }`}
+            onClick={() => setMobileView("preview")}
+          >
+            <IconEye size={15} />
+            <span>Preview & Export</span>
+          </button>
+        </div>
+
+        {/* Responsive Grid Layout */}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div class={mobileView === "form" ? "block" : "hidden lg:block"}>
+            <CardForm
+              options={options}
+              setOptions={setOptions}
+              onReview={handleReview}
+              onDownloadSVG={handleDownloadSVG}
+              onOpenPNGModal={() => setIsPngModalOpen(true)}
+            />
+          </div>
+          <div
+            class={`${
+              mobileView === "preview" ? "block" : "hidden lg:block"
+            } lg:sticky lg:top-[68px]`}
+          >
+            <CardPreview
+              svgElement={svgElement}
+              options={options}
+              onBackToEdit={() => setMobileView("form")}
+              onDownloadSVG={handleDownloadSVG}
+              onOpenPNGModal={() => setIsPngModalOpen(true)}
+            />
+          </div>
         </div>
       </main>
 
@@ -107,3 +153,4 @@ export const App: FunctionalComponent = () => {
 };
 
 export default App;
+

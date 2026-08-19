@@ -22,31 +22,31 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
   const shadowEffects: { label: string; value: ShadowEffect }[] = [
     { label: "None", value: "none" },
     { label: "Subtle", value: "subtle" },
-    { label: "Soft Shadow", value: "soft" },
-    { label: "Deep Shadow", value: "strong" },
-    { label: "Neon Glow", value: "glow" },
+    { label: "Soft", value: "soft" },
+    { label: "Deep", value: "strong" },
+    { label: "Glow", value: "glow" },
   ];
 
   return (
     <div class="flex flex-col gap-4">
       {/* Border Style & Width */}
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
         <div class="flex flex-col gap-1.5 w-full">
-          <div class="flex justify-between items-center h-5">
+          <div class="flex justify-between items-center min-h-[22px]">
             <label class="text-xs font-semibold text-base-content flex items-center gap-1">
-              Border Style
+              <span>Border Style</span>
               <FieldGuide fieldKey="border" />
             </label>
           </div>
-          <div class="join w-full">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full">
             {borderStyles.map((st) => (
               <button
                 type="button"
                 key={st.value}
-                class={`join-item btn btn-sm flex-1 text-xs ${
+                class={`btn btn-sm text-xs min-w-0 px-1 ${
                   (options.border?.style || "solid") === st.value
-                    ? "btn-active btn-primary"
-                    : "btn-ghost bg-base-200"
+                    ? "btn-active btn-primary shadow-xs font-semibold"
+                    : "btn-ghost bg-base-200 hover:bg-base-300"
                 }`}
                 onClick={() =>
                   setOptions((prev) => ({
@@ -54,7 +54,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
                     border: { ...prev.border, style: st.value },
                   }))}
               >
-                {st.label}
+                <span class="truncate">{st.label}</span>
               </button>
             ))}
           </div>
@@ -77,15 +77,15 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
 
       {/* Border Color */}
       <div class="flex flex-col gap-1.5 w-full">
-        <div class="flex justify-between items-center h-5">
+        <div class="flex justify-between items-center min-h-[22px]">
           <span class="text-xs font-semibold text-base-content">
             Border Color
           </span>
         </div>
-        <div class="flex items-center gap-2 h-8">
+        <div class="flex items-center gap-2">
           <input
             type="color"
-            class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+            class="w-9 h-9 sm:w-8 sm:h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
             value={options.border?.color || "#334155"}
             onInput={(e) =>
               setOptions((prev) => ({
@@ -104,12 +104,12 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
               }))}
           />
         </div>
-        <div class="flex flex-wrap gap-1.5 mt-1.5">
+        <div class="flex flex-wrap gap-2 sm:gap-1.5 mt-1.5">
           {COLOR_SWATCHES.map((color) => (
             <button
               type="button"
               key={color}
-              class="w-5 h-5 rounded-full border border-base-content/20 hover:scale-110 transition-transform cursor-pointer flex-shrink-0"
+              class="w-7 h-7 sm:w-6 sm:h-6 rounded-full border border-base-content/20 hover:scale-110 active:scale-95 transition-transform cursor-pointer flex-shrink-0 shadow-xs"
               style={{ backgroundColor: color }}
               onClick={() =>
                 setOptions((prev) => ({
@@ -123,7 +123,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
       </div>
 
       {/* Border Radius & Margin */}
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
         <SliderControl
           label="Border Corner Radius"
           value={options.border?.radius ?? 16}
@@ -157,21 +157,21 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
 
       {/* Shadow & Glow Effects */}
       <div class="flex flex-col gap-1.5 w-full">
-        <div class="flex justify-between items-center h-5">
+        <div class="flex justify-between items-center min-h-[22px]">
           <label class="text-xs font-semibold text-base-content flex items-center gap-1">
-            Shadow & Glow Effect
+            <span>Shadow & Glow Effect</span>
             <FieldGuide fieldKey="shadow" />
           </label>
         </div>
-        <div class="join w-full">
+        <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 w-full">
           {shadowEffects.map((sh) => (
             <button
               type="button"
               key={sh.value}
-              class={`join-item btn btn-sm flex-1 text-xs ${
+              class={`btn btn-sm text-xs min-w-0 px-1 ${
                 (options.border?.shadow || "soft") === sh.value
-                  ? "btn-active btn-primary"
-                  : "btn-ghost bg-base-200"
+                  ? "btn-active btn-primary shadow-xs font-semibold"
+                  : "btn-ghost bg-base-200 hover:bg-base-300"
               }`}
               onClick={() =>
                 setOptions((prev) => ({
@@ -179,7 +179,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
                   border: { ...prev.border, shadow: sh.value },
                 }))}
             >
-              {sh.label}
+              <span class="truncate">{sh.label}</span>
             </button>
           ))}
         </div>
@@ -188,15 +188,15 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
       {/* Glow Color Input if Neon Glow selected */}
       {options.border?.shadow === "glow" && (
         <div class="flex flex-col gap-1.5 w-full">
-          <div class="flex justify-between items-center h-5">
+          <div class="flex justify-between items-center min-h-[22px]">
             <span class="text-xs font-semibold text-base-content">
               Glow Tint Color
             </span>
           </div>
-          <div class="flex items-center gap-2 h-8">
+          <div class="flex items-center gap-2">
             <input
               type="color"
-              class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+              class="w-9 h-9 sm:w-8 sm:h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
               value={options.border?.glowColor || options.border?.color ||
                 "#06b6d4"}
               onInput={(e) =>
@@ -217,12 +217,12 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
                 }))}
             />
           </div>
-          <div class="flex flex-wrap gap-1.5 mt-1.5">
+          <div class="flex flex-wrap gap-2 sm:gap-1.5 mt-1.5">
             {COLOR_SWATCHES.map((color) => (
               <button
                 type="button"
                 key={color}
-                class="w-5 h-5 rounded-full border border-base-content/20 hover:scale-110 transition-transform cursor-pointer flex-shrink-0"
+                class="w-7 h-7 sm:w-6 sm:h-6 rounded-full border border-base-content/20 hover:scale-110 active:scale-95 transition-transform cursor-pointer flex-shrink-0 shadow-xs"
                 style={{ backgroundColor: color }}
                 onClick={() =>
                   setOptions((prev) => ({

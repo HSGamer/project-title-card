@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import {
   IconCheck,
   IconCopy,
+  IconDownload,
+  IconEdit,
+  IconFileTypePng,
   IconGridDots,
   IconMoon,
   IconRotate,
@@ -16,13 +19,20 @@ import { getCardDimensionsLabel } from "../utils/dimensions.ts";
 interface CardPreviewProps {
   svgElement: SVGSVGElement | null;
   options: CardOptions;
+  onBackToEdit?: () => void;
+  onDownloadSVG?: () => void;
+  onOpenPNGModal?: () => void;
 }
 
 type BackdropType = "checkerboard" | "dark" | "light";
 
-export const CardPreview: FunctionalComponent<CardPreviewProps> = (
-  { svgElement, options },
-) => {
+export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
+  svgElement,
+  options,
+  onBackToEdit,
+  onDownloadSVG,
+  onOpenPNGModal,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState<number>(100);
   const [backdrop, setBackdrop] = useState<BackdropType>("checkerboard");
@@ -69,15 +79,16 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
 
   return (
     <section
-      class="card bg-base-100 shadow-md border border-base-300 p-4 w-full"
+      class="card bg-base-100 shadow-md border border-base-300 p-3 sm:p-4 w-full"
       aria-labelledby="preview-heading"
     >
-      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-base-300 min-h-[38px]">
-        <div class="flex items-center gap-2">
-          <h2 id="preview-heading" class="text-base font-bold">
+      {/* Header and Controls in a single streamlined bar */}
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-3 pb-3 border-b border-base-300 min-h-[38px]">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <h2 id="preview-heading" class="text-sm sm:text-base font-bold">
             Card Preview
           </h2>
-          <span class="badge badge-info badge-sm font-semibold">
+          <span class="badge badge-info badge-xs sm:badge-sm font-semibold">
             {dimensionsLabel}
           </span>
         </div>
@@ -87,14 +98,14 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
           <div class="join">
             <div
               class="tooltip tooltip-bottom"
-              data-tip="Checkerboard (Transparent)"
+              data-tip="Checkerboard"
             >
               <button
                 type="button"
                 class={`join-item btn btn-xs ${
                   backdrop === "checkerboard"
-                    ? "btn-active btn-primary"
-                    : "btn-ghost"
+                    ? "btn-active btn-primary shadow-xs"
+                    : "btn-ghost bg-base-200"
                 }`}
                 onClick={() => setBackdrop("checkerboard")}
                 aria-label="Checkerboard transparent backdrop"
@@ -102,11 +113,13 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
                 <IconGridDots size={14} />
               </button>
             </div>
-            <div class="tooltip tooltip-bottom" data-tip="Dark backdrop">
+            <div class="tooltip tooltip-bottom" data-tip="Dark">
               <button
                 type="button"
                 class={`join-item btn btn-xs ${
-                  backdrop === "dark" ? "btn-active btn-primary" : "btn-ghost"
+                  backdrop === "dark"
+                    ? "btn-active btn-primary shadow-xs"
+                    : "btn-ghost bg-base-200"
                 }`}
                 onClick={() => setBackdrop("dark")}
                 aria-label="Dark background"
@@ -114,11 +127,13 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
                 <IconMoon size={14} />
               </button>
             </div>
-            <div class="tooltip tooltip-bottom" data-tip="Light backdrop">
+            <div class="tooltip tooltip-bottom" data-tip="Light">
               <button
                 type="button"
                 class={`join-item btn btn-xs ${
-                  backdrop === "light" ? "btn-active btn-primary" : "btn-ghost"
+                  backdrop === "light"
+                    ? "btn-active btn-primary shadow-xs"
+                    : "btn-ghost bg-base-200"
                 }`}
                 onClick={() => setBackdrop("light")}
                 aria-label="Light background"
@@ -128,14 +143,14 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
             </div>
           </div>
 
-          <div class="divider divider-horizontal mx-0.5 my-0 h-6"></div>
+          <div class="divider divider-horizontal mx-0 my-0 h-4 hidden sm:flex"></div>
 
           {/* Zoom Controls */}
           <div class="join">
             <div class="tooltip tooltip-bottom" data-tip="Zoom Out">
               <button
                 type="button"
-                class="join-item btn btn-xs btn-ghost"
+                class="join-item btn btn-xs btn-ghost bg-base-200"
                 onClick={handleZoomOut}
                 aria-label="Zoom Out"
               >
@@ -143,14 +158,14 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
               </button>
             </div>
 
-            <span class="join-item btn btn-xs btn-ghost pointer-events-none text-xs font-mono px-1.5">
+            <span class="join-item btn btn-xs btn-ghost pointer-events-none text-xs font-mono px-1.5 bg-base-200">
               {zoom}%
             </span>
 
             <div class="tooltip tooltip-bottom" data-tip="Zoom In">
               <button
                 type="button"
-                class="join-item btn btn-xs btn-ghost"
+                class="join-item btn btn-xs btn-ghost bg-base-200"
                 onClick={handleZoomIn}
                 aria-label="Zoom In"
               >
@@ -161,7 +176,7 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
             <div class="tooltip tooltip-bottom" data-tip="Reset Zoom">
               <button
                 type="button"
-                class="join-item btn btn-xs btn-ghost"
+                class="join-item btn btn-xs btn-ghost bg-base-200"
                 onClick={handleResetZoom}
                 aria-label="Reset Zoom"
               >
@@ -170,24 +185,29 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
             </div>
           </div>
 
-          <div class="divider divider-horizontal mx-0.5 my-0 h-6"></div>
+          <div class="divider divider-horizontal mx-0 my-0 h-4 hidden sm:flex"></div>
 
           {/* Copy SVG Button */}
           <div
-            class="tooltip tooltip-bottom"
+            class="tooltip tooltip-left sm:tooltip-bottom"
             data-tip={copied ? "Copied!" : "Copy SVG Code"}
           >
             <button
               type="button"
               class={`btn btn-xs ${
                 copied
-                  ? "btn-success text-success-content"
+                  ? "btn-success text-success-content font-bold shadow-xs"
                   : "btn-outline btn-ghost"
               }`}
               onClick={handleCopySVG}
-              aria-label={copied ? "Copied SVG to clipboard" : "Copy SVG Code"}
+              aria-label={copied
+                ? "Copied SVG to clipboard"
+                : "Copy SVG Code"}
             >
               {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+              <span class="hidden sm:inline">
+                {copied ? "Copied" : "Copy"}
+              </span>
             </button>
           </div>
         </div>
@@ -195,15 +215,16 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
 
       {/* Canvas Viewport */}
       <div
-        class={`flex justify-center items-center p-6 rounded-xl border border-base-300 overflow-auto min-h-[360px] max-h-[70vh] transition-colors ${
+        class={`flex justify-center items-start p-2.5 sm:p-4 rounded-xl border border-base-300 overflow-auto max-h-[60vh] sm:max-h-[75vh] transition-colors ${
           backdrop === "checkerboard" ? "preview-checkerboard" : ""
         }`}
         style={getBackdropStyle()}
       >
         <div
+          class="w-full flex justify-center items-start"
           style={{
             transform: `scale(${zoom / 100})`,
-            transformOrigin: "center center",
+            transformOrigin: "top center",
             transition: "transform 0.15s ease-out",
           }}
         >
@@ -215,6 +236,43 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
           />
         </div>
       </div>
+
+      {/* Mobile Quick Actions Bar */}
+      {(onDownloadSVG || onOpenPNGModal || onBackToEdit) && (
+        <div class="flex sm:hidden gap-2 pt-3 mt-3 border-t border-base-300">
+          {onBackToEdit && (
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost flex-1 gap-1 text-xs"
+              onClick={onBackToEdit}
+            >
+              <IconEdit size={14} />
+              Edit
+            </button>
+          )}
+          {onDownloadSVG && (
+            <button
+              type="button"
+              class="btn btn-sm btn-outline flex-1 gap-1 text-xs"
+              onClick={onDownloadSVG}
+            >
+              <IconDownload size={14} />
+              SVG
+            </button>
+          )}
+          {onOpenPNGModal && (
+            <button
+              type="button"
+              class="btn btn-sm btn-primary flex-1 gap-1 text-xs"
+              onClick={onOpenPNGModal}
+            >
+              <IconFileTypePng size={14} />
+              PNG
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 };
+
