@@ -98,7 +98,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
       <div class="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
-          class="input input-bordered input-sm flex-1 font-mono text-xs w-full"
+          class="input input-bordered input-sm flex-1 min-w-0 font-mono text-xs w-full"
           value={options.image?.url || ""}
           onInput={(e) =>
             setOptions((prev) => ({
@@ -116,7 +116,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
         />
         <button
           type="button"
-          class="btn btn-sm btn-outline gap-1 text-xs w-full sm:w-auto"
+          class="btn btn-sm btn-outline gap-1 text-xs w-full sm:w-auto flex-shrink-0"
           onClick={() => fileInputRef.current?.click()}
         >
           <IconUpload size={14} />
@@ -156,7 +156,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
               <button
                 type="button"
                 key={shape.value}
-                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                class={`btn btn-sm text-[11px] sm:text-xs px-1 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options.image?.shape || "rounded") === shape.value
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"

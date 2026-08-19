@@ -83,17 +83,17 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
       aria-labelledby="preview-heading"
     >
       {/* Header and Controls in a single streamlined bar */}
-      <div class="flex flex-wrap justify-between items-center gap-2 mb-3 pb-3 border-b border-base-300 min-h-[38px]">
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <h2 id="preview-heading" class="text-sm sm:text-base font-bold">
+      <div class="flex flex-wrap justify-between items-center gap-1.5 sm:gap-2 mb-3 pb-2.5 sm:pb-3 border-b border-base-300 min-h-[36px]">
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <h2 id="preview-heading" class="text-xs sm:text-base font-bold truncate">
             Card Preview
           </h2>
-          <span class="badge badge-info badge-xs sm:badge-sm font-semibold">
+          <span class="badge badge-info badge-xs sm:badge-sm font-semibold max-w-full truncate">
             {dimensionsLabel}
           </span>
         </div>
 
-        <div class="flex flex-wrap items-center gap-1.5">
+        <div class="flex flex-wrap items-center gap-1 sm:gap-1.5">
           {/* Backdrop Switcher */}
           <div class="join">
             <div
@@ -102,7 +102,7 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
             >
               <button
                 type="button"
-                class={`join-item btn btn-xs ${
+                class={`join-item btn btn-xs px-1.5 ${
                   backdrop === "checkerboard"
                     ? "btn-active btn-primary shadow-xs"
                     : "btn-ghost bg-base-200"
@@ -110,13 +110,13 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
                 onClick={() => setBackdrop("checkerboard")}
                 aria-label="Checkerboard transparent backdrop"
               >
-                <IconGridDots size={14} />
+                <IconGridDots size={13} />
               </button>
             </div>
             <div class="tooltip tooltip-bottom" data-tip="Dark">
               <button
                 type="button"
-                class={`join-item btn btn-xs ${
+                class={`join-item btn btn-xs px-1.5 ${
                   backdrop === "dark"
                     ? "btn-active btn-primary shadow-xs"
                     : "btn-ghost bg-base-200"
@@ -124,13 +124,13 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
                 onClick={() => setBackdrop("dark")}
                 aria-label="Dark background"
               >
-                <IconMoon size={14} />
+                <IconMoon size={13} />
               </button>
             </div>
             <div class="tooltip tooltip-bottom" data-tip="Light">
               <button
                 type="button"
-                class={`join-item btn btn-xs ${
+                class={`join-item btn btn-xs px-1.5 ${
                   backdrop === "light"
                     ? "btn-active btn-primary shadow-xs"
                     : "btn-ghost bg-base-200"
@@ -138,7 +138,7 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
                 onClick={() => setBackdrop("light")}
                 aria-label="Light background"
               >
-                <IconSun size={14} />
+                <IconSun size={13} />
               </button>
             </div>
           </div>
@@ -150,37 +150,37 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
             <div class="tooltip tooltip-bottom" data-tip="Zoom Out">
               <button
                 type="button"
-                class="join-item btn btn-xs btn-ghost bg-base-200"
+                class="join-item btn btn-xs px-1.5 btn-ghost bg-base-200"
                 onClick={handleZoomOut}
                 aria-label="Zoom Out"
               >
-                <IconZoomOut size={14} />
+                <IconZoomOut size={13} />
               </button>
             </div>
 
-            <span class="join-item btn btn-xs btn-ghost pointer-events-none text-xs font-mono px-1.5 bg-base-200">
+            <span class="join-item btn btn-xs btn-ghost pointer-events-none text-[11px] font-mono px-1 bg-base-200">
               {zoom}%
             </span>
 
             <div class="tooltip tooltip-bottom" data-tip="Zoom In">
               <button
                 type="button"
-                class="join-item btn btn-xs btn-ghost bg-base-200"
+                class="join-item btn btn-xs px-1.5 btn-ghost bg-base-200"
                 onClick={handleZoomIn}
                 aria-label="Zoom In"
               >
-                <IconZoomIn size={14} />
+                <IconZoomIn size={13} />
               </button>
             </div>
 
             <div class="tooltip tooltip-bottom" data-tip="Reset Zoom">
               <button
                 type="button"
-                class="join-item btn btn-xs btn-ghost bg-base-200"
+                class="join-item btn btn-xs px-1.5 btn-ghost bg-base-200"
                 onClick={handleResetZoom}
                 aria-label="Reset Zoom"
               >
-                <IconRotate size={14} />
+                <IconRotate size={13} />
               </button>
             </div>
           </div>
@@ -194,7 +194,7 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
           >
             <button
               type="button"
-              class={`btn btn-xs ${
+              class={`btn btn-xs px-1.5 sm:px-2 ${
                 copied
                   ? "btn-success text-success-content font-bold shadow-xs"
                   : "btn-outline btn-ghost"
@@ -204,7 +204,7 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
                 ? "Copied SVG to clipboard"
                 : "Copy SVG Code"}
             >
-              {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+              {copied ? <IconCheck size={13} /> : <IconCopy size={13} />}
               <span class="hidden sm:inline">
                 {copied ? "Copied" : "Copy"}
               </span>

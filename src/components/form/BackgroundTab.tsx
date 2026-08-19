@@ -92,7 +92,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
             <button
               type="button"
               key={mode.value}
-              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+              class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                 (options.background?.type || "solid") === mode.value
                   ? "btn-active btn-primary shadow-xs font-semibold"
                   : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -137,7 +137,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
             />
             <input
               type="text"
-              class="input input-bordered input-sm flex-1 font-mono text-xs"
+              class="input input-bordered input-sm flex-1 min-w-0 font-mono text-xs"
               value={options.background?.color || "#0f172a"}
               onInput={(e) =>
                 setOptions((prev) => ({
@@ -203,12 +203,12 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 Gradient Direction
               </span>
             </div>
-            <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 w-full">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 w-full">
               {gradDirections.map((d) => (
                 <button
                   type="button"
                   key={d.value}
-                  class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                  class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                     (options.background?.gradientDirection || "to-br") ===
                         d.value
                       ? "btn-active btn-primary shadow-xs font-semibold"

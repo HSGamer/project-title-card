@@ -42,7 +42,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
             <button
               type="button"
               key={st.value}
-              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+              class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                 (options.border?.style || "solid") === st.value
                   ? "btn-active btn-primary shadow-xs font-semibold"
                   : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -79,7 +79,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
           />
           <input
             type="text"
-            class="input input-bordered input-sm flex-1 font-mono text-xs"
+            class="input input-bordered input-sm flex-1 min-w-0 font-mono text-xs"
             value={options.border?.color || "#334155"}
             onInput={(e) =>
               setOptions((prev) => ({
@@ -166,7 +166,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
             <button
               type="button"
               key={sh.value}
-              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+              class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                 (options.border?.shadow || "soft") === sh.value
                   ? "btn-active btn-primary shadow-xs font-semibold"
                   : "btn-ghost bg-base-200 hover:bg-base-300"

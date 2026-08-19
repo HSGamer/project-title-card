@@ -150,56 +150,59 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
       aria-labelledby="card-form-heading"
     >
       {/* Header bar matching CardPreview */}
-      <div class="flex flex-wrap justify-between items-center gap-2 mb-3 sm:mb-4 pb-3 border-b border-base-300 min-h-[38px]">
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <h2 id="card-form-heading" class="text-sm sm:text-base font-bold">
+      <div class="flex flex-wrap justify-between items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b border-base-300 min-h-[36px]">
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <h2 id="card-form-heading" class="text-xs sm:text-base font-bold truncate">
             Card Customizer
           </h2>
-          <span class="badge badge-primary badge-xs sm:badge-sm font-semibold hidden sm:inline-flex">
+          <span class="badge badge-primary badge-xs sm:badge-sm font-semibold hidden sm:inline-flex flex-shrink-0">
             Live Interactive
           </span>
         </div>
 
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           <button
             type="button"
             class="btn btn-xs btn-primary gap-1 shadow-xs font-semibold px-2 sm:px-2.5"
             onClick={onReview}
+            title="Refresh SVG Preview"
             aria-label="Refresh SVG Preview"
           >
-            <IconEye size={14} />
-            Review
+            <IconEye size={13} />
+            <span class="hidden sm:inline">Review</span>
           </button>
           <button
             type="button"
             class="btn btn-xs btn-outline gap-1 font-medium px-2 sm:px-2.5"
             onClick={onDownloadSVG}
+            title="Download Card as SVG file"
             aria-label="Download Card as SVG file"
           >
-            <IconDownload size={14} />
-            SVG
+            <IconDownload size={13} />
+            <span class="hidden sm:inline">SVG</span>
           </button>
           <button
             type="button"
             class="btn btn-xs btn-outline gap-1 font-medium px-2 sm:px-2.5"
             onClick={onOpenPNGModal}
+            title="Open PNG Download options"
             aria-label="Open PNG Download options dialog"
           >
-            <IconFileTypePng size={14} />
-            PNG
+            <IconFileTypePng size={13} />
+            <span class="hidden sm:inline">PNG</span>
           </button>
         </div>
       </div>
 
-      {/* Main Tabs */}
+      {/* Main Tabs (Scrollable on Mobile, Grid on Desktop) */}
       <div
         role="tablist"
-        class="grid grid-cols-4 gap-1 bg-base-200 p-1 rounded-xl mb-4"
+        class="flex sm:grid sm:grid-cols-4 gap-1.5 bg-base-200 p-1.5 rounded-xl mb-4 overflow-x-auto no-scrollbar scroll-smooth"
       >
         <button
           type="button"
           role="tab"
-          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
             activeTab === "layout"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -208,12 +211,12 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           aria-selected={activeTab === "layout"}
         >
           <IconLayout size={15} class="flex-shrink-0" />
-          <span class="truncate">Layout</span>
+          <span>Layout</span>
         </button>
         <button
           type="button"
           role="tab"
-          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
             activeTab === "background"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -222,12 +225,12 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           aria-selected={activeTab === "background"}
         >
           <IconPalette size={15} class="flex-shrink-0" />
-          <span class="truncate">Background</span>
+          <span>Background</span>
         </button>
         <button
           type="button"
           role="tab"
-          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
             activeTab === "border"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -236,12 +239,12 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           aria-selected={activeTab === "border"}
         >
           <IconFrame size={15} class="flex-shrink-0" />
-          <span class="truncate">Border</span>
+          <span>Border</span>
         </button>
         <button
           type="button"
           role="tab"
-          class={`btn btn-xs sm:btn-sm min-w-0 px-1 sm:px-2 flex items-center justify-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
             activeTab === "typography"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -250,7 +253,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           aria-selected={activeTab === "typography"}
         >
           <IconTypography size={15} class="flex-shrink-0" />
-          <span class="truncate">Typography</span>
+          <span>Typography</span>
         </button>
       </div>
 

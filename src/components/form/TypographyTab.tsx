@@ -173,7 +173,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <input
             type="text"
-            class="input input-bordered input-sm flex-1 text-xs w-full"
+            class="input input-bordered input-sm flex-1 min-w-0 text-xs w-full"
             placeholder="Type any Google Font name (e.g. Space Grotesk)..."
             value={customFontInput}
             onInput={(e) => setCustomFontInput(e.currentTarget.value)}
@@ -184,7 +184,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               }
             }}
           />
-          <div class="flex gap-1.5">
+          <div class="flex gap-1.5 flex-shrink-0">
             <button
               type="button"
               class="btn btn-sm btn-outline text-xs flex-1 sm:flex-none"
@@ -314,7 +314,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               />
               <input
                 type="text"
-                class="input input-bordered input-sm flex-1 font-mono text-xs"
+                class="input input-bordered input-sm flex-1 min-w-0 font-mono text-xs"
                 value={options.titleFont?.color || "#f8fafc"}
                 onInput={(e) =>
                   setOptions((prev) => ({

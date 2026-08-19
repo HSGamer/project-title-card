@@ -85,33 +85,33 @@ export const App: FunctionalComponent = () => {
 
       <main
         id="main-content"
-        class="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl"
+        class="flex-1 container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-7xl"
         tabIndex={-1}
       >
         {/* Mobile View Switcher (Visible on < lg screens) */}
-        <div class="lg:hidden flex mb-4 bg-base-100 p-1 rounded-2xl border border-base-300 shadow-xs">
+        <div class="lg:hidden flex mb-3 bg-base-100 p-1 rounded-xl border border-base-300 shadow-xs">
           <button
             type="button"
-            class={`flex-1 btn btn-sm gap-1.5 text-xs font-semibold rounded-xl transition-all ${
+            class={`flex-1 btn btn-sm gap-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all ${
               mobileView === "form"
                 ? "btn-primary shadow-xs"
                 : "btn-ghost text-base-content/70 hover:bg-base-200"
             }`}
             onClick={() => setMobileView("form")}
           >
-            <IconEdit size={15} />
+            <IconEdit size={14} />
             <span>Customize</span>
           </button>
           <button
             type="button"
-            class={`flex-1 btn btn-sm gap-1.5 text-xs font-semibold rounded-xl transition-all ${
+            class={`flex-1 btn btn-sm gap-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all ${
               mobileView === "preview"
                 ? "btn-primary shadow-xs"
                 : "btn-ghost text-base-content/70 hover:bg-base-200"
             }`}
             onClick={() => setMobileView("preview")}
           >
-            <IconEye size={15} />
+            <IconEye size={14} />
             <span>Preview & Export</span>
           </button>
         </div>

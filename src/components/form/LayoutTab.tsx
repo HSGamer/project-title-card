@@ -55,7 +55,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             <button
               type="button"
               key={fmt.value}
-              class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+              class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                 options.generateType === fmt.value
                   ? "btn-active btn-primary shadow-xs font-semibold"
                   : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -89,7 +89,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 <button
                   type="button"
                   key={v.value}
-                  class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                  class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                     ((options as StandardCardOptions).cardVariant || "standard") === v.value
                       ? "btn-active btn-primary shadow-xs font-semibold"
                       : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -116,7 +116,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             <div class="grid grid-cols-2 gap-1.5 w-full">
               <button
                 type="button"
-                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as StandardCardOptions).textAlign !== "left"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -131,7 +131,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               </button>
               <button
                 type="button"
-                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as StandardCardOptions).textAlign === "left"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -170,7 +170,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 <button
                   type="button"
                   key={v.value}
-                  class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                  class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                     ((options as WideCardOptions).wideVariant || "standard") === v.value
                       ? "btn-active btn-primary shadow-xs font-semibold"
                       : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -197,7 +197,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             <div class="grid grid-cols-2 gap-1.5 w-full">
               <button
                 type="button"
-                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as WideCardOptions).imagePosition !== "right"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -212,7 +212,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               </button>
               <button
                 type="button"
-                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as WideCardOptions).imagePosition === "right"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -249,7 +249,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               <button
                 type="button"
                 key={st.value}
-                class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   ((options as WidescreenCardOptions).bannerVariant ||
                     (options as WidescreenCardOptions).layoutStyle ||
                     "split") === st.value
@@ -294,7 +294,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 <button
                   type="button"
                   key={v.value}
-                  class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                  class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                     ((options as BadgeCardOptions).badgeVariant || "standard") ===
                         v.value
                       ? "btn-active btn-primary shadow-xs font-semibold"
@@ -328,7 +328,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 <button
                   type="button"
                   key={pos.value}
-                  class={`btn btn-sm text-xs px-2 whitespace-nowrap ${
+                  class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
                     ((options as BadgeCardOptions).iconPosition || "left") ===
                         pos.value
                       ? "btn-active btn-primary shadow-xs font-semibold"

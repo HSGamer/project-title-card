@@ -51,11 +51,12 @@ export const AppHeader: FunctionalComponent<AppHeaderProps> = ({
           <div
             tabindex={0}
             role="button"
-            class="btn btn-sm btn-ghost gap-1 sm:gap-1.5 border border-base-300 font-medium px-2.5 sm:px-3 text-xs"
+            class="btn btn-sm btn-ghost gap-1 sm:gap-1.5 border border-base-300 font-medium px-2 sm:px-3 text-xs"
+            title="Style Themes"
+            aria-label="Style Themes"
           >
             <IconSparkles size={15} class="text-warning flex-shrink-0" />
-            <span class="hidden sm:inline">Style Themes</span>
-            <span class="sm:hidden">Themes</span>
+            <span class="hidden sm:inline">Themes</span>
           </div>
           <ul
             tabindex={0}
