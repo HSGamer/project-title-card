@@ -20,7 +20,7 @@
     "npm:@svgdotjs/svg.js@^3.2.8": "3.2.8",
     "npm:@tabler/icons-preact@^3.46.0": "3.46.0_preact@10.29.8",
     "npm:esbuild@0.25.0": "0.25.0",
-    "npm:preact@^10.25.0": "10.29.8"
+    "npm:preact@^10.29.8": "10.29.8"
   },
   "jsr": {
     "@luca/esbuild-deno-loader@0.11.1": {
@@ -264,7 +264,7 @@
     "dependencies": [
       "npm:@svgdotjs/svg.js@^3.2.8",
       "npm:@tabler/icons-preact@^3.46.0",
-      "npm:preact@^10.25.0"
+      "npm:preact@^10.29.8"
     ]
   }
 }
