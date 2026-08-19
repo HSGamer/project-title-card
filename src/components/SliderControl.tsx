@@ -1,7 +1,6 @@
-import React from 'react';
-import { Box, Group, Slider, NumberInput, Button, Text } from '@mantine/core';
-import { FieldGuide } from './FieldGuide.tsx';
-import { FIELD_GUIDES } from '../data/suggestions.ts';
+import { FunctionalComponent } from "preact";
+import { FieldGuide } from "./FieldGuide.tsx";
+import { FIELD_GUIDES } from "../data/suggestions.ts";
 
 interface SliderControlProps {
   label: string;
@@ -14,11 +13,9 @@ interface SliderControlProps {
   unit?: string;
   onChange: (val: number) => void;
   ariaLabel?: string;
-  numberInputWidth?: number;
-  labelSize?: 'xs' | 'sm';
 }
 
-export const SliderControl: React.FC<SliderControlProps> = ({
+export const SliderControl: FunctionalComponent<SliderControlProps> = ({
   label,
   fieldKey,
   value,
@@ -26,57 +23,62 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   max,
   step = 1,
   presets = [],
-  unit = 'px',
+  unit = "px",
   onChange,
   ariaLabel,
-  numberInputWidth = 75,
-  labelSize = 'sm'
 }) => {
   return (
-    <Box>
-      <Group justify="space-between" align="center" mb={4}>
-        <Group gap={4}>
-          <Text size={labelSize} fw={600}>
-            {label} ({value}{unit})
-          </Text>
+    <div class="flex flex-col gap-1.5 w-full">
+      <div class="flex justify-between items-center h-5">
+        <label class="text-xs font-semibold text-base-content flex items-center gap-1">
+          {label}{" "}
+          <span class="text-primary font-mono font-bold">({value}{unit})</span>
           {fieldKey && <FieldGuide fieldKey={fieldKey} />}
-        </Group>
-      </Group>
-      <Group align="center" gap="xs" mb="xs">
-        <Slider
-          style={{ flex: 1 }}
+        </label>
+      </div>
+
+      <div class="flex items-center gap-2 h-8">
+        <input
+          type="range"
           min={min}
           max={max}
           step={step}
           value={value}
-          onChange={onChange}
+          onInput={(e) => onChange(Number(e.currentTarget.value))}
+          class="range range-primary range-xs flex-1"
+          aria-label={ariaLabel || `${label} in ${unit}`}
         />
-        <NumberInput
-          w={numberInputWidth}
-          size="xs"
+        <input
+          type="number"
           min={min}
           max={max * 2}
           step={step}
           value={value}
-          onChange={(val) => onChange(Number(val ?? min))}
-          aria-label={ariaLabel || `${label} in ${unit}`}
+          onInput={(e) => onChange(Number(e.currentTarget.value || min))}
+          class="input input-bordered input-sm h-8 w-20 text-center font-mono text-xs flex-shrink-0"
+          aria-label={`${label} numeric input`}
         />
-      </Group>
+      </div>
+
       {presets.length > 0 && (
-        <Group gap={4}>
+        <div class="flex flex-wrap gap-1 mt-0.5">
           {presets.map((preset) => (
-            <Button
+            <button
+              type="button"
               key={preset}
-              size="compact-xs"
-              variant={value === preset ? 'filled' : 'subtle'}
-              color="gray"
+              class={`btn btn-xs h-6 min-h-0 text-[11px] px-2 ${
+                value === preset
+                  ? "btn-primary"
+                  : "btn-ghost border border-base-300 hover:bg-base-200"
+              }`}
               onClick={() => onChange(preset)}
             >
-              {preset}{unit}
-            </Button>
+              {preset}
+              {unit}
+            </button>
           ))}
-        </Group>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };

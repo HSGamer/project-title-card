@@ -1,45 +1,36 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { FunctionalComponent } from "preact";
+import { useEffect, useRef, useState } from "preact/hooks";
 import {
-  Paper,
-  Group,
-  Badge,
-  ActionIcon,
-  Tooltip,
-  CopyButton,
-  Stack,
-  Box,
-  Title,
-  Text,
-  Divider
-} from '@mantine/core';
-import {
-  IconCopy,
   IconCheck,
-  IconZoomIn,
-  IconZoomOut,
-  IconRotate,
+  IconCopy,
   IconGridDots,
   IconMoon,
-  IconSun
-} from '@tabler/icons-react';
-import { CardOptions } from '../types.ts';
-import { getCardDimensionsLabel } from '../utils/dimensions.ts';
+  IconRotate,
+  IconSun,
+  IconZoomIn,
+  IconZoomOut,
+} from "@tabler/icons-preact";
+import { CardOptions } from "../types.ts";
+import { getCardDimensionsLabel } from "../utils/dimensions.ts";
 
 interface CardPreviewProps {
   svgElement: SVGSVGElement | null;
   options: CardOptions;
 }
 
-type BackdropType = 'checkerboard' | 'dark' | 'light';
+type BackdropType = "checkerboard" | "dark" | "light";
 
-export const CardPreview: React.FC<CardPreviewProps> = ({ svgElement, options }) => {
+export const CardPreview: FunctionalComponent<CardPreviewProps> = (
+  { svgElement, options },
+) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState<number>(100);
-  const [backdrop, setBackdrop] = useState<BackdropType>('checkerboard');
+  const [backdrop, setBackdrop] = useState<BackdropType>("checkerboard");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.innerHTML = '';
+      containerRef.current.innerHTML = "";
       if (svgElement) {
         containerRef.current.appendChild(svgElement.cloneNode(true));
       }
@@ -48,199 +39,182 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ svgElement, options })
 
   const dimensionsLabel = getCardDimensionsLabel(options);
 
-  const svgString = svgElement
-    ? new XMLSerializer().serializeToString(svgElement)
-    : '';
-
   const handleZoomIn = () => setZoom((z) => Math.min(z + 25, 200));
   const handleZoomOut = () => setZoom((z) => Math.max(z - 25, 50));
   const handleResetZoom = () => setZoom(100);
 
+  const handleCopySVG = async () => {
+    if (!svgElement) return;
+    try {
+      const svgString = new XMLSerializer().serializeToString(svgElement);
+      await navigator.clipboard.writeText(svgString);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (_err) {
+      console.warn("Failed to copy SVG code to clipboard");
+    }
+  };
+
   const getBackdropStyle = () => {
     switch (backdrop) {
-      case 'dark':
-        return { backgroundColor: '#090d16' };
-      case 'light':
-        return { backgroundColor: '#ffffff' };
-      case 'checkerboard':
+      case "dark":
+        return { backgroundColor: "#090d16" };
+      case "light":
+        return { backgroundColor: "#ffffff" };
+      case "checkerboard":
       default:
         return {};
     }
   };
 
   return (
-    <Paper
-      component="section"
+    <section
+      class="card bg-base-100 shadow-md border border-base-300 p-4 lg:sticky lg:top-20"
       aria-labelledby="preview-heading"
-      shadow="sm"
-      radius="lg"
-      p="lg"
-      withBorder
-      style={{
-        position: 'sticky',
-        top: '80px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        minHeight: '450px'
-      }}
     >
-      <Stack w="100%" gap="md">
-        {/* Compact, Unified Toolbar */}
-        <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-          <Group gap="xs">
-            <Title order={2} size="h4" id="preview-heading">
-              Card Preview
-            </Title>
-            <Badge variant="light" size="sm" color="blue">
-              {dimensionsLabel}
-            </Badge>
-          </Group>
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-base-300">
+        <div class="flex items-center gap-2">
+          <h2 id="preview-heading" class="text-base font-bold">
+            Card Preview
+          </h2>
+          <span class="badge badge-info badge-sm font-semibold">
+            {dimensionsLabel}
+          </span>
+        </div>
 
-          <Group gap="xs">
-            {/* Backdrop Switcher (Clean Icon Group) */}
-            <ActionIcon.Group>
-              <Tooltip label="Checkerboard (Transparency)" withArrow>
-                <ActionIcon
-                  size="sm"
-                  variant={backdrop === 'checkerboard' ? 'filled' : 'default'}
-                  color={backdrop === 'checkerboard' ? 'blue' : 'gray'}
-                  onClick={() => setBackdrop('checkerboard')}
-                  aria-label="Checkerboard transparent backdrop"
-                >
-                  <IconGridDots size={14} aria-hidden="true" />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Dark backdrop" withArrow>
-                <ActionIcon
-                  size="sm"
-                  variant={backdrop === 'dark' ? 'filled' : 'default'}
-                  color={backdrop === 'dark' ? 'blue' : 'gray'}
-                  onClick={() => setBackdrop('dark')}
-                  aria-label="Dark background"
-                >
-                  <IconMoon size={14} aria-hidden="true" />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Light backdrop" withArrow>
-                <ActionIcon
-                  size="sm"
-                  variant={backdrop === 'light' ? 'filled' : 'default'}
-                  color={backdrop === 'light' ? 'blue' : 'gray'}
-                  onClick={() => setBackdrop('light')}
-                  aria-label="Light background"
-                >
-                  <IconSun size={14} aria-hidden="true" />
-                </ActionIcon>
-              </Tooltip>
-            </ActionIcon.Group>
+        <div class="flex flex-wrap items-center gap-1.5">
+          {/* Backdrop Switcher */}
+          <div class="join">
+            <div
+              class="tooltip tooltip-bottom"
+              data-tip="Checkerboard (Transparent)"
+            >
+              <button
+                type="button"
+                class={`join-item btn btn-xs ${
+                  backdrop === "checkerboard"
+                    ? "btn-active btn-primary"
+                    : "btn-ghost"
+                }`}
+                onClick={() => setBackdrop("checkerboard")}
+                aria-label="Checkerboard transparent backdrop"
+              >
+                <IconGridDots size={14} />
+              </button>
+            </div>
+            <div class="tooltip tooltip-bottom" data-tip="Dark backdrop">
+              <button
+                type="button"
+                class={`join-item btn btn-xs ${
+                  backdrop === "dark" ? "btn-active btn-primary" : "btn-ghost"
+                }`}
+                onClick={() => setBackdrop("dark")}
+                aria-label="Dark background"
+              >
+                <IconMoon size={14} />
+              </button>
+            </div>
+            <div class="tooltip tooltip-bottom" data-tip="Light backdrop">
+              <button
+                type="button"
+                class={`join-item btn btn-xs ${
+                  backdrop === "light" ? "btn-active btn-primary" : "btn-ghost"
+                }`}
+                onClick={() => setBackdrop("light")}
+                aria-label="Light background"
+              >
+                <IconSun size={14} />
+              </button>
+            </div>
+          </div>
 
-            <Divider orientation="vertical" />
+          <div class="divider divider-horizontal mx-0.5 my-0 h-6"></div>
 
-            {/* Zoom Controls */}
-            <Group gap={2}>
-              <Tooltip label="Zoom Out" withArrow>
-                <ActionIcon
-                  size="sm"
-                  variant="subtle"
-                  color="gray"
-                  onClick={handleZoomOut}
-                  aria-label="Zoom Out Preview"
-                >
-                  <IconZoomOut size={16} aria-hidden="true" />
-                </ActionIcon>
-              </Tooltip>
-              <Text size="xs" fw={600} style={{ minWidth: '36px', textAlign: 'center' }}>
-                {zoom}%
-              </Text>
-              <Tooltip label="Zoom In" withArrow>
-                <ActionIcon
-                  size="sm"
-                  variant="subtle"
-                  color="gray"
-                  onClick={handleZoomIn}
-                  aria-label="Zoom In Preview"
-                >
-                  <IconZoomIn size={16} aria-hidden="true" />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Reset Zoom" withArrow>
-                <ActionIcon
-                  size="sm"
-                  variant="subtle"
-                  color="gray"
-                  onClick={handleResetZoom}
-                  aria-label="Reset Zoom to 100%"
-                >
-                  <IconRotate size={14} aria-hidden="true" />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
+          {/* Zoom Controls */}
+          <div class="join">
+            <div class="tooltip tooltip-bottom" data-tip="Zoom Out">
+              <button
+                type="button"
+                class="join-item btn btn-xs btn-ghost"
+                onClick={handleZoomOut}
+                aria-label="Zoom Out"
+              >
+                <IconZoomOut size={14} />
+              </button>
+            </div>
 
-            <Divider orientation="vertical" />
+            <span class="join-item btn btn-xs btn-ghost pointer-events-none text-xs font-mono px-1.5">
+              {zoom}%
+            </span>
 
-            {/* Copy SVG Code */}
-            <CopyButton value={svgString} timeout={2000}>
-              {({ copied, copy }) => (
-                <>
-                  <Tooltip label={copied ? 'Copied!' : 'Copy SVG Code'} withArrow>
-                    <ActionIcon
-                      color={copied ? 'teal' : 'gray'}
-                      variant="light"
-                      size="sm"
-                      onClick={copy}
-                      aria-label={copied ? 'Copied SVG to clipboard' : 'Copy SVG Code'}
-                    >
-                      {copied ? (
-                        <IconCheck size={16} aria-hidden="true" />
-                      ) : (
-                        <IconCopy size={16} aria-hidden="true" />
-                      )}
-                    </ActionIcon>
-                  </Tooltip>
-                  <div role="status" aria-live="polite" className="sr-only">
-                    {copied ? 'SVG markup copied to clipboard' : ''}
-                  </div>
-                </>
-              )}
-            </CopyButton>
-          </Group>
-        </Group>
+            <div class="tooltip tooltip-bottom" data-tip="Zoom In">
+              <button
+                type="button"
+                class="join-item btn btn-xs btn-ghost"
+                onClick={handleZoomIn}
+                aria-label="Zoom In"
+              >
+                <IconZoomIn size={14} />
+              </button>
+            </div>
 
-        {/* SVG Display Canvas */}
-        <Box
-          className={backdrop === 'checkerboard' ? 'preview-checkerboard' : ''}
+            <div class="tooltip tooltip-bottom" data-tip="Reset Zoom">
+              <button
+                type="button"
+                class="join-item btn btn-xs btn-ghost"
+                onClick={handleResetZoom}
+                aria-label="Reset Zoom"
+              >
+                <IconRotate size={14} />
+              </button>
+            </div>
+          </div>
+
+          <div class="divider divider-horizontal mx-0.5 my-0 h-6"></div>
+
+          {/* Copy SVG Button */}
+          <div
+            class="tooltip tooltip-bottom"
+            data-tip={copied ? "Copied!" : "Copy SVG Code"}
+          >
+            <button
+              type="button"
+              class={`btn btn-xs ${
+                copied
+                  ? "btn-success text-success-content"
+                  : "btn-outline btn-ghost"
+              }`}
+              onClick={handleCopySVG}
+              aria-label={copied ? "Copied SVG to clipboard" : "Copy SVG Code"}
+            >
+              {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Canvas Viewport */}
+      <div
+        class={`flex justify-center items-center p-6 rounded-xl border border-base-300 overflow-auto min-h-[360px] max-h-[70vh] transition-colors ${
+          backdrop === "checkerboard" ? "preview-checkerboard" : ""
+        }`}
+        style={getBackdropStyle()}
+      >
+        <div
           style={{
-            ...getBackdropStyle(),
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '24px',
-            borderRadius: '12px',
-            border: '1px solid var(--mantine-color-default-border)',
-            overflow: 'auto',
-            minHeight: '360px',
-            maxHeight: '70vh',
-            transition: 'background-color 0.2s ease'
+            transform: `scale(${zoom / 100})`,
+            transformOrigin: "center center",
+            transition: "transform 0.15s ease-out",
           }}
         >
           <div
-            style={{
-              transform: `scale(${zoom / 100})`,
-              transformOrigin: 'center center',
-              transition: 'transform 0.15s ease-out'
-            }}
-          >
-            <Box
-              id="svgContainer"
-              ref={containerRef}
-              role="region"
-              aria-label="Interactive SVG Display Area"
-            />
-          </div>
-        </Box>
-      </Stack>
-    </Paper>
+            id="svgContainer"
+            ref={containerRef}
+            role="region"
+            aria-label="SVG Preview Display"
+          />
+        </div>
+      </div>
+    </section>
   );
 };

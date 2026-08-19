@@ -1,14 +1,14 @@
 export async function resolveImageLink(imageLink: string): Promise<string> {
-  if (!imageLink) return '';
-  if (imageLink.startsWith('data:')) return imageLink;
+  if (!imageLink) return "";
+  if (imageLink.startsWith("data:")) return imageLink;
 
   try {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     if (!ctx) return imageLink;
 
     const image = new Image();
-    image.crossOrigin = 'anonymous';
+    image.crossOrigin = "anonymous";
     image.src = imageLink;
 
     await new Promise<void>((resolve, reject) => {
@@ -23,9 +23,12 @@ export async function resolveImageLink(imageLink: string): Promise<string> {
       };
     });
 
-    return canvas.toDataURL('image/png');
+    return canvas.toDataURL("image/png");
   } catch (error) {
-    console.warn('Failed to convert image to Data URL, using original URL:', error);
+    console.warn(
+      "Failed to convert image to Data URL, using original URL:",
+      error,
+    );
     return imageLink;
   }
 }

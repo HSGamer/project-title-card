@@ -1,55 +1,64 @@
-import React from 'react';
-import {
-  Stack,
-  Box,
-  Group,
-  Text,
-  SegmentedControl,
-  ColorInput,
-  Divider
-} from '@mantine/core';
-import { CardOptions, BorderStyle, ShadowEffect } from '../../types.ts';
-import { FieldGuide } from '../FieldGuide.tsx';
-import { SliderControl } from '../SliderControl.tsx';
-import { COLOR_SWATCHES } from '../../data/suggestions.ts';
+import { FunctionalComponent } from "preact";
+import { BorderStyle, CardOptions, ShadowEffect } from "../../types.ts";
+import { FieldGuide } from "../FieldGuide.tsx";
+import { SliderControl } from "../SliderControl.tsx";
+import { COLOR_SWATCHES } from "../../data/suggestions.ts";
 
 interface BorderTabProps {
   options: CardOptions;
-  setOptions: React.Dispatch<React.SetStateAction<CardOptions>>;
+  setOptions: (fn: (prev: CardOptions) => CardOptions) => void;
 }
 
-export const BorderTab: React.FC<BorderTabProps> = ({ options, setOptions }) => {
+export const BorderTab: FunctionalComponent<BorderTabProps> = (
+  { options, setOptions },
+) => {
+  const borderStyles: { label: string; value: BorderStyle }[] = [
+    { label: "Solid", value: "solid" },
+    { label: "Dashed", value: "dashed" },
+    { label: "Dotted", value: "dotted" },
+    { label: "None", value: "none" },
+  ];
+
+  const shadowEffects: { label: string; value: ShadowEffect }[] = [
+    { label: "None", value: "none" },
+    { label: "Subtle", value: "subtle" },
+    { label: "Soft Shadow", value: "soft" },
+    { label: "Deep Shadow", value: "strong" },
+    { label: "Neon Glow", value: "glow" },
+  ];
+
   return (
-    <Stack gap="md">
+    <div class="flex flex-col gap-4">
       {/* Border Style & Width */}
-      <Group grow align="flex-start">
-        <Box>
-          <Group justify="space-between" align="center" mb={4}>
-            <Group gap={4}>
-              <Text size="sm" fw={600}>
-                Border Style
-              </Text>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div class="flex flex-col gap-1.5 w-full">
+          <div class="flex justify-between items-center h-5">
+            <label class="text-xs font-semibold text-base-content flex items-center gap-1">
+              Border Style
               <FieldGuide fieldKey="border" />
-            </Group>
-          </Group>
-          <SegmentedControl
-            fullWidth
-            size="xs"
-            value={options.border?.style || 'solid'}
-            onChange={(val) =>
-              setOptions((prev) => ({
-                ...prev,
-                border: { ...prev.border, style: val as BorderStyle }
-              }))
-            }
-            data={[
-              { label: 'Solid', value: 'solid' },
-              { label: 'Dashed', value: 'dashed' },
-              { label: 'Dotted', value: 'dotted' },
-              { label: 'None', value: 'none' }
-            ]}
-          />
-        </Box>
+            </label>
+          </div>
+          <div class="join w-full h-8">
+            {borderStyles.map((st) => (
+              <button
+                type="button"
+                key={st.value}
+                class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                  (options.border?.style || "solid") === st.value
+                    ? "btn-active btn-primary"
+                    : "btn-ghost bg-base-200"
+                }`}
+                onClick={() =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    border: { ...prev.border, style: st.value },
+                  }))}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <SliderControl
           label="Border Thickness"
@@ -61,28 +70,60 @@ export const BorderTab: React.FC<BorderTabProps> = ({ options, setOptions }) => 
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
-              border: { ...prev.border, width: val }
-            }))
-          }
-          labelSize="xs"
+              border: { ...prev.border, width: val },
+            }))}
         />
-      </Group>
+      </div>
 
       {/* Border Color */}
-      <ColorInput
-        label="Border Color"
-        value={options.border?.color || '#334155'}
-        onChange={(val) =>
-          setOptions((prev) => ({
-            ...prev,
-            border: { ...prev.border, color: val }
-          }))
-        }
-        swatches={COLOR_SWATCHES}
-      />
+      <div class="flex flex-col gap-1.5 w-full">
+        <div class="flex justify-between items-center h-5">
+          <span class="text-xs font-semibold text-base-content">
+            Border Color
+          </span>
+        </div>
+        <div class="flex items-center gap-2 h-8">
+          <input
+            type="color"
+            class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+            value={options.border?.color || "#334155"}
+            onInput={(e) =>
+              setOptions((prev) => ({
+                ...prev,
+                border: { ...prev.border, color: e.currentTarget.value },
+              }))}
+          />
+          <input
+            type="text"
+            class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+            value={options.border?.color || "#334155"}
+            onInput={(e) =>
+              setOptions((prev) => ({
+                ...prev,
+                border: { ...prev.border, color: e.currentTarget.value },
+              }))}
+          />
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-1.5">
+          {COLOR_SWATCHES.map((color) => (
+            <button
+              type="button"
+              key={color}
+              class="w-5 h-5 rounded-full border border-base-content/20 hover:scale-110 transition-transform cursor-pointer flex-shrink-0"
+              style={{ backgroundColor: color }}
+              onClick={() =>
+                setOptions((prev) => ({
+                  ...prev,
+                  border: { ...prev.border, color },
+                }))}
+              aria-label={`Select border color ${color}`}
+            />
+          ))}
+        </div>
+      </div>
 
       {/* Border Radius & Margin */}
-      <Group grow align="flex-start">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
         <SliderControl
           label="Border Corner Radius"
           value={options.border?.radius ?? 16}
@@ -93,10 +134,8 @@ export const BorderTab: React.FC<BorderTabProps> = ({ options, setOptions }) => 
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
-              border: { ...prev.border, radius: val }
-            }))
-          }
-          labelSize="xs"
+              border: { ...prev.border, radius: val },
+            }))}
         />
 
         <SliderControl
@@ -109,59 +148,93 @@ export const BorderTab: React.FC<BorderTabProps> = ({ options, setOptions }) => 
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
-              border: { ...prev.border, margin: val }
-            }))
-          }
-          labelSize="xs"
+              border: { ...prev.border, margin: val },
+            }))}
         />
-      </Group>
+      </div>
 
-      <Divider />
+      <div class="divider my-0"></div>
 
       {/* Shadow & Glow Effects */}
-      <Box>
-        <Group justify="space-between" align="center" mb={4}>
-          <Group gap={4}>
-            <Text size="sm" fw={600}>
-              Shadow & Glow Effect
-            </Text>
+      <div class="flex flex-col gap-1.5 w-full">
+        <div class="flex justify-between items-center h-5">
+          <label class="text-xs font-semibold text-base-content flex items-center gap-1">
+            Shadow & Glow Effect
             <FieldGuide fieldKey="shadow" />
-          </Group>
-        </Group>
-        <SegmentedControl
-          fullWidth
-          size="xs"
-          value={options.border?.shadow || 'soft'}
-          onChange={(val) =>
-            setOptions((prev) => ({
-              ...prev,
-              border: { ...prev.border, shadow: val as ShadowEffect }
-            }))
-          }
-          data={[
-            { label: 'None', value: 'none' },
-            { label: 'Subtle', value: 'subtle' },
-            { label: 'Soft Shadow', value: 'soft' },
-            { label: 'Deep Shadow', value: 'strong' },
-            { label: 'Neon Glow', value: 'glow' }
-          ]}
-        />
-      </Box>
+          </label>
+        </div>
+        <div class="join w-full h-8">
+          {shadowEffects.map((sh) => (
+            <button
+              type="button"
+              key={sh.value}
+              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                (options.border?.shadow || "soft") === sh.value
+                  ? "btn-active btn-primary"
+                  : "btn-ghost bg-base-200"
+              }`}
+              onClick={() =>
+                setOptions((prev) => ({
+                  ...prev,
+                  border: { ...prev.border, shadow: sh.value },
+                }))}
+            >
+              {sh.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Glow Color Input if Neon Glow selected */}
-      {options.border?.shadow === 'glow' && (
-        <ColorInput
-          label="Glow Tint Color"
-          value={options.border?.glowColor || options.border?.color || '#06b6d4'}
-          onChange={(val) =>
-            setOptions((prev) => ({
-              ...prev,
-              border: { ...prev.border, glowColor: val }
-            }))
-          }
-          swatches={COLOR_SWATCHES}
-        />
+      {options.border?.shadow === "glow" && (
+        <div class="flex flex-col gap-1.5 w-full">
+          <div class="flex justify-between items-center h-5">
+            <span class="text-xs font-semibold text-base-content">
+              Glow Tint Color
+            </span>
+          </div>
+          <div class="flex items-center gap-2 h-8">
+            <input
+              type="color"
+              class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+              value={options.border?.glowColor || options.border?.color ||
+                "#06b6d4"}
+              onInput={(e) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  border: { ...prev.border, glowColor: e.currentTarget.value },
+                }))}
+            />
+            <input
+              type="text"
+              class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+              value={options.border?.glowColor || options.border?.color ||
+                "#06b6d4"}
+              onInput={(e) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  border: { ...prev.border, glowColor: e.currentTarget.value },
+                }))}
+            />
+          </div>
+          <div class="flex flex-wrap gap-1.5 mt-1.5">
+            {COLOR_SWATCHES.map((color) => (
+              <button
+                type="button"
+                key={color}
+                class="w-5 h-5 rounded-full border border-base-content/20 hover:scale-110 transition-transform cursor-pointer flex-shrink-0"
+                style={{ backgroundColor: color }}
+                onClick={() =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    border: { ...prev.border, glowColor: color },
+                  }))}
+                aria-label={`Select glow color ${color}`}
+              />
+            ))}
+          </div>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 };

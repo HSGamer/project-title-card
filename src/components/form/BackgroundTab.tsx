@@ -1,283 +1,410 @@
-import React, { useRef } from 'react';
+import { FunctionalComponent } from "preact";
+import { useRef } from "preact/hooks";
+import { IconPhoto, IconUpload, IconX } from "@tabler/icons-preact";
+import { BackgroundType, CardOptions, GradientDirection } from "../../types.ts";
+import { FieldGuide } from "../FieldGuide.tsx";
+import { SliderControl } from "../SliderControl.tsx";
 import {
-  Stack,
-  Box,
-  Group,
-  Text,
-  SegmentedControl,
-  ColorInput,
-  Button,
-  TextInput,
-  FileButton,
-  Badge
-} from '@mantine/core';
-import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import { CardOptions, BackgroundType, GradientDirection } from '../../types.ts';
-import { FieldGuide } from '../FieldGuide.tsx';
-import { SliderControl } from '../SliderControl.tsx';
-import {
-  GRADIENT_PRESETS,
   COLOR_SWATCHES,
-  GradientPreset
-} from '../../data/suggestions.ts';
+  GRADIENT_PRESETS,
+  GradientPreset,
+} from "../../data/suggestions.ts";
 
 interface BackgroundTabProps {
   options: CardOptions;
-  setOptions: React.Dispatch<React.SetStateAction<CardOptions>>;
+  setOptions: (fn: (prev: CardOptions) => CardOptions) => void;
 }
 
-export const BackgroundTab: React.FC<BackgroundTabProps> = ({ options, setOptions }) => {
-  const bgFileResetRef = useRef<() => void>(null);
-  const isBgDataUrl = options.background?.imageUrl?.startsWith('data:');
+export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
+  { options, setOptions },
+) => {
+  const bgFileInputRef = useRef<HTMLInputElement>(null);
+  const isBgDataUrl = options.background?.imageUrl?.startsWith("data:");
+
+  const bgModes: { label: string; value: BackgroundType }[] = [
+    { label: "Solid Color", value: "solid" },
+    { label: "Gradient", value: "gradient" },
+    { label: "Frosted Glass", value: "glass" },
+    { label: "Custom Image", value: "image" },
+  ];
 
   const handleApplyGradientPreset = (preset: GradientPreset) => {
     setOptions((prev) => ({
       ...prev,
       background: {
         ...prev.background,
-        type: 'gradient',
+        type: "gradient",
         gradientStart: preset.start,
         gradientMiddle: preset.middle,
         gradientEnd: preset.end,
-        gradientDirection: preset.direction || prev.background.gradientDirection || 'to-br'
-      }
+        gradientDirection: preset.direction ||
+          prev.background.gradientDirection || "to-br",
+      },
     }));
   };
 
-  const handleBgImageUpload = (file: File | null) => {
+  const handleBgImageUpload = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
+      if (typeof reader.result === "string") {
         const dataUrl = reader.result;
         setOptions((prev) => ({
           ...prev,
           background: {
             ...prev.background,
-            type: 'image',
-            imageUrl: dataUrl
-          }
+            type: "image",
+            imageUrl: dataUrl,
+          },
         }));
       }
-      bgFileResetRef.current?.();
+      if (bgFileInputRef.current) bgFileInputRef.current.value = "";
     };
     reader.onerror = () => {
-      bgFileResetRef.current?.();
+      if (bgFileInputRef.current) bgFileInputRef.current.value = "";
     };
     reader.readAsDataURL(file);
   };
 
+  const gradDirections: { label: string; value: GradientDirection }[] = [
+    { label: "→ Right", value: "to-r" },
+    { label: "↘ Diagonal", value: "to-br" },
+    { label: "↓ Down", value: "to-b" },
+    { label: "↙ Left-Down", value: "to-bl" },
+    { label: "◉ Radial", value: "radial" },
+  ];
+
   return (
-    <Stack gap="md">
+    <div class="flex flex-col gap-4">
       {/* Background Type */}
-      <Box>
-        <Group justify="space-between" align="center" mb={4}>
-          <Group gap={4}>
-            <Text size="sm" fw={600}>
-              Background Mode
-            </Text>
+      <div class="flex flex-col gap-1.5 w-full">
+        <div class="flex justify-between items-center h-5">
+          <label class="text-xs font-semibold text-base-content flex items-center gap-1">
+            Background Mode
             <FieldGuide fieldKey="background" />
-          </Group>
-        </Group>
-        <SegmentedControl
-          fullWidth
-          value={options.background?.type || 'solid'}
-          onChange={(val) =>
-            setOptions((prev) => ({
-              ...prev,
-              background: {
-                ...prev.background,
-                type: val as BackgroundType
-              }
-            }))
-          }
-          data={[
-            { label: 'Solid Color', value: 'solid' },
-            { label: 'Gradient', value: 'gradient' },
-            { label: 'Frosted Glass', value: 'glass' },
-            { label: 'Custom Image', value: 'image' }
-          ]}
-        />
-      </Box>
-
-      {/* 1. SOLID / GLASS COLOR */}
-      {(options.background?.type === 'solid' || options.background?.type === 'glass') && (
-        <Box>
-          <ColorInput
-            label="Background Color"
-            value={options.background?.color || '#0f172a'}
-            onChange={(val) =>
-              setOptions((prev) => ({
-                ...prev,
-                background: { ...prev.background, color: val }
-              }))
-            }
-            swatches={COLOR_SWATCHES}
-          />
-        </Box>
-      )}
-
-      {/* 2. GRADIENT CONTROLS */}
-      {options.background?.type === 'gradient' && (
-        <Stack gap="sm">
-          {/* Gradient Preset Chips */}
-          <Box>
-            <Text size="xs" fw={600} mb="xs" c="dimmed">
-              Popular Gradient Themes:
-            </Text>
-            <Group gap="xs">
-              {GRADIENT_PRESETS.map((p) => (
-                <Button
-                  key={p.id}
-                  size="compact-xs"
-                  variant="light"
-                  color="blue"
-                  leftSection={
-                    <div
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${p.start}, ${p.end})`
-                      }}
-                    />
-                  }
-                  onClick={() => handleApplyGradientPreset(p)}
-                >
-                  {p.name}
-                </Button>
-              ))}
-            </Group>
-          </Box>
-
-          {/* Gradient Direction */}
-          <Box>
-            <Text size="xs" fw={600} mb={4} c="dimmed">
-              Gradient Direction
-            </Text>
-            <SegmentedControl
-              fullWidth
-              size="xs"
-              value={options.background?.gradientDirection || 'to-br'}
-              onChange={(val) =>
+          </label>
+        </div>
+        <div class="join w-full h-8">
+          {bgModes.map((mode) => (
+            <button
+              type="button"
+              key={mode.value}
+              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                (options.background?.type || "solid") === mode.value
+                  ? "btn-active btn-primary"
+                  : "btn-ghost bg-base-200"
+              }`}
+              onClick={() =>
                 setOptions((prev) => ({
                   ...prev,
                   background: {
                     ...prev.background,
-                    gradientDirection: val as GradientDirection
-                  }
-                }))
-              }
-              data={[
-                { label: '→ Right', value: 'to-r' },
-                { label: '↘ Diagonal', value: 'to-br' },
-                { label: '↓ Down', value: 'to-b' },
-                { label: '↙ Left-Down', value: 'to-bl' },
-                { label: '◉ Radial', value: 'radial' }
-              ]}
-            />
-          </Box>
+                    type: mode.value,
+                  },
+                }))}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-          {/* Gradient Stops */}
-          <Group grow align="flex-start">
-            <ColorInput
-              label="Start Color"
-              value={options.background?.gradientStart || '#ea580c'}
-              onChange={(val) =>
+      {/* 1. SOLID / GLASS COLOR */}
+      {(options.background?.type === "solid" ||
+        options.background?.type === "glass") && (
+        <div class="flex flex-col gap-1.5 w-full">
+          <div class="flex justify-between items-center h-5">
+            <span class="text-xs font-semibold text-base-content">
+              Background Color
+            </span>
+          </div>
+          <div class="flex items-center gap-2 h-8">
+            <input
+              type="color"
+              class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+              value={options.background?.color || "#0f172a"}
+              onInput={(e) =>
                 setOptions((prev) => ({
                   ...prev,
-                  background: { ...prev.background, gradientStart: val }
-                }))
-              }
-              swatches={COLOR_SWATCHES}
+                  background: {
+                    ...prev.background,
+                    color: e.currentTarget.value,
+                  },
+                }))}
             />
-            <ColorInput
-              label="Middle Color (Optional)"
-              value={options.background?.gradientMiddle || ''}
-              placeholder="None"
-              onChange={(val) =>
+            <input
+              type="text"
+              class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+              value={options.background?.color || "#0f172a"}
+              onInput={(e) =>
                 setOptions((prev) => ({
                   ...prev,
-                  background: { ...prev.background, gradientMiddle: val || undefined }
-                }))
-              }
-              swatches={COLOR_SWATCHES}
+                  background: {
+                    ...prev.background,
+                    color: e.currentTarget.value,
+                  },
+                }))}
             />
-            <ColorInput
-              label="End Color"
-              value={options.background?.gradientEnd || '#7c3aed'}
-              onChange={(val) =>
-                setOptions((prev) => ({
-                  ...prev,
-                  background: { ...prev.background, gradientEnd: val }
-                }))
-              }
-              swatches={COLOR_SWATCHES}
-            />
-          </Group>
-        </Stack>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5 mt-1.5">
+            {COLOR_SWATCHES.map((color) => (
+              <button
+                type="button"
+                key={color}
+                class="w-5 h-5 rounded-full border border-base-content/20 hover:scale-110 transition-transform cursor-pointer flex-shrink-0"
+                style={{ backgroundColor: color }}
+                onClick={() =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    background: { ...prev.background, color },
+                  }))}
+                aria-label={`Select color ${color}`}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
-      {/* 3. CUSTOM BACKGROUND IMAGE CONTROLS */}
-      {options.background?.type === 'image' && (
-        <Stack gap="sm">
-          <Box>
-            <Group justify="space-between" align="center" mb={4}>
-              <Group gap={4}>
-                <Text size="xs" fw={600} c="dimmed">
-                  Background Image Source
-                </Text>
-                {isBgDataUrl && (
-                  <Badge size="xs" variant="light" color="indigo" leftSection={<IconPhoto size={10} />}>
-                    Uploaded File
-                  </Badge>
-                )}
-              </Group>
-              {options.background?.imageUrl && (
-                <Button
-                  size="compact-xs"
-                  variant="subtle"
-                  color="red"
-                  leftSection={<IconX size={12} />}
+      {/* 2. GRADIENT CONTROLS */}
+      {options.background?.type === "gradient" && (
+        <div class="flex flex-col gap-3">
+          <div>
+            <span class="text-xs text-base-content/70 font-semibold block mb-1">
+              Popular Gradient Themes:
+            </span>
+            <div class="flex flex-wrap gap-1">
+              {GRADIENT_PRESETS.map((p) => (
+                <button
+                  type="button"
+                  key={p.id}
+                  class="btn btn-xs h-6 min-h-0 text-[11px] btn-ghost border border-base-300 px-2 gap-1.5"
+                  onClick={() => handleApplyGradientPreset(p)}
+                >
+                  <span
+                    class="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
+                    style={{
+                      background:
+                        `linear-gradient(135deg, ${p.start}, ${p.end})`,
+                    }}
+                  />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center h-5">
+              <span class="text-xs font-semibold text-base-content">
+                Gradient Direction
+              </span>
+            </div>
+            <div class="join w-full h-8">
+              {gradDirections.map((d) => (
+                <button
+                  type="button"
+                  key={d.value}
+                  class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                    (options.background?.gradientDirection || "to-br") ===
+                        d.value
+                      ? "btn-active btn-primary"
+                      : "btn-ghost bg-base-200"
+                  }`}
                   onClick={() =>
                     setOptions((prev) => ({
                       ...prev,
-                      background: { ...prev.background, imageUrl: '' }
-                    }))
-                  }
+                      background: {
+                        ...prev.background,
+                        gradientDirection: d.value,
+                      },
+                    }))}
                 >
-                  Clear Image
-                </Button>
-              )}
-            </Group>
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-            <TextInput
-              id="bgImageUrl"
-              value={options.background?.imageUrl || ''}
-              onChange={(e) =>
-                setOptions((prev) => ({
-                  ...prev,
-                  background: { ...prev.background, imageUrl: e.currentTarget.value }
-                }))
-              }
-              placeholder="Paste background image URL or upload image file..."
-              rightSection={
-                <FileButton resetRef={bgFileResetRef} onChange={handleBgImageUpload} accept="image/*">
-                  {(props) => (
-                    <Button
-                      {...props}
-                      size="xs"
-                      variant="light"
-                      leftSection={<IconUpload size={14} aria-hidden="true" />}
-                    >
-                      Upload
-                    </Button>
-                  )}
-                </FileButton>
-              }
-              rightSectionWidth={95}
-            />
-          </Box>
+          {/* Gradient Stops */}
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
+            <div class="flex flex-col gap-1.5 w-full">
+              <div class="flex justify-between items-center h-5">
+                <span class="text-xs font-semibold text-base-content">
+                  Start Color
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 h-8">
+                <input
+                  type="color"
+                  class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                  value={options.background?.gradientStart || "#ea580c"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        gradientStart: e.currentTarget.value,
+                      },
+                    }))}
+                />
+                <input
+                  type="text"
+                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  value={options.background?.gradientStart || "#ea580c"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        gradientStart: e.currentTarget.value,
+                      },
+                    }))}
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 w-full">
+              <div class="flex justify-between items-center h-5">
+                <span class="text-xs font-semibold text-base-content">
+                  Middle Color (Opt)
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 h-8">
+                <input
+                  type="color"
+                  class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                  value={options.background?.gradientMiddle || "#db2777"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        gradientMiddle: e.currentTarget.value,
+                      },
+                    }))}
+                />
+                <input
+                  type="text"
+                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  placeholder="None"
+                  value={options.background?.gradientMiddle || ""}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        gradientMiddle: e.currentTarget.value || undefined,
+                      },
+                    }))}
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 w-full">
+              <div class="flex justify-between items-center h-5">
+                <span class="text-xs font-semibold text-base-content">
+                  End Color
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 h-8">
+                <input
+                  type="color"
+                  class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                  value={options.background?.gradientEnd || "#7c3aed"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        gradientEnd: e.currentTarget.value,
+                      },
+                    }))}
+                />
+                <input
+                  type="text"
+                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  value={options.background?.gradientEnd || "#7c3aed"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        gradientEnd: e.currentTarget.value,
+                      },
+                    }))}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. CUSTOM BACKGROUND IMAGE CONTROLS */}
+      {options.background?.type === "image" && (
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center h-5">
+              <span class="text-xs font-semibold text-base-content flex items-center gap-1">
+                Background Image Source
+                {isBgDataUrl && (
+                  <span class="badge badge-sm badge-neutral gap-1 text-[10px] h-4">
+                    <IconPhoto size={10} />
+                    Uploaded File
+                  </span>
+                )}
+              </span>
+              {options.background?.imageUrl && (
+                <button
+                  type="button"
+                  class="btn btn-xs h-5 min-h-0 btn-ghost text-error gap-0.5 px-1 text-[11px]"
+                  onClick={() =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: { ...prev.background, imageUrl: "" },
+                    }))}
+                >
+                  <IconX size={12} />
+                  Clear Image
+                </button>
+              )}
+            </div>
+
+            <div class="flex gap-2 h-8">
+              <input
+                type="text"
+                class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                value={options.background?.imageUrl || ""}
+                onInput={(e) =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    background: {
+                      ...prev.background,
+                      imageUrl: e.currentTarget.value,
+                    },
+                  }))}
+                placeholder="Paste background image URL or upload image file..."
+              />
+              <input
+                type="file"
+                ref={bgFileInputRef}
+                onChange={handleBgImageUpload}
+                accept="image/*"
+                class="hidden"
+              />
+              <button
+                type="button"
+                class="btn btn-sm h-8 min-h-0 btn-outline border-base-300 gap-1 text-xs px-3"
+                onClick={() => bgFileInputRef.current?.click()}
+              >
+                <IconUpload size={14} />
+                Upload
+              </button>
+            </div>
+          </div>
 
           <SliderControl
             label="Image Opacity"
@@ -290,28 +417,52 @@ export const BackgroundTab: React.FC<BackgroundTabProps> = ({ options, setOption
             onChange={(val) =>
               setOptions((prev) => ({
                 ...prev,
-                background: { ...prev.background, imageOpacity: val / 100 }
-              }))
-            }
-            labelSize="xs"
+                background: { ...prev.background, imageOpacity: val / 100 },
+              }))}
           />
 
-          <Group grow align="flex-start">
-            <ColorInput
-              label="Overlay Tint Color (Contrast)"
-              value={options.background?.overlayColor || '#0f172a'}
-              onChange={(val) =>
-                setOptions((prev) => ({
-                  ...prev,
-                  background: { ...prev.background, overlayColor: val }
-                }))
-              }
-              swatches={COLOR_SWATCHES}
-            />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <div class="flex flex-col gap-1.5 w-full">
+              <div class="flex justify-between items-center h-5">
+                <span class="text-xs font-semibold text-base-content">
+                  Overlay Tint Color
+                </span>
+              </div>
+              <div class="flex items-center gap-2 h-8">
+                <input
+                  type="color"
+                  class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                  value={options.background?.overlayColor || "#0f172a"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        overlayColor: e.currentTarget.value,
+                      },
+                    }))}
+                />
+                <input
+                  type="text"
+                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  value={options.background?.overlayColor || "#0f172a"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      background: {
+                        ...prev.background,
+                        overlayColor: e.currentTarget.value,
+                      },
+                    }))}
+                />
+              </div>
+            </div>
 
             <SliderControl
               label="Tint Overlay Opacity"
-              value={Math.round((options.background?.overlayOpacity ?? 0.4) * 100)}
+              value={Math.round(
+                (options.background?.overlayOpacity ?? 0.4) * 100,
+              )}
               min={0}
               max={95}
               step={5}
@@ -320,13 +471,11 @@ export const BackgroundTab: React.FC<BackgroundTabProps> = ({ options, setOption
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
-                  background: { ...prev.background, overlayOpacity: val / 100 }
-                }))
-              }
-              labelSize="xs"
+                  background: { ...prev.background, overlayOpacity: val / 100 },
+                }))}
             />
-          </Group>
-        </Stack>
+          </div>
+        </div>
       )}
 
       {/* Global Background Opacity */}
@@ -341,11 +490,9 @@ export const BackgroundTab: React.FC<BackgroundTabProps> = ({ options, setOption
         onChange={(val) =>
           setOptions((prev) => ({
             ...prev,
-            background: { ...prev.background, opacity: val / 100 }
-          }))
-        }
-        labelSize="xs"
+            background: { ...prev.background, opacity: val / 100 },
+          }))}
       />
-    </Stack>
+    </div>
   );
 };

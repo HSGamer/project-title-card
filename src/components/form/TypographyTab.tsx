@@ -1,50 +1,40 @@
-import React, { useState } from 'react';
+import { FunctionalComponent } from "preact";
+import { useState } from "preact/hooks";
 import {
-  Stack,
-  Box,
-  Group,
-  Text,
-  Select,
-  ColorInput,
-  Switch,
-  Divider,
-  Button,
-  TextInput,
-  Paper,
-  Alert
-} from '@mantine/core';
-import {
-  IconTypography,
-  IconDeviceDesktop,
+  IconAlertCircle,
   IconCheck,
-  IconAlertCircle
-} from '@tabler/icons-react';
+  IconDeviceDesktop,
+  IconTypography,
+} from "@tabler/icons-preact";
 import {
   CardOptions,
+  DescriptionFontWeight,
   TitleFontWeight,
-  DescriptionFontWeight
-} from '../../types.ts';
-import { FieldGuide } from '../FieldGuide.tsx';
-import { SliderControl } from '../SliderControl.tsx';
+} from "../../types.ts";
+import { FieldGuide } from "../FieldGuide.tsx";
+import { SliderControl } from "../SliderControl.tsx";
 import {
   DEFAULT_FONT_OPTIONS,
   FontOption,
+  loadWebFont,
   querySystemFonts,
-  loadWebFont
-} from '../../utils/fonts.ts';
-import { COLOR_SWATCHES } from '../../data/suggestions.ts';
+} from "../../utils/fonts.ts";
 
 interface TypographyTabProps {
   options: CardOptions;
-  setOptions: React.Dispatch<React.SetStateAction<CardOptions>>;
+  setOptions: (fn: (prev: CardOptions) => CardOptions) => void;
 }
 
-export const TypographyTab: React.FC<TypographyTabProps> = ({ options, setOptions }) => {
+export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
+  { options, setOptions },
+) => {
   const [fontList, setFontList] = useState<FontOption[]>(DEFAULT_FONT_OPTIONS);
   const [isScanningFonts, setIsScanningFonts] = useState(false);
   const [scannedCount, setScannedCount] = useState<number | null>(null);
-  const [scanMessage, setScanMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  const [customFontInput, setCustomFontInput] = useState('');
+  const [scanMessage, setScanMessage] = useState<
+    { text: string; type: "success" | "error" } | null
+  >(null);
+  const [customFontInput, setCustomFontInput] = useState("");
 
   // Scan installed system fonts via Local Font Access API
   const handleScanSystemFonts = async () => {
@@ -54,20 +44,24 @@ export const TypographyTab: React.FC<TypographyTabProps> = ({ options, setOption
       const localFonts = await querySystemFonts();
       if (localFonts.length > 0) {
         setFontList((prev) => {
-          const existingLabels = new Set(prev.map((f) => f.label.toLowerCase()));
-          const newLocal = localFonts.filter((f) => !existingLabels.has(f.label.toLowerCase()));
+          const existingLabels = new Set(
+            prev.map((f) => f.label.toLowerCase()),
+          );
+          const newLocal = localFonts.filter((f) =>
+            !existingLabels.has(f.label.toLowerCase())
+          );
           return [...newLocal, ...prev];
         });
         setScannedCount(localFonts.length);
         setScanMessage({
           text: `Found and loaded ${localFonts.length} local system fonts!`,
-          type: 'success'
+          type: "success",
         });
       }
     } catch (err) {
       setScanMessage({
         text: err instanceof Error ? err.message : String(err),
-        type: 'error'
+        type: "error",
       });
     } finally {
       setIsScanningFonts(false);
@@ -75,402 +69,466 @@ export const TypographyTab: React.FC<TypographyTabProps> = ({ options, setOption
   };
 
   // Add custom font family name to list and apply
-  const handleAddCustomFont = (target: 'title' | 'description') => {
+  const handleAddCustomFont = (target: "title" | "description") => {
     const trimmed = customFontInput.trim();
     if (!trimmed) return;
 
-    const formattedValue = trimmed.includes(',') ? trimmed : `"${trimmed}", sans-serif`;
+    const formattedValue = trimmed.includes(",")
+      ? trimmed
+      : `"${trimmed}", sans-serif`;
     const newFont: FontOption = {
       label: trimmed,
       value: formattedValue,
-      category: 'Display',
-      isGoogleFont: true
+      category: "Display",
+      isGoogleFont: true,
     };
 
     setFontList((prev) => [newFont, ...prev]);
     loadWebFont(trimmed);
 
-    if (target === 'title') {
+    if (target === "title") {
       setOptions((prev) => ({
         ...prev,
-        titleFont: { ...prev.titleFont, fontFamily: formattedValue }
+        titleFont: { ...prev.titleFont, fontFamily: formattedValue },
       }));
     } else {
       setOptions((prev) => ({
         ...prev,
-        ...('descriptionFont' in prev
-          ? { descriptionFont: { ...prev.descriptionFont, fontFamily: formattedValue } }
-          : {})
+        ...("descriptionFont" in prev
+          ? {
+            descriptionFont: {
+              ...prev.descriptionFont,
+              fontFamily: formattedValue,
+            },
+          }
+          : {}),
       }));
     }
-    setCustomFontInput('');
+    setCustomFontInput("");
   };
 
-  // Build select options with groups
-  const getFontSelectData = (currentValue?: string) => {
-    const groupsMap = new Map<string, { value: string; label: string }[]>();
+  const fontWeights: { label: string; value: TitleFontWeight }[] = [
+    { label: "400 - Regular", value: "400" },
+    { label: "500 - Medium", value: "500" },
+    { label: "600 - SemiBold", value: "600" },
+    { label: "700 - Bold", value: "700" },
+    { label: "800 - ExtraBold", value: "800" },
+    { label: "900 - Black", value: "900" },
+  ];
 
-    if (currentValue && !fontList.some((f) => f.value === currentValue)) {
-      const customName = currentValue.split(',')[0].replace(/["']/g, '');
-      groupsMap.set('Custom', [{ value: currentValue, label: `Custom: ${customName}` }]);
-    }
-
-    for (const f of fontList) {
-      const groupName = f.category || 'Web Fonts';
-      if (!groupsMap.has(groupName)) {
-        groupsMap.set(groupName, []);
-      }
-      groupsMap.get(groupName)!.push({
-        value: f.value,
-        label: f.label
-      });
-    }
-
-    const result: Array<{ group: string; items: { value: string; label: string }[] }> = [];
-    for (const [group, items] of groupsMap.entries()) {
-      result.push({ group, items });
-    }
-
-    return result;
-  };
+  const descFontWeights: { label: string; value: DescriptionFontWeight }[] = [
+    { label: "300 - Light", value: "300" },
+    { label: "400 - Regular", value: "400" },
+    { label: "500 - Medium", value: "500" },
+    { label: "600 - SemiBold", value: "600" },
+    { label: "700 - Bold", value: "700" },
+  ];
 
   return (
-    <Stack gap="lg">
-      {/* Dynamic Font Source Toolbar */}
-      <Paper p="sm" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-default-hover)' }}>
-        <Stack gap="xs">
-          <Group justify="space-between" align="center">
-            <Group gap="xs">
-              <IconTypography size={18} color="var(--mantine-color-blue-filled)" />
-              <Text size="xs" fw={700}>
-                Font Catalog & Local System Fonts
-              </Text>
-            </Group>
-            <Button
-              size="compact-xs"
-              variant="light"
-              leftSection={<IconDeviceDesktop size={14} />}
-              onClick={handleScanSystemFonts}
-              loading={isScanningFonts}
-            >
-              {scannedCount ? `Re-Scan (${scannedCount} loaded)` : 'Scan Local OS Fonts'}
-            </Button>
-          </Group>
+    <div class="flex flex-col gap-4">
+      {/* Font Catalog Toolbar */}
+      <div class="bg-base-200 p-3 rounded-xl border border-base-300 flex flex-col gap-2.5">
+        <div class="flex justify-between items-center h-5">
+          <div class="flex items-center gap-1.5">
+            <IconTypography size={16} class="text-primary" />
+            <span class="text-xs font-bold">
+              Font Catalog & Local System Fonts
+            </span>
+          </div>
+          <button
+            type="button"
+            class={`btn btn-xs h-6 min-h-0 text-[11px] btn-outline border-base-300 gap-1 ${
+              isScanningFonts ? "loading" : ""
+            }`}
+            onClick={handleScanSystemFonts}
+            disabled={isScanningFonts}
+          >
+            <IconDeviceDesktop size={13} />
+            {scannedCount ? `Re-Scan (${scannedCount})` : "Scan Local OS Fonts"}
+          </button>
+        </div>
 
-          {scanMessage && (
-            <Alert
-              p="xs"
-              color={scanMessage.type === 'success' ? 'teal' : 'orange'}
-              icon={
-                scanMessage.type === 'success' ? (
-                  <IconCheck size={14} />
-                ) : (
-                  <IconAlertCircle size={14} />
-                )
+        {scanMessage && (
+          <div
+            class={`alert alert-sm p-2 text-xs flex items-center gap-2 ${
+              scanMessage.type === "success" ? "alert-success" : "alert-warning"
+            }`}
+          >
+            {scanMessage.type === "success"
+              ? <IconCheck size={14} />
+              : <IconAlertCircle size={14} />}
+            <span>{scanMessage.text}</span>
+          </div>
+        )}
+
+        {/* Add custom font input */}
+        <div class="flex items-center gap-1.5 h-8">
+          <input
+            type="text"
+            class="input input-bordered input-sm h-8 flex-1 text-xs"
+            placeholder="Type any Google Font name (e.g. Space Grotesk)..."
+            value={customFontInput}
+            onInput={(e) => setCustomFontInput(e.currentTarget.value)}
+            onKeyDown={(e: KeyboardEvent) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddCustomFont("title");
               }
-            >
-              {scanMessage.text}
-            </Alert>
-          )}
-
-          {/* Add custom font input */}
-          <Group gap="xs" align="flex-end">
-            <TextInput
-              style={{ flex: 1 }}
-              size="xs"
-              placeholder="Type any Google Font or Custom Font (e.g. Space Grotesk)..."
-              value={customFontInput}
-              onChange={(e) => setCustomFontInput(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAddCustomFont('title');
-                }
-              }}
-            />
-            <Button
-              size="xs"
-              variant="default"
-              onClick={() => handleAddCustomFont('title')}
-              disabled={!customFontInput.trim()}
-            >
-              Apply to Title
-            </Button>
-            {options.generateType !== 'badge' && (
-              <Button
-                size="xs"
-                variant="subtle"
-                onClick={() => handleAddCustomFont('description')}
-                disabled={!customFontInput.trim()}
-              >
-                Apply to Desc
-              </Button>
-            )}
-          </Group>
-        </Stack>
-      </Paper>
-
-      {/* 1. Title Typography */}
-      <Box>
-        <Group justify="space-between" align="center" mb={4}>
-          <Group gap={4}>
-            <Text size="sm" fw={700} c="blue">
-              Title Typography
-            </Text>
-            <FieldGuide fieldKey="titleTypography" />
-          </Group>
-          <Switch
-            size="xs"
-            label="ALL CAPS"
-            checked={Boolean(options.titleFont?.uppercase)}
-            onChange={(e) =>
-              setOptions((prev) => ({
-                ...prev,
-                titleFont: { ...prev.titleFont, uppercase: e.currentTarget.checked }
-              }))
-            }
-          />
-        </Group>
-
-        <Stack gap="xs">
-          <Select
-            label="Font Family"
-            searchable
-            nothingFoundMessage="Font not found in catalog. Type name above to add it."
-            value={options.titleFont?.fontFamily || fontList[0]?.value}
-            data={getFontSelectData(options.titleFont?.fontFamily)}
-            onChange={(val) => {
-              if (!val) return;
-              loadWebFont(val);
-              setOptions((prev) => ({
-                ...prev,
-                titleFont: {
-                  ...prev.titleFont,
-                  fontFamily: val
-                }
-              }));
             }}
           />
+          <button
+            type="button"
+            class="btn btn-sm h-8 min-h-0 btn-outline border-base-300 text-xs px-2.5"
+            disabled={!customFontInput.trim()}
+            onClick={() => handleAddCustomFont("title")}
+          >
+            Apply Title
+          </button>
+          {options.generateType !== "badge" && (
+            <button
+              type="button"
+              class="btn btn-sm h-8 min-h-0 btn-ghost text-xs px-2"
+              disabled={!customFontInput.trim()}
+              onClick={() => handleAddCustomFont("description")}
+            >
+              Apply Desc
+            </button>
+          )}
+        </div>
+      </div>
 
-          <Group grow align="flex-start">
-            <Select
-              label="Font Weight"
-              value={options.titleFont?.fontWeight || '800'}
-              data={[
-                { label: '400 - Regular', value: '400' },
-                { label: '500 - Medium', value: '500' },
-                { label: '600 - SemiBold', value: '600' },
-                { label: '700 - Bold', value: '700' },
-                { label: '800 - ExtraBold', value: '800' },
-                { label: '900 - Black', value: '900' }
-              ]}
-              onChange={(val) =>
+      {/* 1. Title Typography */}
+      <div class="flex flex-col gap-3">
+        <div class="flex justify-between items-center h-5">
+          <label class="text-xs font-bold flex items-center gap-1 text-primary">
+            Title Typography
+            <FieldGuide fieldKey="titleTypography" />
+          </label>
+          <label class="cursor-pointer flex items-center gap-1.5 py-0">
+            <span class="text-xs text-base-content/70">ALL CAPS</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary toggle-xs"
+              checked={Boolean(options.titleFont?.uppercase)}
+              onChange={(e) =>
                 setOptions((prev) => ({
                   ...prev,
                   titleFont: {
                     ...prev.titleFont,
-                    fontWeight: (val as TitleFontWeight) || '800'
-                  }
-                }))
-              }
+                    uppercase: e.currentTarget.checked,
+                  },
+                }))}
             />
+          </label>
+        </div>
 
-            <ColorInput
-              label="Title Color"
-              value={options.titleFont?.color || '#f8fafc'}
-              onChange={(val) =>
+        <div class="flex flex-col gap-1.5 w-full">
+          <div class="flex justify-between items-center h-5">
+            <span class="text-xs font-semibold text-base-content">
+              Font Family
+            </span>
+          </div>
+          <select
+            class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+            value={options.titleFont?.fontFamily || fontList[0]?.value}
+            onChange={(e) => {
+              const val = e.currentTarget.value;
+              if (!val) return;
+              loadWebFont(val);
+              setOptions((prev) => ({
+                ...prev,
+                titleFont: { ...prev.titleFont, fontFamily: val },
+              }));
+            }}
+          >
+            {fontList.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label} {f.category ? `(${f.category})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center h-5">
+              <span class="text-xs font-semibold text-base-content">
+                Font Weight
+              </span>
+            </div>
+            <select
+              class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+              value={options.titleFont?.fontWeight || "800"}
+              onChange={(e) =>
                 setOptions((prev) => ({
                   ...prev,
-                  titleFont: { ...prev.titleFont, color: val }
-                }))
-              }
-              swatches={COLOR_SWATCHES}
-            />
-          </Group>
+                  titleFont: {
+                    ...prev.titleFont,
+                    fontWeight: (e.currentTarget.value as TitleFontWeight) ||
+                      "800",
+                  },
+                }))}
+            >
+              {fontWeights.map((w) => (
+                <option key={w.value} value={w.value}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <Group grow align="flex-start">
-            <SliderControl
-              label="Font Size"
-              value={options.titleFont?.fontSize || 34}
-              min={16}
-              max={72}
-              step={2}
-              presets={[24, 34, 44, 52]}
-              onChange={(val) =>
-                setOptions((prev) => ({
-                  ...prev,
-                  titleFont: { ...prev.titleFont, fontSize: val }
-                }))
-              }
-              labelSize="xs"
-            />
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center h-5">
+              <span class="text-xs font-semibold text-base-content">
+                Title Color
+              </span>
+            </div>
+            <div class="flex items-center gap-2 h-8">
+              <input
+                type="color"
+                class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                value={options.titleFont?.color || "#f8fafc"}
+                onInput={(e) =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    titleFont: {
+                      ...prev.titleFont,
+                      color: e.currentTarget.value,
+                    },
+                  }))}
+              />
+              <input
+                type="text"
+                class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                value={options.titleFont?.color || "#f8fafc"}
+                onInput={(e) =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    titleFont: {
+                      ...prev.titleFont,
+                      color: e.currentTarget.value,
+                    },
+                  }))}
+              />
+            </div>
+          </div>
+        </div>
 
-            <SliderControl
-              label="Letter Spacing"
-              value={options.titleFont?.letterSpacing || 0}
-              min={-2}
-              max={10}
-              step={1}
-              presets={[0, 1, 2, 4]}
-              onChange={(val) =>
-                setOptions((prev) => ({
-                  ...prev,
-                  titleFont: { ...prev.titleFont, letterSpacing: val }
-                }))
-              }
-              labelSize="xs"
-            />
-          </Group>
-        </Stack>
-      </Box>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <SliderControl
+            label="Font Size"
+            value={options.titleFont?.fontSize || 34}
+            min={16}
+            max={72}
+            step={2}
+            presets={[24, 34, 44, 52]}
+            onChange={(val) =>
+              setOptions((prev) => ({
+                ...prev,
+                titleFont: { ...prev.titleFont, fontSize: val },
+              }))}
+          />
 
-      <Divider />
+          <SliderControl
+            label="Letter Spacing"
+            value={options.titleFont?.letterSpacing || 0}
+            min={-2}
+            max={10}
+            step={1}
+            presets={[0, 1, 2, 4]}
+            onChange={(val) =>
+              setOptions((prev) => ({
+                ...prev,
+                titleFont: { ...prev.titleFont, letterSpacing: val },
+              }))}
+          />
+        </div>
+      </div>
+
+      <div class="divider my-0"></div>
 
       {/* 2. Description Typography (Disabled in Badge mode) */}
-      {options.generateType !== 'badge' && (
-        <Box>
-          <Group justify="space-between" align="center" mb={4}>
-            <Group gap={4}>
-              <Text size="sm" fw={700} c="blue">
-                Description Typography
-              </Text>
+      {options.generateType !== "badge" && (
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between items-center h-5">
+            <label class="text-xs font-bold flex items-center gap-1 text-primary">
+              Description Typography
               <FieldGuide fieldKey="descriptionTypography" />
-            </Group>
-          </Group>
+            </label>
+          </div>
 
-          <Stack gap="xs">
-            <Select
-              label="Font Family"
-              searchable
-              nothingFoundMessage="Font not found in catalog. Type name above to add it."
-              value={
-                'descriptionFont' in options
-                  ? options.descriptionFont?.fontFamily || fontList[0]?.value
-                  : fontList[0]?.value
-              }
-              data={getFontSelectData(
-                'descriptionFont' in options ? options.descriptionFont?.fontFamily : undefined
-              )}
-              onChange={(val) => {
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center h-5">
+              <span class="text-xs font-semibold text-base-content">
+                Font Family
+              </span>
+            </div>
+            <select
+              class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+              value={"descriptionFont" in options
+                ? options.descriptionFont?.fontFamily || fontList[0]?.value
+                : fontList[0]?.value}
+              onChange={(e) => {
+                const val = e.currentTarget.value;
                 if (!val) return;
                 loadWebFont(val);
                 setOptions((prev) => ({
                   ...prev,
-                  ...('descriptionFont' in prev
+                  ...("descriptionFont" in prev
                     ? {
-                        descriptionFont: {
-                          ...prev.descriptionFont,
-                          fontFamily: val
-                        }
-                      }
-                    : {})
+                      descriptionFont: {
+                        ...prev.descriptionFont,
+                        fontFamily: val,
+                      },
+                    }
+                    : {}),
                 }));
               }}
+            >
+              {fontList.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label} {f.category ? `(${f.category})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <div class="flex flex-col gap-1.5 w-full">
+              <div class="flex justify-between items-center h-5">
+                <span class="text-xs font-semibold text-base-content">
+                  Font Weight
+                </span>
+              </div>
+              <select
+                class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+                value={"descriptionFont" in options
+                  ? options.descriptionFont?.fontWeight || "500"
+                  : "500"}
+                onChange={(e) =>
+                  setOptions((prev) => ({
+                    ...prev,
+                    ...("descriptionFont" in prev
+                      ? {
+                        descriptionFont: {
+                          ...prev.descriptionFont,
+                          fontWeight:
+                            (e.currentTarget.value as DescriptionFontWeight) ||
+                            "500",
+                        },
+                      }
+                      : {}),
+                  }))}
+              >
+                {descFontWeights.map((w) => (
+                  <option key={w.value} value={w.value}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1.5 w-full">
+              <div class="flex justify-between items-center h-5">
+                <span class="text-xs font-semibold text-base-content">
+                  Description Color
+                </span>
+              </div>
+              <div class="flex items-center gap-2 h-8">
+                <input
+                  type="color"
+                  class="w-8 h-8 rounded-lg p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
+                  value={"descriptionFont" in options
+                    ? options.descriptionFont?.color || "#94a3b8"
+                    : "#94a3b8"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      ...("descriptionFont" in prev
+                        ? {
+                          descriptionFont: {
+                            ...prev.descriptionFont,
+                            color: e.currentTarget.value,
+                          },
+                        }
+                        : {}),
+                    }))}
+                />
+                <input
+                  type="text"
+                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  value={"descriptionFont" in options
+                    ? options.descriptionFont?.color || "#94a3b8"
+                    : "#94a3b8"}
+                  onInput={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      ...("descriptionFont" in prev
+                        ? {
+                          descriptionFont: {
+                            ...prev.descriptionFont,
+                            color: e.currentTarget.value,
+                          },
+                        }
+                        : {}),
+                    }))}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <SliderControl
+              label="Font Size"
+              value={"descriptionFont" in options
+                ? options.descriptionFont?.fontSize || 22
+                : 22}
+              min={12}
+              max={44}
+              step={2}
+              presets={[16, 20, 24, 28]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  ...("descriptionFont" in prev
+                    ? {
+                      descriptionFont: {
+                        ...prev.descriptionFont,
+                        fontSize: val,
+                      },
+                    }
+                    : {}),
+                }))}
             />
 
-            <Group grow align="flex-start">
-              <Select
-                label="Font Weight"
-                value={
-                  'descriptionFont' in options
-                    ? options.descriptionFont?.fontWeight || '500'
-                    : '500'
-                }
-                data={[
-                  { label: '300 - Light', value: '300' },
-                  { label: '400 - Regular', value: '400' },
-                  { label: '500 - Medium', value: '500' },
-                  { label: '600 - SemiBold', value: '600' },
-                  { label: '700 - Bold', value: '700' }
-                ]}
-                onChange={(val) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    ...('descriptionFont' in prev
-                      ? {
-                          descriptionFont: {
-                            ...prev.descriptionFont,
-                            fontWeight: (val as DescriptionFontWeight) || '500'
-                          }
-                        }
-                      : {})
-                  }))
-                }
-              />
-
-              <ColorInput
-                label="Description Color"
-                value={
-                  'descriptionFont' in options
-                    ? options.descriptionFont?.color || '#94a3b8'
-                    : '#94a3b8'
-                }
-                onChange={(val) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    ...('descriptionFont' in prev
-                      ? { descriptionFont: { ...prev.descriptionFont, color: val } }
-                      : {})
-                  }))
-                }
-                swatches={COLOR_SWATCHES}
-              />
-            </Group>
-
-            <Group grow align="flex-start">
-              <SliderControl
-                label="Font Size"
-                value={
-                  'descriptionFont' in options
-                    ? options.descriptionFont?.fontSize || 22
-                    : 22
-                }
-                min={12}
-                max={44}
-                step={2}
-                presets={[16, 20, 24, 28]}
-                onChange={(val) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    ...('descriptionFont' in prev
-                      ? { descriptionFont: { ...prev.descriptionFont, fontSize: val } }
-                      : {})
-                  }))
-                }
-                labelSize="xs"
-              />
-
-              <SliderControl
-                label="Line Spacing"
-                value={Math.round(
-                  ('descriptionFont' in options
-                    ? options.descriptionFont?.lineHeight || 1.3
-                    : 1.3) * 10
-                )}
-                min={10}
-                max={20}
-                step={1}
-                unit="x"
-                presets={[11, 13, 15, 18]}
-                onChange={(val) =>
-                  setOptions((prev) => ({
-                    ...prev,
-                    ...('descriptionFont' in prev
-                      ? {
-                          descriptionFont: {
-                            ...prev.descriptionFont,
-                            lineHeight: val / 10
-                          }
-                        }
-                      : {})
-                  }))
-                }
-                labelSize="xs"
-              />
-            </Group>
-          </Stack>
-        </Box>
+            <SliderControl
+              label="Line Spacing"
+              value={Math.round(
+                ("descriptionFont" in options
+                  ? options.descriptionFont?.lineHeight || 1.3
+                  : 1.3) * 10,
+              )}
+              min={10}
+              max={20}
+              step={1}
+              unit="x"
+              presets={[11, 13, 15, 18]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  ...("descriptionFont" in prev
+                    ? {
+                      descriptionFont: {
+                        ...prev.descriptionFont,
+                        lineHeight: val / 10,
+                      },
+                    }
+                    : {}),
+                }))}
+            />
+          </div>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 };

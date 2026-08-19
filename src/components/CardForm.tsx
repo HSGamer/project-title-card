@@ -1,58 +1,47 @@
-import React, { useRef, useState } from 'react';
-import {
-  Paper,
-  Button,
-  Group,
-  Stack,
-  FileButton,
-  Title,
-  Text,
-  Badge,
-  Box,
-  Tabs
-} from '@mantine/core';
+import { FunctionalComponent } from "preact";
+import { useRef, useState } from "preact/hooks";
 import {
   IconDownload,
   IconEye,
-  IconFileTypePng,
   IconFileExport,
   IconFileImport,
+  IconFileTypePng,
+  IconFrame,
   IconLayout,
   IconPalette,
-  IconFrame,
-  IconTypography
-} from '@tabler/icons-react';
+  IconTypography,
+} from "@tabler/icons-preact";
 import {
+  BadgeCardOptions,
   CardOptions,
   GenerateType,
   StandardCardOptions,
   WideCardOptions,
   WidescreenCardOptions,
-  BadgeCardOptions
-} from '../types.ts';
-import { exportOptions, importOptions } from '../utils/export.ts';
-import { LayoutTab } from './form/LayoutTab.tsx';
-import { BackgroundTab } from './form/BackgroundTab.tsx';
-import { BorderTab } from './form/BorderTab.tsx';
-import { TypographyTab } from './form/TypographyTab.tsx';
+} from "../types.ts";
+import { exportOptions, importOptions } from "../utils/export.ts";
+import { LayoutTab } from "./form/LayoutTab.tsx";
+import { BackgroundTab } from "./form/BackgroundTab.tsx";
+import { BorderTab } from "./form/BorderTab.tsx";
+import { TypographyTab } from "./form/TypographyTab.tsx";
 
 interface CardFormProps {
   options: CardOptions;
-  setOptions: React.Dispatch<React.SetStateAction<CardOptions>>;
+  setOptions: (fn: (prev: CardOptions) => CardOptions) => void;
   onReview: () => void;
   onDownloadSVG: () => void;
   onOpenPNGModal: () => void;
 }
 
-export const CardForm: React.FC<CardFormProps> = ({
+export const CardForm: FunctionalComponent<CardFormProps> = ({
   options,
   setOptions,
   onReview,
   onDownloadSVG,
-  onOpenPNGModal
+  onOpenPNGModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<string | null>('layout');
-  const jsonFileResetRef = useRef<() => void>(null);
+  const [activeTab, setActiveTab] = useState<string>("layout");
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
 
   // Format switcher preserving common visual state
   const handleFormatChange = (newFormat: GenerateType) => {
@@ -62,211 +51,238 @@ export const CardForm: React.FC<CardFormProps> = ({
         background: { ...prev.background },
         border: { ...prev.border },
         titleFont: { ...prev.titleFont },
-        image: { ...prev.image }
+        image: { ...prev.image },
       };
-      const desc =
-        'description' in prev ? prev.description : 'Fast • Lightweight • Type-Safe\nZero Dependencies';
-      const descFont =
-        'descriptionFont' in prev
-          ? { ...prev.descriptionFont }
-          : {
-              color: '#94a3b8',
-              fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontWeight: '500' as const,
-              fontSize: 22,
-              lineHeight: 1.3,
-              opacity: 1
-            };
+      const desc = "description" in prev
+        ? prev.description
+        : "Fast • Lightweight • Type-Safe\nZero Dependencies";
+      const descFont = "descriptionFont" in prev
+        ? { ...prev.descriptionFont }
+        : {
+          color: "#94a3b8",
+          fontFamily:
+            'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontWeight: "500" as const,
+          fontSize: 22,
+          lineHeight: 1.3,
+          opacity: 1,
+        };
 
-      if (newFormat === 'widecard') {
+      if (newFormat === "widecard") {
         return {
           ...base,
-          generateType: 'widecard',
-          imagePosition: 'left',
+          generateType: "widecard",
+          imagePosition: "left",
           description: desc,
           descriptionFont: { ...descFont, fontSize: 24 },
           titleFont: { ...base.titleFont, fontSize: 44 },
-          image: { ...base.image, size: 220 }
+          image: { ...base.image, size: 220 },
         } as WideCardOptions;
       }
-      if (newFormat === 'widescreen') {
+      if (newFormat === "widescreen") {
         return {
           ...base,
-          generateType: 'widescreen',
-          layoutStyle: 'split',
+          generateType: "widescreen",
+          layoutStyle: "split",
           description: desc,
           descriptionFont: { ...descFont, fontSize: 24 },
           titleFont: { ...base.titleFont, fontSize: 42 },
-          image: { ...base.image, size: 240 }
+          image: { ...base.image, size: 240 },
         } as WidescreenCardOptions;
       }
-      if (newFormat === 'badge') {
+      if (newFormat === "badge") {
         return {
           ...base,
-          generateType: 'badge',
+          generateType: "badge",
           badgeWidth: 400,
           badgeHeight: 120,
-          iconPosition: 'left',
+          iconPosition: "left",
           titleFont: { ...base.titleFont, fontSize: 32 },
-          image: { ...base.image, size: 70 }
+          image: { ...base.image, size: 70 },
         } as BadgeCardOptions;
       }
       // Standard card
       return {
         ...base,
-        generateType: 'card',
-        textAlign: 'center',
+        generateType: "card",
+        textAlign: "center",
         description: desc,
         descriptionFont: { ...descFont, fontSize: 22 },
         titleFont: { ...base.titleFont, fontSize: 34 },
-        image: { ...base.image, size: 260 }
+        image: { ...base.image, size: 260 },
       } as StandardCardOptions;
     });
   };
 
-  const handleJsonImport = async (file: File | null) => {
+  const handleJsonImport = async (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (!file) return;
     try {
       const imported = await importOptions(file);
-      setOptions(imported);
+      setOptions(() => imported);
     } catch (err) {
-      alert('Failed to parse JSON file: ' + (err instanceof Error ? err.message : String(err)));
+      alert(
+        "Failed to parse JSON file: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
     } finally {
-      jsonFileResetRef.current?.();
+      if (jsonFileInputRef.current) jsonFileInputRef.current.value = "";
     }
   };
 
   return (
-    <Paper
-      component="section"
+    <section
+      class="card bg-base-100 shadow-md border border-base-300 p-4"
       aria-labelledby="card-form-heading"
-      shadow="sm"
-      radius="lg"
-      p="lg"
-      withBorder
     >
-      <form id="svgOptionsForm" onSubmit={(e) => e.preventDefault()} aria-label="Card Configuration Form">
-        <Stack gap="md">
-          {/* Top Quick Actions Bar */}
-          <Box>
-            <Group grow>
-              <Button
-                id="btnReview"
-                size="sm"
-                leftSection={<IconEye size={16} aria-hidden="true" />}
-                onClick={onReview}
-                aria-label="Refresh SVG Preview"
-              >
-                Review
-              </Button>
-              <Button
-                id="btnDownload"
-                size="sm"
-                variant="light"
-                leftSection={<IconDownload size={16} aria-hidden="true" />}
-                onClick={onDownloadSVG}
-                aria-label="Download Card as SVG file"
-              >
-                Download SVG
-              </Button>
-              <Button
-                id="btnDownloadPNG"
-                size="sm"
-                variant="outline"
-                leftSection={<IconFileTypePng size={16} aria-hidden="true" />}
-                onClick={onOpenPNGModal}
-                aria-label="Open PNG Download options dialog"
-              >
-                Download PNG
-              </Button>
-            </Group>
-          </Box>
+      {/* Top Quick Actions Bar */}
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <button
+          type="button"
+          class="btn btn-sm btn-primary gap-1.5 shadow-sm"
+          onClick={onReview}
+          aria-label="Refresh SVG Preview"
+        >
+          <IconEye size={16} />
+          Review
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline gap-1.5"
+          onClick={onDownloadSVG}
+          aria-label="Download Card as SVG file"
+        >
+          <IconDownload size={16} />
+          Download SVG
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline gap-1.5"
+          onClick={onOpenPNGModal}
+          aria-label="Open PNG Download options dialog"
+        >
+          <IconFileTypePng size={16} />
+          Download PNG
+        </button>
+      </div>
 
-          <Group justify="space-between" align="center">
-            <Title order={2} size="h4" id="card-form-heading">
-              Card Customizer
-            </Title>
-            <Badge variant="dot" color="blue" size="sm">
-              Live Interactive
-            </Badge>
-          </Group>
+      <div class="flex justify-between items-center mb-3">
+        <h2 id="card-form-heading" class="text-base font-bold">
+          Card Customizer
+        </h2>
+        <span class="badge badge-primary badge-sm font-semibold">
+          Live Interactive
+        </span>
+      </div>
 
-          {/* Main Configuration Tabs */}
-          <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius="md">
-            <Tabs.List grow mb="md">
-              <Tabs.Tab value="layout" leftSection={<IconLayout size={15} />}>
-                Layout
-              </Tabs.Tab>
-              <Tabs.Tab value="background" leftSection={<IconPalette size={15} />}>
-                Background
-              </Tabs.Tab>
-              <Tabs.Tab value="border" leftSection={<IconFrame size={15} />}>
-                Border & Shadow
-              </Tabs.Tab>
-              <Tabs.Tab value="typography" leftSection={<IconTypography size={15} />}>
-                Typography
-              </Tabs.Tab>
-            </Tabs.List>
+      {/* Main Tabs */}
+      <div role="tablist" class="tabs tabs-boxed bg-base-200 p-1 mb-4">
+        <button
+          type="button"
+          role="tab"
+          class={`tab text-xs font-semibold gap-1.5 transition-all ${
+            activeTab === "layout"
+              ? "tab-active !bg-primary !text-primary-content shadow-sm"
+              : ""
+          }`}
+          onClick={() => setActiveTab("layout")}
+        >
+          <IconLayout size={15} />
+          Layout
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class={`tab text-xs font-semibold gap-1.5 transition-all ${
+            activeTab === "background"
+              ? "tab-active !bg-primary !text-primary-content shadow-sm"
+              : ""
+          }`}
+          onClick={() => setActiveTab("background")}
+        >
+          <IconPalette size={15} />
+          Background
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class={`tab text-xs font-semibold gap-1.5 transition-all ${
+            activeTab === "border"
+              ? "tab-active !bg-primary !text-primary-content shadow-sm"
+              : ""
+          }`}
+          onClick={() => setActiveTab("border")}
+        >
+          <IconFrame size={15} />
+          Border & Shadow
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class={`tab text-xs font-semibold gap-1.5 transition-all ${
+            activeTab === "typography"
+              ? "tab-active !bg-primary !text-primary-content shadow-sm"
+              : ""
+          }`}
+          onClick={() => setActiveTab("typography")}
+        >
+          <IconTypography size={15} />
+          Typography
+        </button>
+      </div>
 
-            {/* TAB 1: LAYOUT & CONTENT */}
-            <Tabs.Panel value="layout">
-              <LayoutTab
-                options={options}
-                setOptions={setOptions}
-                onFormatChange={handleFormatChange}
-              />
-            </Tabs.Panel>
+      {/* Tab Panels */}
+      <div>
+        {activeTab === "layout" && (
+          <LayoutTab
+            options={options}
+            setOptions={setOptions}
+            onFormatChange={handleFormatChange}
+          />
+        )}
+        {activeTab === "background" && (
+          <BackgroundTab options={options} setOptions={setOptions} />
+        )}
+        {activeTab === "border" && (
+          <BorderTab options={options} setOptions={setOptions} />
+        )}
+        {activeTab === "typography" && (
+          <TypographyTab options={options} setOptions={setOptions} />
+        )}
+      </div>
 
-            {/* TAB 2: BACKGROUND & PALETTE */}
-            <Tabs.Panel value="background">
-              <BackgroundTab options={options} setOptions={setOptions} />
-            </Tabs.Panel>
-
-            {/* TAB 3: BORDER & SHADOW */}
-            <Tabs.Panel value="border">
-              <BorderTab options={options} setOptions={setOptions} />
-            </Tabs.Panel>
-
-            {/* TAB 4: TYPOGRAPHY */}
-            <Tabs.Panel value="typography">
-              <TypographyTab options={options} setOptions={setOptions} />
-            </Tabs.Panel>
-          </Tabs>
-
-          {/* Bottom Import & Export Presets */}
-          <Box pt="sm" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
-            <Group justify="space-between">
-              <Text size="xs" c="dimmed">
-                Save or load card settings:
-              </Text>
-              <Group gap="xs">
-                <FileButton resetRef={jsonFileResetRef} onChange={handleJsonImport} accept="application/json">
-                  {(props) => (
-                    <Button
-                      {...props}
-                      id="btnImport"
-                      size="xs"
-                      variant="default"
-                      leftSection={<IconFileImport size={14} aria-hidden="true" />}
-                    >
-                      Import JSON
-                    </Button>
-                  )}
-                </FileButton>
-                <Button
-                  id="btnExport"
-                  size="xs"
-                  variant="default"
-                  leftSection={<IconFileExport size={14} aria-hidden="true" />}
-                  onClick={() => exportOptions(options)}
-                >
-                  Export JSON
-                </Button>
-              </Group>
-            </Group>
-          </Box>
-        </Stack>
-      </form>
-    </Paper>
+      {/* Bottom Import & Export Presets */}
+      <div class="flex flex-wrap justify-between items-center gap-2 pt-4 mt-6 border-t border-base-300">
+        <span class="text-xs text-base-content/60">
+          Save or load card settings:
+        </span>
+        <div class="flex gap-2">
+          <input
+            type="file"
+            ref={jsonFileInputRef}
+            onChange={handleJsonImport}
+            accept="application/json"
+            class="hidden"
+          />
+          <button
+            type="button"
+            class="btn btn-xs btn-outline gap-1"
+            onClick={() => jsonFileInputRef.current?.click()}
+          >
+            <IconFileImport size={14} />
+            Import JSON
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs btn-outline gap-1"
+            onClick={() => exportOptions(options)}
+          >
+            <IconFileExport size={14} />
+            Export JSON
+          </button>
+        </div>
+      </div>
+    </section>
   );
 };

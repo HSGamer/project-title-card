@@ -1,34 +1,19 @@
-import React from 'react';
-import {
-  Group,
-  Title,
-  Button,
-  Menu,
-  ActionIcon,
-  Tooltip,
-  useMantineColorScheme,
-  useComputedColorScheme,
-  Container,
-  Badge
-} from '@mantine/core';
-import { IconSparkles, IconSun, IconMoon } from '@tabler/icons-react';
-import { CardOptions } from '../types.ts';
-import { PRESET_THEMES, PresetTheme } from '../data/presets.ts';
+import { FunctionalComponent } from "preact";
+import { IconMoon, IconSparkles, IconSun } from "@tabler/icons-preact";
+import { CardOptions } from "../types.ts";
+import { PRESET_THEMES, PresetTheme } from "../data/presets.ts";
 
 interface AppHeaderProps {
-  setOptions: React.Dispatch<React.SetStateAction<CardOptions>>;
+  setOptions: (fn: (prev: CardOptions) => CardOptions) => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ setOptions }) => {
-  const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
-
-  const isDark = computedColorScheme === 'dark';
-
-  const toggleColorScheme = () => {
-    setColorScheme(isDark ? 'light' : 'dark');
-  };
-
+export const AppHeader: FunctionalComponent<AppHeaderProps> = ({
+  setOptions,
+  isDark,
+  onToggleTheme,
+}) => {
   const handleApplyPreset = (preset: PresetTheme) => {
     setOptions((prev) => {
       const updated = {
@@ -36,84 +21,82 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ setOptions }) => {
         background: { ...prev.background, ...preset.background },
         border: { ...prev.border, ...preset.border },
         titleFont: { ...prev.titleFont, ...preset.titleFont },
-        ...('descriptionFont' in prev
-          ? { descriptionFont: { ...prev.descriptionFont, ...preset.descriptionFont } }
-          : {})
+        ...("descriptionFont" in prev
+          ? {
+            descriptionFont: {
+              ...prev.descriptionFont,
+              ...preset.descriptionFont,
+            },
+          }
+          : {}),
       } as CardOptions;
       return updated;
     });
   };
 
   return (
-    <header
-      role="banner"
-      style={{
-        borderBottom: '1px solid var(--mantine-color-default-border)',
-        backgroundColor: 'var(--mantine-color-body)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}
-    >
-      <Container size="xl" py="sm">
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <Title order={1} size="h3" style={{ letterSpacing: '-0.5px' }}>
-              Project Title Card
-            </Title>
-            <Badge variant="light" color="blue" size="sm">
-              Visual Studio
-            </Badge>
-          </Group>
+    <header class="navbar bg-base-100 border-b border-base-300 sticky top-0 z-40 px-4 lg:px-8 shadow-sm">
+      <div class="flex-1 flex items-center gap-2">
+        <h1 class="text-lg font-bold tracking-tight">Project Title Card</h1>
+        <span class="badge badge-primary badge-sm font-semibold">
+          Visual Studio
+        </span>
+      </div>
 
-          <Group gap="sm">
-            <Menu shadow="md" width={220} position="bottom-end">
-              <Menu.Target>
-                <Button
-                  variant="default"
-                  size="sm"
-                  leftSection={<IconSparkles size={16} aria-hidden="true" />}
-                  aria-label="Select a style theme preset"
-                  aria-haspopup="menu"
+      <div class="flex-none flex items-center gap-2">
+        {/* Style Themes Dropdown */}
+        <div class="dropdown dropdown-end">
+          <div
+            tabindex={0}
+            role="button"
+            class="btn btn-sm btn-ghost gap-1.5 border border-base-300 font-medium"
+          >
+            <IconSparkles size={16} class="text-warning" />
+            Style Themes
+          </div>
+          <ul
+            tabindex={0}
+            class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-56 z-50 border border-base-300"
+          >
+            <li class="menu-title text-xs uppercase tracking-wider">
+              Theme Presets
+            </li>
+            {PRESET_THEMES.map((preset) => (
+              <li key={preset.id}>
+                <button
+                  type="button"
+                  class="text-xs font-medium py-2"
+                  onClick={() => {
+                    handleApplyPreset(preset);
+                    if (document.activeElement instanceof HTMLElement) {
+                      document.activeElement.blur();
+                    }
+                  }}
                 >
-                  Style Themes
-                </Button>
-              </Menu.Target>
+                  {preset.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-              <Menu.Dropdown aria-label="Style Theme Presets">
-                <Menu.Label>Theme Presets</Menu.Label>
-                {PRESET_THEMES.map((preset) => (
-                  <Menu.Item
-                    key={preset.id}
-                    onClick={() => handleApplyPreset(preset)}
-                    role="menuitem"
-                  >
-                    {preset.name}
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
-
-            <Tooltip
-              label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-              withArrow
-            >
-              <ActionIcon
-                onClick={toggleColorScheme}
-                variant="default"
-                size="lg"
-                aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-              >
-                {isDark ? (
-                  <IconSun size={18} stroke={1.5} aria-hidden="true" />
-                ) : (
-                  <IconMoon size={18} stroke={1.5} aria-hidden="true" />
-                )}
-              </ActionIcon>
-            </Tooltip>
-          </Group>
-        </Group>
-      </Container>
+        {/* Dark / Light Toggle */}
+        <div
+          class="tooltip tooltip-bottom"
+          data-tip={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <button
+            type="button"
+            class="btn btn-sm btn-circle btn-ghost"
+            onClick={onToggleTheme}
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDark
+              ? <IconSun size={18} class="text-warning" />
+              : <IconMoon size={18} class="text-base-content/80" />}
+          </button>
+        </div>
+      </div>
     </header>
   );
 };

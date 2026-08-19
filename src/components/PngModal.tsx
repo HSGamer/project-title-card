@@ -1,20 +1,9 @@
-import React, { useState } from 'react';
-import {
-  Modal,
-  Button,
-  Slider,
-  NumberInput,
-  TextInput,
-  Group,
-  Stack,
-  Text,
-  Box,
-  Title
-} from '@mantine/core';
-import { IconDownload, IconPhoto } from '@tabler/icons-react';
-import { CardOptions } from '../types.ts';
-import { downloadPNG } from '../utils/export.ts';
-import { getCardDimensions } from '../utils/dimensions.ts';
+import { FunctionalComponent } from "preact";
+import { useState } from "preact/hooks";
+import { IconDownload, IconPhoto } from "@tabler/icons-preact";
+import { CardOptions } from "../types.ts";
+import { downloadPNG } from "../utils/export.ts";
+import { getCardDimensions } from "../utils/dimensions.ts";
 
 interface PngModalProps {
   opened: boolean;
@@ -22,10 +11,14 @@ interface PngModalProps {
   options: CardOptions;
 }
 
-export const PngModal: React.FC<PngModalProps> = ({ opened, onClose, options }) => {
+export const PngModal: FunctionalComponent<PngModalProps> = (
+  { opened, onClose, options },
+) => {
   const [scale, setScale] = useState<number>(100);
-  const [filename, setFilename] = useState<string>('card.png');
+  const [filename, setFilename] = useState<string>("card.png");
   const [loading, setLoading] = useState(false);
+
+  if (!opened) return null;
 
   const { width: baseWidth, height: baseHeight } = getCardDimensions(options);
 
@@ -35,115 +28,111 @@ export const PngModal: React.FC<PngModalProps> = ({ opened, onClose, options }) 
   const handleDownload = async () => {
     try {
       setLoading(true);
-      const safeFilename = filename.trim().endsWith('.png')
+      const safeFilename = filename.trim().endsWith(".png")
         ? filename.trim()
         : `${filename.trim()}.png`;
       await downloadPNG(options, scale, safeFilename);
       onClose();
     } catch (_err) {
-      alert('Error generating PNG. Please check image CORS or format.');
+      alert("Error generating PNG. Please check image CORS or format.");
     } finally {
       setLoading(false);
     }
   };
 
-  const marks = [
-    { value: 50, label: '50%' },
-    { value: 100, label: '100%' },
-    { value: 150, label: '150%' },
-    { value: 200, label: '200%' }
-  ];
+  const scalePresets = [50, 100, 150, 200];
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title={
-        <Group gap="xs">
-          <IconPhoto size={20} aria-hidden="true" />
-          <Title order={3} size="h5" id="png-modal-title">
-            Download as PNG
-          </Title>
-        </Group>
-      }
-      aria-labelledby="png-modal-title"
-      centered
-      trapFocus
-      returnFocus
-    >
-      <Stack gap="md" aria-busy={loading}>
-        <TextInput
-          id="png-filename-input"
-          label="File Name"
-          value={filename}
-          onChange={(e) => setFilename(e.currentTarget.value)}
-          placeholder="card.png"
-          aria-label="Output PNG file name"
-        />
+    <dialog class="modal modal-open">
+      <div class="modal-box max-w-md">
+        <h3 class="font-bold text-lg flex items-center gap-2 mb-4">
+          <IconPhoto size={20} class="text-primary" />
+          Download as PNG
+        </h3>
 
-        <Box>
-          <Text id="scale-slider-label" size="sm" fw={500} mb="xs">
-            Scale Percentage ({scale}%)
-          </Text>
-          <Group align="center" gap="sm" mb="lg">
-            <Slider
-              style={{ flex: 1 }}
-              value={scale}
-              onChange={setScale}
-              min={10}
-              max={200}
-              step={5}
-              marks={marks}
-              aria-labelledby="scale-slider-label"
-              aria-valuemin={10}
-              aria-valuemax={200}
-              aria-valuenow={scale}
-              aria-valuetext={`${scale} percent, ${outputWidth} by ${outputHeight} pixels`}
+        <div class="flex flex-col gap-4">
+          <div class="form-control w-full">
+            <label class="label py-1">
+              <span class="label-text font-semibold text-xs">File Name</span>
+            </label>
+            <input
+              type="text"
+              class="input input-bordered input-sm w-full font-mono"
+              value={filename}
+              onInput={(e) => setFilename(e.currentTarget.value)}
+              placeholder="card.png"
             />
-            <NumberInput
-              w={85}
-              size="xs"
-              min={10}
-              max={200}
-              step={5}
-              suffix="%"
-              value={scale}
-              onChange={(val) => setScale(Number(val) || 100)}
-              aria-label="PNG export scale percentage"
-            />
-          </Group>
-        </Box>
+          </div>
 
-        <Box
-          p="xs"
-          role="status"
-          aria-live="polite"
-          style={{ borderRadius: '8px', backgroundColor: 'var(--mantine-color-gray-light)' }}
-        >
-          <Group justify="space-between">
-            <Text size="xs" c="dimmed">
-              Output Resolution:
-            </Text>
-            <Text size="sm" fw={600}>
+          <div class="form-control w-full">
+            <div class="flex justify-between items-center mb-1">
+              <label class="label-text font-semibold text-xs">
+                Scale Percentage ({scale}%)
+              </label>
+            </div>
+            <div class="flex items-center gap-3">
+              <input
+                type="range"
+                min={10}
+                max={200}
+                step={5}
+                value={scale}
+                onInput={(e) => setScale(Number(e.currentTarget.value))}
+                class="range range-primary range-xs flex-1"
+              />
+              <input
+                type="number"
+                min={10}
+                max={200}
+                step={5}
+                value={scale}
+                onInput={(e) => setScale(Number(e.currentTarget.value || 100))}
+                class="input input-bordered input-xs w-20 text-center font-mono"
+              />
+            </div>
+
+            <div class="flex flex-wrap gap-1 mt-2">
+              {scalePresets.map((p) => (
+                <button
+                  type="button"
+                  key={p}
+                  class={`btn btn-xs ${
+                    scale === p ? "btn-primary" : "btn-ghost btn-outline"
+                  }`}
+                  onClick={() => setScale(p)}
+                >
+                  {p}%
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div class="bg-base-200 p-3 rounded-lg flex justify-between items-center border border-base-300">
+            <span class="text-xs text-base-content/60">Output Resolution:</span>
+            <span class="text-sm font-bold text-primary font-mono">
               {outputWidth} × {outputHeight} px
-            </Text>
-          </Group>
-        </Box>
+            </span>
+          </div>
+        </div>
 
-        <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={onClose} aria-label="Cancel export dialog">
+        <div class="modal-action">
+          <button type="button" class="btn btn-sm btn-ghost" onClick={onClose}>
             Cancel
-          </Button>
-          <Button
-            leftSection={<IconDownload size={16} aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            class={`btn btn-sm btn-primary ${loading ? "loading" : ""}`}
             onClick={handleDownload}
-            loading={loading}
-            aria-label={`Confirm and download PNG at ${outputWidth} by ${outputHeight} pixels`}
+            disabled={loading}
           >
+            <IconDownload size={16} />
             Download PNG
-          </Button>
-        </Group>
-      </Stack>
-    </Modal>
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button type="button" onClick={onClose}>close</button>
+      </form>
+    </dialog>
   );
 };

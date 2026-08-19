@@ -1,18 +1,18 @@
-export type LayoutFormatType = 'card' | 'widecard' | 'widescreen' | 'badge';
+export type LayoutFormatType = "card" | "widecard" | "widescreen" | "badge";
 
 // Re-export GenerateType for backwards compatibility
 export type GenerateType = LayoutFormatType;
 
-export type BackgroundType = 'solid' | 'gradient' | 'glass' | 'image';
-export type GradientDirection = 'to-r' | 'to-br' | 'to-b' | 'to-bl' | 'radial';
-export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
-export type ShadowEffect = 'none' | 'subtle' | 'soft' | 'glow' | 'strong';
-export type ImageShape = 'original' | 'rounded' | 'circle';
-export type TitleFontWeight = '400' | '500' | '600' | '700' | '800' | '900';
-export type DescriptionFontWeight = '300' | '400' | '500' | '600' | '700';
+export type BackgroundType = "solid" | "gradient" | "glass" | "image";
+export type GradientDirection = "to-r" | "to-br" | "to-b" | "to-bl" | "radial";
+export type BorderStyle = "solid" | "dashed" | "dotted" | "none";
+export type ShadowEffect = "none" | "subtle" | "soft" | "glow" | "strong";
+export type ImageShape = "original" | "rounded" | "circle";
+export type TitleFontWeight = "400" | "500" | "600" | "700" | "800" | "900";
+export type DescriptionFontWeight = "300" | "400" | "500" | "600" | "700";
 
-export type TextAlign = 'left' | 'center';
-export type WidescreenLayout = 'split' | 'centered' | 'banner';
+export type TextAlign = "left" | "center";
+export type WidescreenLayout = "split" | "centered" | "banner";
 
 export interface BackgroundConfig {
   type: BackgroundType;
@@ -74,31 +74,31 @@ export interface BaseCardOptions {
 }
 
 export interface StandardCardOptions extends BaseCardOptions {
-  generateType: 'card';
+  generateType: "card";
   description: string;
   descriptionFont: DescriptionFontConfig;
   textAlign: TextAlign;
 }
 
 export interface WideCardOptions extends BaseCardOptions {
-  generateType: 'widecard';
+  generateType: "widecard";
   description: string;
   descriptionFont: DescriptionFontConfig;
-  imagePosition: 'left' | 'right';
+  imagePosition: "left" | "right";
 }
 
 export interface WidescreenCardOptions extends BaseCardOptions {
-  generateType: 'widescreen';
+  generateType: "widescreen";
   description: string;
   descriptionFont: DescriptionFontConfig;
   layoutStyle: WidescreenLayout;
 }
 
 export interface BadgeCardOptions extends BaseCardOptions {
-  generateType: 'badge';
+  generateType: "badge";
   badgeWidth: number;
   badgeHeight: number;
-  iconPosition: 'left' | 'right' | 'none';
+  iconPosition: "left" | "right" | "none";
 }
 
 export type CardOptions =

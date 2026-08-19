@@ -1,7 +1,7 @@
-import { CardOptions } from '../types.ts';
-import { generateSVG } from '../generators/index.ts';
-import { resolveImageLink } from './image.ts';
-import { normalizeCardOptions } from './normalizer.ts';
+import { CardOptions } from "../types.ts";
+import { generateSVG } from "../generators/index.ts";
+import { resolveImageLink } from "./image.ts";
+import { normalizeCardOptions } from "./normalizer.ts";
 
 /**
  * Resolves both logo image and background image links into inline data URLs before exporting
@@ -10,7 +10,7 @@ async function resolveAllImages(options: CardOptions): Promise<CardOptions> {
   const resolvedLogoUrl = await resolveImageLink(options.image.url);
 
   let resolvedBgUrl = options.background.imageUrl;
-  if (options.background.type === 'image' && options.background.imageUrl) {
+  if (options.background.type === "image" && options.background.imageUrl) {
     resolvedBgUrl = await resolveImageLink(options.background.imageUrl);
   }
 
@@ -18,23 +18,26 @@ async function resolveAllImages(options: CardOptions): Promise<CardOptions> {
     ...options,
     image: {
       ...options.image,
-      url: resolvedLogoUrl
+      url: resolvedLogoUrl,
     },
     background: {
       ...options.background,
-      imageUrl: resolvedBgUrl
-    }
+      imageUrl: resolvedBgUrl,
+    },
   } as CardOptions;
 }
 
-export async function downloadSVG(options: CardOptions, filename = 'card.svg'): Promise<void> {
+export async function downloadSVG(
+  options: CardOptions,
+  filename = "card.svg",
+): Promise<void> {
   const optionsWithResolvedImages = await resolveAllImages(options);
   const svg = generateSVG(optionsWithResolvedImages);
   const svgData = new XMLSerializer().serializeToString(svg);
-  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
@@ -44,19 +47,21 @@ export async function downloadSVG(options: CardOptions, filename = 'card.svg'): 
 export async function downloadPNG(
   options: CardOptions,
   resizePercentage: number,
-  filename = 'card.png'
+  filename = "card.png",
 ): Promise<void> {
-  if (isNaN(resizePercentage) || resizePercentage < 1 || resizePercentage > 200) {
-    throw new Error('Invalid resize percentage');
+  if (
+    isNaN(resizePercentage) || resizePercentage < 1 || resizePercentage > 200
+  ) {
+    throw new Error("Invalid resize percentage");
   }
 
   const optionsWithResolvedImages = await resolveAllImages(options);
   const svg = generateSVG(optionsWithResolvedImages);
   const svgData = new XMLSerializer().serializeToString(svg);
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Could not obtain canvas 2D context');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not obtain canvas 2D context");
 
   const img = new Image();
   const svgBase64 = btoa(unescape(encodeURIComponent(svgData)));
@@ -67,8 +72,8 @@ export async function downloadPNG(
       canvas.width = (img.width * resizePercentage) / 100;
       canvas.height = (img.height * resizePercentage) / 100;
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
+      const url = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
       a.href = url;
       a.download = filename;
       a.click();
@@ -78,10 +83,15 @@ export async function downloadPNG(
   });
 }
 
-export function exportOptions(options: CardOptions, filename = 'card-options.json'): void {
-  const blob = new Blob([JSON.stringify(options, null, 2)], { type: 'application/json' });
+export function exportOptions(
+  options: CardOptions,
+  filename = "card-options.json",
+): void {
+  const blob = new Blob([JSON.stringify(options, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
@@ -94,8 +104,8 @@ export function importOptions(file: File): Promise<CardOptions> {
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result as string);
-        if (!parsed || typeof parsed !== 'object') {
-          throw new Error('Invalid JSON format: root must be an object');
+        if (!parsed || typeof parsed !== "object") {
+          throw new Error("Invalid JSON format: root must be an object");
         }
         const normalized = normalizeCardOptions(parsed);
         resolve(normalized);
