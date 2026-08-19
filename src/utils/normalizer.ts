@@ -533,11 +533,13 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       ? (rawObj.wideVariant as WideVariant)
       : "standard";
 
+    const textAlign: TextAlign = rawObj.textAlign === "left" ? "left" : "center";
     const wide: WideCardOptions = {
       generateType: "widecard",
       wideVariant,
       title,
       description,
+      textAlign,
       imagePosition: imgPos,
       background,
       border,
@@ -556,12 +558,14 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       ? ((rawObj.bannerVariant || rawObj.layoutStyle) as WidescreenLayout)
       : "split";
 
+    const textAlign: TextAlign = rawObj.textAlign === "left" ? "left" : "center";
     const ws: WidescreenCardOptions = {
       generateType: "widescreen",
       bannerVariant: layoutStyle,
       layoutStyle,
       title,
       description,
+      textAlign,
       background,
       border,
       titleFont,
@@ -587,12 +591,15 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     const statusStyle = rawObj.statusStyle === "dot" ? "dot" : "pill";
     const statusPos = rawObj.statusPosition === "left" ? "left" : "right";
 
+    const badgeAutoSize = Boolean(rawObj.badgeAutoSize);
+
     const badge: BadgeCardOptions = {
       generateType: "badge",
       badgeVariant,
       title,
       badgeWidth: badgeW,
       badgeHeight: badgeH,
+      badgeAutoSize,
       iconPosition: iconPos,
       badgeLabel: typeof rawObj.badgeLabel === "string" ? rawObj.badgeLabel : "BUILD",
       labelBackground: typeof rawObj.labelBackground === "string" ? rawObj.labelBackground : "#1e293b",

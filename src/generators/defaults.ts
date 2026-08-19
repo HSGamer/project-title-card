@@ -161,6 +161,7 @@ export const defaultBadgeOptions: BadgeCardOptions = {
   title: "MaskedGUI",
   badgeWidth: 400,
   badgeHeight: 120,
+  badgeAutoSize: false,
   iconPosition: "left",
   badgeLabel: "BUILD",
   labelBackground: "#1e293b",

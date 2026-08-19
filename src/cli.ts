@@ -8,6 +8,7 @@ import {
   GradientDirection,
   ShadowEffect,
   StandardCardOptions,
+  TextAlign,
   WideCardOptions,
   WidescreenCardOptions,
 } from "./types.ts";
@@ -309,6 +310,7 @@ export async function main(args: string[] = Deno.args): Promise<void> {
         badgeVariant: "standard",
         badgeWidth: 400,
         badgeHeight: 120,
+        badgeAutoSize: false,
         iconPosition: "left",
         badgeLabel: "BUILD",
         labelBackground: "#1e293b",
@@ -416,9 +418,8 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     options.image.shape = flags["logo-shape"] as CardOptions["image"]["shape"];
   }
 
-  // Format-specific flags
-  if (flags.align && "textAlign" in options) {
-    options.textAlign = flags.align as StandardCardOptions["textAlign"];
+  if (flags.align) {
+    options.textAlign = flags.align as TextAlign;
   }
   const cardVar = flags["card-variant"] || flags.variant;
   if (cardVar && "cardVariant" in options) {
@@ -441,6 +442,9 @@ export async function main(args: string[] = Deno.args): Promise<void> {
   }
   if (flags["badge-height"] && "badgeHeight" in options) {
     options.badgeHeight = Number(flags["badge-height"]);
+  }
+  if ((flags["auto-size"] || flags["badge-auto-size"]) && "badgeAutoSize" in options) {
+    options.badgeAutoSize = true;
   }
   if (flags["badge-variant"] && "badgeVariant" in options) {
     options.badgeVariant = flags["badge-variant"] as BadgeCardOptions["badgeVariant"];

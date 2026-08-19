@@ -11,6 +11,8 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   const { width, height } = getCardDimensions(options);
   const variant = options.wideVariant || "standard";
   const margin = options.border.margin ?? 10;
+  const innerW = width - 2 * margin;
+  const innerH = height - 2 * margin;
 
   // Custom pill radius for badge variant
   const pillRadius = variant === "badge"
@@ -29,6 +31,27 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   const hasImage = Boolean(options.image.show && options.image.url);
   const titleFontSize = Math.min(options.titleFont.fontSize || 42, 46);
   const descFontSize = Math.min(options.descriptionFont.fontSize || 22, 26);
+  const lineHeight = options.descriptionFont.lineHeight || 1.3;
+
+  const descLines = options.description
+    ? options.description.split("\n").filter((l) => l.trim().length > 0)
+    : [];
+  const numLines = descLines.length;
+  const descH = numLines > 0
+    ? (numLines - 1) * (descFontSize * lineHeight) + descFontSize
+    : 0;
+
+  // Helper for computing vertically centered text positions in a side panel or card
+  const computeCenteredTextY = (centerY: number, tSize = titleFontSize, dSize = descFontSize) => {
+    const gap = numLines > 0 ? 14 : 0;
+    const descHeight = numLines > 0 ? (numLines - 1) * (dSize * lineHeight) + dSize : 0;
+    const textH = tSize + (numLines > 0 ? gap + descHeight : 0);
+    const titleY = centerY - textH / 2 + tSize * 0.85;
+    const descY = titleY + tSize + 14;
+    return { titleY, descY };
+  };
+
+  const textCenterY = margin + innerH / 2;
 
   // --------------------------------------------------------------------------
   // Variant 1: SPLIT (Two-tone side panel for logo + content panel)
@@ -36,14 +59,14 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   if (variant === "split") {
     const isRight = options.imagePosition === "right";
     const splitRatio = 0.32;
-    const panelWidth = Math.round((width - 2 * margin) * splitRatio);
+    const panelWidth = Math.round(innerW * splitRatio);
     const splitX = isRight ? width - margin - panelWidth : margin + panelWidth;
     const bgClipId = `cardBgClip_${width}_${height}_${margin}_${radius}`;
 
     // Side panel background clipped inside card border
     const panelX = isRight ? splitX : margin;
     draw
-      .rect(panelWidth, height - 2 * margin)
+      .rect(panelWidth, innerH)
       .move(panelX, margin)
       .attr({
         fill: "#0b1329",
@@ -60,7 +83,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
 
     // Render Logo in side panel
     if (hasImage) {
-      const panelImgSize = Math.min(options.image.size || 160, panelWidth - 40, height - 2 * margin - 40);
+      const panelImgSize = Math.min(options.image.size || 160, panelWidth - 40, innerH - 40);
       const imgX = panelX + (panelWidth - panelImgSize) / 2;
       const imgY = (height - panelImgSize) / 2;
       renderImage(
@@ -73,19 +96,21 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
     }
 
-    // Render Title & Description in main panel
+    // Render Title & Description in main panel (vertically centered)
     const textX = isRight ? margin + 35 : splitX + 35;
-    const titleY = 95;
+    const { titleY, descY } = computeCenteredTextY(textCenterY);
+
     renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
-    const descY = titleY + titleFontSize + 14;
-    renderMultilineDescription(
-      draw,
-      options.description,
-      textX,
-      descY,
-      { ...options.descriptionFont, fontSize: descFontSize },
-      "start",
-    );
+    if (numLines > 0) {
+      renderMultilineDescription(
+        draw,
+        options.description,
+        textX,
+        descY,
+        { ...options.descriptionFont, fontSize: descFontSize },
+        "start",
+      );
+    }
 
     return draw.node as SVGSVGElement;
   }
@@ -95,8 +120,20 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   // --------------------------------------------------------------------------
   if (variant === "centered") {
     const smallImg = Math.min(options.image.size || 90, 95);
+    const centeredTitleSize = Math.min(titleFontSize, 36);
+    const centeredDescSize = Math.min(descFontSize, 20);
+    const centeredDescH = numLines > 0
+      ? (numLines - 1) * (centeredDescSize * lineHeight) + centeredDescSize
+      : 0;
+
+    const imgH = hasImage ? smallImg : 0;
+    const gapImgTitle = hasImage ? 18 : 0;
+    const gapTitleDesc = numLines > 0 ? 14 : 0;
+    const totalH = imgH + gapImgTitle + centeredTitleSize + (numLines > 0 ? gapTitleDesc + centeredDescH : 0);
+
+    const startY = margin + Math.max(16, (innerH - totalH) / 2);
     const imgX = (width - smallImg) / 2;
-    const imgY = margin + 18;
+    const imgY = startY;
 
     if (hasImage) {
       renderImage(
@@ -109,9 +146,9 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
     }
 
-    const centeredTitleSize = Math.min(titleFontSize, 36);
-    const centeredDescSize = Math.min(descFontSize, 20);
-    const titleY = hasImage ? imgY + smallImg + 32 : margin + 85;
+    const titleY = hasImage
+      ? imgY + smallImg + gapImgTitle + centeredTitleSize * 0.85
+      : startY + centeredTitleSize * 0.85;
 
     renderTitle(
       draw,
@@ -122,15 +159,17 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       "middle",
     );
 
-    const descY = titleY + centeredTitleSize + 12;
-    renderMultilineDescription(
-      draw,
-      options.description,
-      width / 2,
-      descY,
-      { ...options.descriptionFont, fontSize: centeredDescSize },
-      "middle",
-    );
+    if (numLines > 0) {
+      const descY = titleY + centeredTitleSize + 14;
+      renderMultilineDescription(
+        draw,
+        options.description,
+        width / 2,
+        descY,
+        { ...options.descriptionFont, fontSize: centeredDescSize },
+        "middle",
+      );
+    }
 
     return draw.node as SVGSVGElement;
   }
@@ -140,9 +179,10 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   // --------------------------------------------------------------------------
   if (variant === "minimal") {
     const isRight = options.imagePosition === "right";
+    const { titleY, descY } = computeCenteredTextY(textCenterY);
 
     if (hasImage) {
-      const minImgSize = Math.min(options.image.size || 160, height - 2 * margin - 40);
+      const minImgSize = Math.min(options.image.size || 160, innerH - 40);
       const imgX = isRight ? width - margin - minImgSize - 35 : margin + 35;
       const imgY = (height - minImgSize) / 2;
 
@@ -166,28 +206,29 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         });
 
       const textX = isRight ? margin + 35 : divX + 30;
-      const titleY = 95;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
-      const descY = titleY + titleFontSize + 14;
-      renderMultilineDescription(
-        draw,
-        options.description,
-        textX,
-        descY,
-        { ...options.descriptionFont, fontSize: descFontSize },
-        "start",
-      );
+      if (numLines > 0) {
+        renderMultilineDescription(
+          draw,
+          options.description,
+          textX,
+          descY,
+          { ...options.descriptionFont, fontSize: descFontSize },
+          "start",
+        );
+      }
     } else {
-      renderTitle(draw, options.title, margin + 40, 100, { ...options.titleFont, fontSize: titleFontSize }, "start");
-      const descY = 100 + titleFontSize + 14;
-      renderMultilineDescription(
-        draw,
-        options.description,
-        margin + 40,
-        descY,
-        { ...options.descriptionFont, fontSize: descFontSize },
-        "start",
-      );
+      renderTitle(draw, options.title, margin + 40, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+      if (numLines > 0) {
+        renderMultilineDescription(
+          draw,
+          options.description,
+          margin + 40,
+          descY,
+          { ...options.descriptionFont, fontSize: descFontSize },
+          "start",
+        );
+      }
     }
 
     return draw.node as SVGSVGElement;
@@ -198,7 +239,8 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   // --------------------------------------------------------------------------
   if (variant === "badge") {
     const isRight = options.imagePosition === "right";
-    const badgeImgSize = Math.min(options.image.size || 150, height - 2 * margin - 40);
+    const badgeImgSize = Math.min(options.image.size || 150, innerH - 40);
+    const { titleY, descY } = computeCenteredTextY(textCenterY);
 
     if (hasImage) {
       const imgX = isRight
@@ -216,37 +258,39 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
 
       const textX = isRight ? margin + 50 : imgX + badgeImgSize + 35;
-      const titleY = 95;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
-      const descY = titleY + titleFontSize + 14;
-      renderMultilineDescription(
-        draw,
-        options.description,
-        textX,
-        descY,
-        { ...options.descriptionFont, fontSize: descFontSize },
-        "start",
-      );
+      if (numLines > 0) {
+        renderMultilineDescription(
+          draw,
+          options.description,
+          textX,
+          descY,
+          { ...options.descriptionFont, fontSize: descFontSize },
+          "start",
+        );
+      }
     } else {
-      renderTitle(draw, options.title, width / 2, 100, { ...options.titleFont, fontSize: titleFontSize }, "middle");
-      const descY = 100 + titleFontSize + 14;
-      renderMultilineDescription(
-        draw,
-        options.description,
-        width / 2,
-        descY,
-        { ...options.descriptionFont, fontSize: descFontSize },
-        "middle",
-      );
+      renderTitle(draw, options.title, width / 2, titleY, { ...options.titleFont, fontSize: titleFontSize }, "middle");
+      if (numLines > 0) {
+        renderMultilineDescription(
+          draw,
+          options.description,
+          width / 2,
+          descY,
+          { ...options.descriptionFont, fontSize: descFontSize },
+          "middle",
+        );
+      }
     }
 
     return draw.node as SVGSVGElement;
   }
 
   // --------------------------------------------------------------------------
-  // Variant 5: STANDARD (Classic horizontal default)
+  // Variant 5: STANDARD (Classic horizontal default, vertically centered)
   // --------------------------------------------------------------------------
-  const stdImgSize = Math.min(options.image.size || 170, height - 2 * margin - 35);
+  const stdImgSize = Math.min(options.image.size || 170, innerH - 35);
+  const { titleY, descY } = computeCenteredTextY(textCenterY);
 
   if (options.imagePosition === "right") {
     if (hasImage) {
@@ -261,16 +305,17 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         "wideLogo",
       );
     }
-    renderTitle(draw, options.title, margin + 35, 95, { ...options.titleFont, fontSize: titleFontSize }, "start");
-    const descY = 95 + titleFontSize + 14;
-    renderMultilineDescription(
-      draw,
-      options.description,
-      margin + 35,
-      descY,
-      { ...options.descriptionFont, fontSize: descFontSize },
-      "start",
-    );
+    renderTitle(draw, options.title, margin + 35, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+    if (numLines > 0) {
+      renderMultilineDescription(
+        draw,
+        options.description,
+        margin + 35,
+        descY,
+        { ...options.descriptionFont, fontSize: descFontSize },
+        "start",
+      );
+    }
   } else {
     // Left (default)
     if (hasImage) {
@@ -286,27 +331,29 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
 
       const textX = imgX + stdImgSize + 32;
-      renderTitle(draw, options.title, textX, 95, { ...options.titleFont, fontSize: titleFontSize }, "start");
-      const descY = 95 + titleFontSize + 14;
-      renderMultilineDescription(
-        draw,
-        options.description,
-        textX,
-        descY,
-        { ...options.descriptionFont, fontSize: descFontSize },
-        "start",
-      );
+      renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+      if (numLines > 0) {
+        renderMultilineDescription(
+          draw,
+          options.description,
+          textX,
+          descY,
+          { ...options.descriptionFont, fontSize: descFontSize },
+          "start",
+        );
+      }
     } else {
-      renderTitle(draw, options.title, margin + 40, 100, { ...options.titleFont, fontSize: titleFontSize }, "start");
-      const descY = 100 + titleFontSize + 14;
-      renderMultilineDescription(
-        draw,
-        options.description,
-        margin + 40,
-        descY,
-        { ...options.descriptionFont, fontSize: descFontSize },
-        "start",
-      );
+      renderTitle(draw, options.title, margin + 40, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+      if (numLines > 0) {
+        renderMultilineDescription(
+          draw,
+          options.description,
+          margin + 40,
+          descY,
+          { ...options.descriptionFont, fontSize: descFontSize },
+          "start",
+        );
+      }
     }
   }
 

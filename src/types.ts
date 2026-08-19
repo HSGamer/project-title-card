@@ -75,6 +75,7 @@ export interface BaseCardOptions {
   border: BorderConfig;
   titleFont: TitleFontConfig;
   image: ImageConfig;
+  textAlign?: TextAlign;
 }
 
 export interface StandardCardOptions extends BaseCardOptions {
@@ -115,6 +116,7 @@ export interface BadgeCardOptions extends BaseCardOptions {
   badgeVariant?: BadgeVariant;
   badgeWidth: number;
   badgeHeight: number;
+  badgeAutoSize?: boolean;
   iconPosition: "left" | "right" | "none";
   // Split badge variant options
   badgeLabel?: string;

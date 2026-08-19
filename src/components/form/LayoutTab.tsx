@@ -16,6 +16,7 @@ import {
 import { FieldGuide } from "../FieldGuide.tsx";
 import { SliderControl } from "../SliderControl.tsx";
 import { ImageControls } from "./ImageControls.tsx";
+import { getCardDimensionsLabel } from "../../utils/dimensions.ts";
 import {
   DESCRIPTION_SUGGESTIONS,
   TITLE_SUGGESTIONS,
@@ -620,35 +621,65 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
           )}
 
           {/* Badge Dimensions */}
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
-            <SliderControl
-              label="Badge Width"
-              fieldKey="badgeWidth"
-              value={(options as BadgeCardOptions).badgeWidth || 400}
-              min={120}
-              max={1000}
-              step={10}
-              presets={[250, 320, 400, 500, 600]}
-              onChange={(val) =>
-                setOptions((prev) => ({
-                  ...(prev as BadgeCardOptions),
-                  badgeWidth: val,
-                }))}
-            />
-            <SliderControl
-              label="Badge Height"
-              fieldKey="badgeHeight"
-              value={(options as BadgeCardOptions).badgeHeight || 120}
-              min={40}
-              max={300}
-              step={5}
-              presets={[60, 80, 100, 120, 160]}
-              onChange={(val) =>
-                setOptions((prev) => ({
-                  ...(prev as BadgeCardOptions),
-                  badgeHeight: val,
-                }))}
-            />
+          <div class="flex flex-col gap-2.5 bg-base-100 p-3 rounded-lg border border-base-300">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-base-content flex items-center gap-1.5">
+                <span>Badge Dimensions</span>
+              </span>
+              <label class="label cursor-pointer gap-2 p-0">
+                <span class="text-xs font-medium text-base-content/80">Auto Fit Content</span>
+                <input
+                  type="checkbox"
+                  class="toggle toggle-primary toggle-sm"
+                  checked={Boolean((options as BadgeCardOptions).badgeAutoSize)}
+                  onChange={(e) =>
+                    setOptions((prev) => ({
+                      ...(prev as BadgeCardOptions),
+                      badgeAutoSize: e.currentTarget.checked,
+                    }))}
+                />
+              </label>
+            </div>
+
+            {(options as BadgeCardOptions).badgeAutoSize ? (
+              <div class="text-xs text-base-content/70 bg-base-200 p-2.5 rounded-md flex items-center justify-between">
+                <span>Calculated size from text & icon:</span>
+                <span class="font-mono font-bold text-primary">
+                  {getCardDimensionsLabel(options)}
+                </span>
+              </div>
+            ) : (
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start pt-1">
+                <SliderControl
+                  label="Badge Width"
+                  fieldKey="badgeWidth"
+                  value={(options as BadgeCardOptions).badgeWidth || 400}
+                  min={120}
+                  max={1000}
+                  step={10}
+                  presets={[250, 320, 400, 500, 600]}
+                  onChange={(val) =>
+                    setOptions((prev) => ({
+                      ...(prev as BadgeCardOptions),
+                      badgeWidth: val,
+                    }))}
+                />
+                <SliderControl
+                  label="Badge Height"
+                  fieldKey="badgeHeight"
+                  value={(options as BadgeCardOptions).badgeHeight || 120}
+                  min={40}
+                  max={300}
+                  step={5}
+                  presets={[60, 80, 100, 120, 160]}
+                  onChange={(val) =>
+                    setOptions((prev) => ({
+                      ...(prev as BadgeCardOptions),
+                      badgeHeight: val,
+                    }))}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
