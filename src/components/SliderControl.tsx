@@ -66,10 +66,8 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
             <button
               type="button"
               key={preset}
-              class={`btn btn-xs h-6 min-h-0 text-[11px] px-2 ${
-                value === preset
-                  ? "btn-primary"
-                  : "btn-ghost border border-base-300 hover:bg-base-200"
+              class={`btn btn-xs ${
+                value === preset ? "btn-primary" : "btn-outline btn-ghost"
               }`}
               onClick={() => onChange(preset)}
             >

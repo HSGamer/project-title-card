@@ -45,12 +45,12 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             <FieldGuide fieldKey="generateType" />
           </label>
         </div>
-        <div class="join w-full h-8">
+        <div class="join w-full">
           {formats.map((fmt) => (
             <button
               type="button"
               key={fmt.value}
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 options.generateType === fmt.value
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -71,10 +71,10 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               Text Alignment
             </span>
           </div>
-          <div class="join w-full h-8">
+          <div class="join w-full">
             <button
               type="button"
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 (options as StandardCardOptions).textAlign !== "left"
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -89,7 +89,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             </button>
             <button
               type="button"
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 (options as StandardCardOptions).textAlign === "left"
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -113,10 +113,10 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               Logo Placement
             </span>
           </div>
-          <div class="join w-full h-8">
+          <div class="join w-full">
             <button
               type="button"
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 (options as WideCardOptions).imagePosition !== "right"
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -131,7 +131,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             </button>
             <button
               type="button"
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 (options as WideCardOptions).imagePosition === "right"
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -155,7 +155,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               Widescreen Composition Style
             </span>
           </div>
-          <div class="join w-full h-8">
+          <div class="join w-full">
             {[
               { label: "Side-by-Side Split", value: "split" },
               { label: "Centered Stack", value: "centered" },
@@ -164,7 +164,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               <button
                 type="button"
                 key={st.value}
-                class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                class={`join-item btn btn-sm flex-1 text-xs ${
                   ((options as WidescreenCardOptions).layoutStyle ||
                       "split") === st.value
                     ? "btn-active btn-primary"
@@ -194,7 +194,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 Icon Placement
               </span>
             </div>
-            <div class="join w-full h-8">
+            <div class="join w-full">
               {[
                 { label: "Icon on Left", value: "left" },
                 { label: "Icon on Right", value: "right" },
@@ -203,7 +203,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 <button
                   type="button"
                   key={pos.value}
-                  class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                  class={`join-item btn btn-sm flex-1 text-xs ${
                     ((options as BadgeCardOptions).iconPosition || "left") ===
                         pos.value
                       ? "btn-active btn-primary"
@@ -267,7 +267,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
         <input
           type="text"
           id="title"
-          class="input input-bordered input-sm h-8 w-full font-medium text-xs"
+          class="input input-bordered input-sm w-full font-medium text-xs"
           value={options.title || ""}
           onInput={(e) =>
             setOptions((prev) => ({
@@ -282,7 +282,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             <button
               type="button"
               key={chip.label}
-              class="btn btn-xs h-6 min-h-0 text-[11px] btn-ghost border border-base-300 px-2"
+              class="btn btn-xs btn-outline btn-ghost"
               onClick={() =>
                 setOptions((prev) => ({
                   ...prev,
@@ -324,7 +324,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               <button
                 type="button"
                 key={chip.label}
-                class="btn btn-xs h-6 min-h-0 text-[11px] btn-ghost border border-base-300 px-2"
+                class="btn btn-xs btn-outline btn-ghost"
                 onClick={() => {
                   setOptions((prev) => ({
                     ...prev,

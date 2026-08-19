@@ -38,12 +38,12 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
               <FieldGuide fieldKey="border" />
             </label>
           </div>
-          <div class="join w-full h-8">
+          <div class="join w-full">
             {borderStyles.map((st) => (
               <button
                 type="button"
                 key={st.value}
-                class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                class={`join-item btn btn-sm flex-1 text-xs ${
                   (options.border?.style || "solid") === st.value
                     ? "btn-active btn-primary"
                     : "btn-ghost bg-base-200"
@@ -95,7 +95,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
           />
           <input
             type="text"
-            class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+            class="input input-bordered input-sm flex-1 font-mono text-xs"
             value={options.border?.color || "#334155"}
             onInput={(e) =>
               setOptions((prev) => ({
@@ -163,12 +163,12 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
             <FieldGuide fieldKey="shadow" />
           </label>
         </div>
-        <div class="join w-full h-8">
+        <div class="join w-full">
           {shadowEffects.map((sh) => (
             <button
               type="button"
               key={sh.value}
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 (options.border?.shadow || "soft") === sh.value
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -207,7 +207,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
             />
             <input
               type="text"
-              class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+              class="input input-bordered input-sm flex-1 font-mono text-xs"
               value={options.border?.glowColor || options.border?.color ||
                 "#06b6d4"}
               onInput={(e) =>

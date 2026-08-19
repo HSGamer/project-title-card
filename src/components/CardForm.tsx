@@ -136,44 +136,46 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
       class="card bg-base-100 shadow-md border border-base-300 p-4"
       aria-labelledby="card-form-heading"
     >
-      {/* Top Quick Actions Bar */}
-      <div class="grid grid-cols-3 gap-2 mb-4">
-        <button
-          type="button"
-          class="btn btn-sm btn-primary gap-1.5 shadow-sm"
-          onClick={onReview}
-          aria-label="Refresh SVG Preview"
-        >
-          <IconEye size={16} />
-          Review
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-outline gap-1.5"
-          onClick={onDownloadSVG}
-          aria-label="Download Card as SVG file"
-        >
-          <IconDownload size={16} />
-          Download SVG
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-outline gap-1.5"
-          onClick={onOpenPNGModal}
-          aria-label="Open PNG Download options dialog"
-        >
-          <IconFileTypePng size={16} />
-          Download PNG
-        </button>
-      </div>
+      {/* Header bar matching CardPreview */}
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-base-300 min-h-[38px]">
+        <div class="flex items-center gap-2">
+          <h2 id="card-form-heading" class="text-base font-bold">
+            Card Customizer
+          </h2>
+          <span class="badge badge-primary badge-sm font-semibold">
+            Live Interactive
+          </span>
+        </div>
 
-      <div class="flex justify-between items-center mb-3">
-        <h2 id="card-form-heading" class="text-base font-bold">
-          Card Customizer
-        </h2>
-        <span class="badge badge-primary badge-sm font-semibold">
-          Live Interactive
-        </span>
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            class="btn btn-xs btn-primary gap-1 shadow-sm font-medium"
+            onClick={onReview}
+            aria-label="Refresh SVG Preview"
+          >
+            <IconEye size={14} />
+            Review
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs btn-outline gap-1 font-medium"
+            onClick={onDownloadSVG}
+            aria-label="Download Card as SVG file"
+          >
+            <IconDownload size={14} />
+            SVG
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs btn-outline gap-1 font-medium"
+            onClick={onOpenPNGModal}
+            aria-label="Open PNG Download options dialog"
+          >
+            <IconFileTypePng size={14} />
+            PNG
+          </button>
+        </div>
       </div>
 
       {/* Main Tabs */}
@@ -181,10 +183,8 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 transition-all ${
-            activeTab === "layout"
-              ? "tab-active !bg-primary !text-primary-content shadow-sm"
-              : ""
+          class={`tab text-xs font-semibold gap-1.5 ${
+            activeTab === "layout" ? "tab-active" : ""
           }`}
           onClick={() => setActiveTab("layout")}
         >
@@ -194,10 +194,8 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 transition-all ${
-            activeTab === "background"
-              ? "tab-active !bg-primary !text-primary-content shadow-sm"
-              : ""
+          class={`tab text-xs font-semibold gap-1.5 ${
+            activeTab === "background" ? "tab-active" : ""
           }`}
           onClick={() => setActiveTab("background")}
         >
@@ -207,10 +205,8 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 transition-all ${
-            activeTab === "border"
-              ? "tab-active !bg-primary !text-primary-content shadow-sm"
-              : ""
+          class={`tab text-xs font-semibold gap-1.5 ${
+            activeTab === "border" ? "tab-active" : ""
           }`}
           onClick={() => setActiveTab("border")}
         >
@@ -220,10 +216,8 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`tab text-xs font-semibold gap-1.5 transition-all ${
-            activeTab === "typography"
-              ? "tab-active !bg-primary !text-primary-content shadow-sm"
-              : ""
+          class={`tab text-xs font-semibold gap-1.5 ${
+            activeTab === "typography" ? "tab-active" : ""
           }`}
           onClick={() => setActiveTab("typography")}
         >

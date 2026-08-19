@@ -69,10 +69,10 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = (
 
   return (
     <section
-      class="card bg-base-100 shadow-md border border-base-300 p-4 lg:sticky lg:top-20"
+      class="card bg-base-100 shadow-md border border-base-300 p-4 w-full"
       aria-labelledby="preview-heading"
     >
-      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-base-300">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-base-300 min-h-[38px]">
         <div class="flex items-center gap-2">
           <h2 id="preview-heading" class="text-base font-bold">
             Card Preview

@@ -81,7 +81,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
           {options.image?.url && (
             <button
               type="button"
-              class="btn btn-xs h-5 min-h-0 btn-ghost text-error gap-0.5 px-1 text-[11px]"
+              class="btn btn-xs btn-ghost text-error gap-0.5"
               onClick={() =>
                 setOptions((prev) => ({
                   ...prev,
@@ -98,7 +98,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
       <div class="flex gap-2 h-8">
         <input
           type="text"
-          class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+          class="input input-bordered input-sm flex-1 font-mono text-xs"
           value={options.image?.url || ""}
           onInput={(e) =>
             setOptions((prev) => ({
@@ -116,7 +116,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
         />
         <button
           type="button"
-          class="btn btn-sm h-8 min-h-0 btn-outline border-base-300 gap-1 text-xs px-3"
+          class="btn btn-sm btn-outline gap-1 text-xs"
           onClick={() => fileInputRef.current?.click()}
         >
           <IconUpload size={14} />
@@ -131,7 +131,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
           <button
             type="button"
             key={chip.label}
-            class="btn btn-xs h-6 min-h-0 text-[11px] btn-ghost border border-base-300 px-2"
+            class="btn btn-xs btn-outline btn-ghost"
             onClick={() =>
               setOptions((prev) => ({
                 ...prev,
@@ -151,12 +151,12 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
               Image Shape
             </span>
           </div>
-          <div class="join w-full h-8">
+          <div class="join w-full">
             {imageShapes.map((shape) => (
               <button
                 type="button"
                 key={shape.value}
-                class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                class={`join-item btn btn-sm flex-1 text-xs ${
                   (options.image?.shape || "rounded") === shape.value
                     ? "btn-active btn-primary"
                     : "btn-ghost bg-base-200"

@@ -87,12 +87,12 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
             <FieldGuide fieldKey="background" />
           </label>
         </div>
-        <div class="join w-full h-8">
+        <div class="join w-full">
           {bgModes.map((mode) => (
             <button
               type="button"
               key={mode.value}
-              class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+              class={`join-item btn btn-sm flex-1 text-xs ${
                 (options.background?.type || "solid") === mode.value
                   ? "btn-active btn-primary"
                   : "btn-ghost bg-base-200"
@@ -137,7 +137,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
             />
             <input
               type="text"
-              class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+              class="input input-bordered input-sm flex-1 font-mono text-xs"
               value={options.background?.color || "#0f172a"}
               onInput={(e) =>
                 setOptions((prev) => ({
@@ -181,7 +181,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 <button
                   type="button"
                   key={p.id}
-                  class="btn btn-xs h-6 min-h-0 text-[11px] btn-ghost border border-base-300 px-2 gap-1.5"
+                  class="btn btn-xs btn-outline btn-ghost gap-1.5"
                   onClick={() => handleApplyGradientPreset(p)}
                 >
                   <span
@@ -203,12 +203,12 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 Gradient Direction
               </span>
             </div>
-            <div class="join w-full h-8">
+            <div class="join w-full">
               {gradDirections.map((d) => (
                 <button
                   type="button"
                   key={d.value}
-                  class={`join-item btn btn-sm h-8 min-h-0 flex-1 text-xs ${
+                  class={`join-item btn btn-sm flex-1 text-xs ${
                     (options.background?.gradientDirection || "to-br") ===
                         d.value
                       ? "btn-active btn-primary"
@@ -253,7 +253,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 />
                 <input
                   type="text"
-                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  class="input input-bordered input-sm flex-1 font-mono text-xs"
                   value={options.background?.gradientStart || "#ea580c"}
                   onInput={(e) =>
                     setOptions((prev) => ({
@@ -289,7 +289,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 />
                 <input
                   type="text"
-                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  class="input input-bordered input-sm flex-1 font-mono text-xs"
                   placeholder="None"
                   value={options.background?.gradientMiddle || ""}
                   onInput={(e) =>
@@ -326,7 +326,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 />
                 <input
                   type="text"
-                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  class="input input-bordered input-sm flex-1 font-mono text-xs"
                   value={options.background?.gradientEnd || "#7c3aed"}
                   onInput={(e) =>
                     setOptions((prev) => ({
@@ -360,7 +360,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
               {options.background?.imageUrl && (
                 <button
                   type="button"
-                  class="btn btn-xs h-5 min-h-0 btn-ghost text-error gap-0.5 px-1 text-[11px]"
+                  class="btn btn-xs btn-ghost text-error gap-0.5"
                   onClick={() =>
                     setOptions((prev) => ({
                       ...prev,
@@ -376,7 +376,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
             <div class="flex gap-2 h-8">
               <input
                 type="text"
-                class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                class="input input-bordered input-sm flex-1 font-mono text-xs"
                 value={options.background?.imageUrl || ""}
                 onInput={(e) =>
                   setOptions((prev) => ({
@@ -397,7 +397,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
               />
               <button
                 type="button"
-                class="btn btn-sm h-8 min-h-0 btn-outline border-base-300 gap-1 text-xs px-3"
+                class="btn btn-sm btn-outline gap-1 text-xs"
                 onClick={() => bgFileInputRef.current?.click()}
               >
                 <IconUpload size={14} />
@@ -444,7 +444,7 @@ export const BackgroundTab: FunctionalComponent<BackgroundTabProps> = (
                 />
                 <input
                   type="text"
-                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  class="input input-bordered input-sm flex-1 font-mono text-xs"
                   value={options.background?.overlayColor || "#0f172a"}
                   onInput={(e) =>
                     setOptions((prev) => ({

@@ -1,5 +1,5 @@
 import { FunctionalComponent } from "preact";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import {
   IconAlertCircle,
   IconCheck,
@@ -17,6 +17,7 @@ import {
   DEFAULT_FONT_OPTIONS,
   FontOption,
   loadWebFont,
+  POPULAR_GOOGLE_FONTS,
   querySystemFonts,
 } from "../../utils/fonts.ts";
 
@@ -35,6 +36,13 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
     { text: string; type: "success" | "error" } | null
   >(null);
   const [customFontInput, setCustomFontInput] = useState("");
+
+  // Preload popular fonts so option items render with their actual font styles
+  useEffect(() => {
+    for (const f of POPULAR_GOOGLE_FONTS) {
+      loadWebFont(f.value);
+    }
+  }, []);
 
   // Scan installed system fonts via Local Font Access API
   const handleScanSystemFonts = async () => {
@@ -137,7 +145,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
           </div>
           <button
             type="button"
-            class={`btn btn-xs h-6 min-h-0 text-[11px] btn-outline border-base-300 gap-1 ${
+            class={`btn btn-xs btn-outline gap-1 ${
               isScanningFonts ? "loading" : ""
             }`}
             onClick={handleScanSystemFonts}
@@ -165,7 +173,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
         <div class="flex items-center gap-1.5 h-8">
           <input
             type="text"
-            class="input input-bordered input-sm h-8 flex-1 text-xs"
+            class="input input-bordered input-sm flex-1 text-xs"
             placeholder="Type any Google Font name (e.g. Space Grotesk)..."
             value={customFontInput}
             onInput={(e) => setCustomFontInput(e.currentTarget.value)}
@@ -178,7 +186,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
           />
           <button
             type="button"
-            class="btn btn-sm h-8 min-h-0 btn-outline border-base-300 text-xs px-2.5"
+            class="btn btn-sm btn-outline text-xs"
             disabled={!customFontInput.trim()}
             onClick={() => handleAddCustomFont("title")}
           >
@@ -187,7 +195,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
           {options.generateType !== "badge" && (
             <button
               type="button"
-              class="btn btn-sm h-8 min-h-0 btn-ghost text-xs px-2"
+              class="btn btn-sm btn-ghost text-xs"
               disabled={!customFontInput.trim()}
               onClick={() => handleAddCustomFont("description")}
             >
@@ -229,7 +237,8 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             </span>
           </div>
           <select
-            class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+            class="select select-bordered select-sm w-full font-medium text-xs"
+            style={{ fontFamily: options.titleFont?.fontFamily || "inherit" }}
             value={options.titleFont?.fontFamily || fontList[0]?.value}
             onChange={(e) => {
               const val = e.currentTarget.value;
@@ -242,7 +251,11 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             }}
           >
             {fontList.map((f) => (
-              <option key={f.value} value={f.value}>
+              <option
+                key={f.value}
+                value={f.value}
+                style={{ fontFamily: f.value }}
+              >
                 {f.label} {f.category ? `(${f.category})` : ""}
               </option>
             ))}
@@ -257,7 +270,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               </span>
             </div>
             <select
-              class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+              class="select select-bordered select-sm w-full font-medium text-xs"
               value={options.titleFont?.fontWeight || "800"}
               onChange={(e) =>
                 setOptions((prev) => ({
@@ -299,7 +312,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               />
               <input
                 type="text"
-                class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                class="input input-bordered input-sm flex-1 font-mono text-xs"
                 value={options.titleFont?.color || "#f8fafc"}
                 onInput={(e) =>
                   setOptions((prev) => ({
@@ -364,7 +377,12 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               </span>
             </div>
             <select
-              class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+              class="select select-bordered select-sm w-full font-medium text-xs"
+              style={{
+                fontFamily: ("descriptionFont" in options
+                  ? options.descriptionFont?.fontFamily
+                  : undefined) || "inherit",
+              }}
               value={"descriptionFont" in options
                 ? options.descriptionFont?.fontFamily || fontList[0]?.value
                 : fontList[0]?.value}
@@ -386,7 +404,11 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               }}
             >
               {fontList.map((f) => (
-                <option key={f.value} value={f.value}>
+                <option
+                  key={f.value}
+                  value={f.value}
+                  style={{ fontFamily: f.value }}
+                >
                   {f.label} {f.category ? `(${f.category})` : ""}
                 </option>
               ))}
@@ -401,7 +423,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
                 </span>
               </div>
               <select
-                class="select select-bordered select-sm h-8 w-full font-medium text-xs"
+                class="select select-bordered select-sm w-full font-medium text-xs"
                 value={"descriptionFont" in options
                   ? options.descriptionFont?.fontWeight || "500"
                   : "500"}
@@ -456,7 +478,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
                 />
                 <input
                   type="text"
-                  class="input input-bordered input-sm h-8 flex-1 font-mono text-xs"
+                  class="input input-bordered input-sm flex-1 font-mono text-xs"
                   value={"descriptionFont" in options
                     ? options.descriptionFont?.color || "#94a3b8"
                     : "#94a3b8"}
