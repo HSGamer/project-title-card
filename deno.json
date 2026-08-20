@@ -21,6 +21,7 @@
     "@tabler/icons-preact": "npm:@tabler/icons-preact@^3.46.0",
     "linkedom": "npm:linkedom@^0.18.9",
     "preact": "npm:preact@^10.29.8",
-    "preact/hooks": "npm:preact@^10.29.8/hooks"
+    "preact/hooks": "npm:preact@^10.29.8/hooks",
+    "zod": "npm:zod@^3.23.8"
   }
 }

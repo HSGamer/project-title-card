@@ -24,7 +24,8 @@
     "npm:esbuild@0.25.0": "0.25.0",
     "npm:linkedom@~0.18.9": "0.18.13",
     "npm:preact@^10.25.0": "10.29.8",
-    "npm:preact@^10.29.8": "10.29.8"
+    "npm:preact@^10.29.8": "10.29.8",
+    "npm:zod@^3.23.8": "3.25.76"
   },
   "jsr": {
     "@luca/esbuild-deno-loader@0.11.1": {
@@ -448,6 +449,9 @@
     },
     "uhyphen@0.2.0": {
       "integrity": "sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA=="
+    },
+    "zod@3.25.76": {
+      "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
     }
   },
   "workspace": {
@@ -457,7 +461,8 @@
       "npm:@svgdotjs/svg.js@^3.2.8",
       "npm:@tabler/icons-preact@^3.46.0",
       "npm:linkedom@~0.18.9",
-      "npm:preact@^10.29.8"
+      "npm:preact@^10.29.8",
+      "npm:zod@^3.23.8"
     ]
   }
 }
