@@ -32,6 +32,12 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   const titleFontSize = Math.min(options.titleFont.fontSize || 42, 46);
   const descFontSize = Math.min(options.descriptionFont.fontSize || 22, 26);
   const lineHeight = options.descriptionFont.lineHeight || 1.3;
+  const vAlign = options.verticalAlign || "middle";
+  const imgVAlign = options.image.verticalAlign || "middle";
+  const textOffsetY = options.verticalOffset || options.offsetY || 0;
+  const textOffsetX = options.horizontalOffset || options.offsetX || 0;
+  const imgOffsetY = options.image.verticalOffset || options.image.offsetY || 0;
+  const imgOffsetX = options.image.horizontalOffset || options.image.offsetX || 0;
 
   const descLines = options.description
     ? options.description.split("\n").filter((l) => l.trim().length > 0)
@@ -41,14 +47,31 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
     ? (numLines - 1) * (descFontSize * lineHeight) + descFontSize
     : 0;
 
-  // Helper for computing vertically centered text positions in a side panel or card
-  const computeCenteredTextY = (centerY: number, tSize = titleFontSize, dSize = descFontSize) => {
+  // Helper for computing vertical text positions based on verticalAlign
+  const computeTextY = (centerY = margin + innerH / 2, tSize = titleFontSize, dSize = descFontSize, topPad = 28, bottomPad = 28) => {
     const gap = numLines > 0 ? 14 : 0;
     const descHeight = numLines > 0 ? (numLines - 1) * (dSize * lineHeight) + dSize : 0;
     const textH = tSize + (numLines > 0 ? gap + descHeight : 0);
-    const titleY = centerY - textH / 2 + tSize * 0.85;
+
+    let titleY: number;
+    if (vAlign === "top") {
+      titleY = margin + topPad + tSize * 0.85;
+    } else if (vAlign === "bottom") {
+      titleY = height - margin - bottomPad - (textH - tSize * 0.85);
+    } else {
+      titleY = centerY - textH / 2 + tSize * 0.85;
+    }
+    titleY += textOffsetY;
     const descY = titleY + tSize + 14;
     return { titleY, descY };
+  };
+
+  const computeImgY = (imgSize: number, topPad = 24, bottomPad = 24) => {
+    let y: number;
+    if (imgVAlign === "top") y = margin + topPad;
+    else if (imgVAlign === "bottom") y = height - margin - bottomPad - imgSize;
+    else y = (height - imgSize) / 2;
+    return y + imgOffsetY;
   };
 
   const textCenterY = margin + innerH / 2;
@@ -83,9 +106,9 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
 
     // Render Logo in side panel
     if (hasImage) {
-      const panelImgSize = Math.min(options.image.size || 160, panelWidth - 40, innerH - 40);
-      const imgX = panelX + (panelWidth - panelImgSize) / 2;
-      const imgY = (height - panelImgSize) / 2;
+      const panelImgSize = Math.min(options.image.size || 160, panelWidth - 20, innerH - 20);
+      const imgX = panelX + (panelWidth - panelImgSize) / 2 + imgOffsetX;
+      const imgY = computeImgY(panelImgSize, 28, 28);
       renderImage(
         draw,
         options.image,
@@ -96,9 +119,9 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
     }
 
-    // Render Title & Description in main panel (vertically centered)
-    const textX = isRight ? margin + 35 : splitX + 35;
-    const { titleY, descY } = computeCenteredTextY(textCenterY);
+    // Render Title & Description in main panel
+    const textX = (isRight ? margin + 35 : splitX + 35) + textOffsetX;
+    const { titleY, descY } = computeTextY(textCenterY);
 
     renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
     if (numLines > 0) {
@@ -119,7 +142,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   // Variant 2: CENTERED
   // --------------------------------------------------------------------------
   if (variant === "centered") {
-    const smallImg = Math.min(options.image.size || 90, 95);
+    const smallImg = Math.min(options.image.size || 90, innerW - 40, innerH - 24);
     const centeredTitleSize = Math.min(titleFontSize, 36);
     const centeredDescSize = Math.min(descFontSize, 20);
     const centeredDescH = numLines > 0
@@ -129,11 +152,30 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
     const imgH = hasImage ? smallImg : 0;
     const gapImgTitle = hasImage ? 18 : 0;
     const gapTitleDesc = numLines > 0 ? 14 : 0;
-    const totalH = imgH + gapImgTitle + centeredTitleSize + (numLines > 0 ? gapTitleDesc + centeredDescH : 0);
+    const textH = centeredTitleSize + (numLines > 0 ? gapTitleDesc + centeredDescH : 0);
+    const totalH = imgH + gapImgTitle + textH;
 
-    const startY = margin + Math.max(16, (innerH - totalH) / 2);
-    const imgX = (width - smallImg) / 2;
-    const imgY = startY;
+    let imgY: number;
+    let titleY: number;
+
+    if (hasImage && imgVAlign !== vAlign) {
+      imgY = computeImgY(smallImg, 18, 18);
+      const textPos = computeTextY(margin + innerH / 2, centeredTitleSize, centeredDescSize, 18, 18);
+      titleY = textPos.titleY;
+    } else {
+      const computeCenteredStartY = () => {
+        if (vAlign === "top") return margin + 20;
+        if (vAlign === "bottom") return height - margin - 20 - totalH;
+        return margin + Math.max(16, (innerH - totalH) / 2);
+      };
+      const startY = computeCenteredStartY();
+      imgY = startY + imgOffsetY;
+      titleY = (hasImage
+        ? imgY + smallImg + gapImgTitle + centeredTitleSize * 0.85
+        : startY + centeredTitleSize * 0.85) + textOffsetY;
+    }
+
+    const imgX = (width - smallImg) / 2 + imgOffsetX;
 
     if (hasImage) {
       renderImage(
@@ -146,14 +188,10 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
     }
 
-    const titleY = hasImage
-      ? imgY + smallImg + gapImgTitle + centeredTitleSize * 0.85
-      : startY + centeredTitleSize * 0.85;
-
     renderTitle(
       draw,
       options.title,
-      width / 2,
+      width / 2 + textOffsetX,
       titleY,
       { ...options.titleFont, fontSize: centeredTitleSize },
       "middle",
@@ -164,7 +202,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       renderMultilineDescription(
         draw,
         options.description,
-        width / 2,
+        width / 2 + textOffsetX,
         descY,
         { ...options.descriptionFont, fontSize: centeredDescSize },
         "middle",
@@ -179,12 +217,12 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   // --------------------------------------------------------------------------
   if (variant === "minimal") {
     const isRight = options.imagePosition === "right";
-    const { titleY, descY } = computeCenteredTextY(textCenterY);
+    const { titleY, descY } = computeTextY(textCenterY);
 
     if (hasImage) {
-      const minImgSize = Math.min(options.image.size || 160, innerH - 40);
-      const imgX = isRight ? width - margin - minImgSize - 35 : margin + 35;
-      const imgY = (height - minImgSize) / 2;
+      const minImgSize = Math.min(options.image.size || 160, innerW - 40, innerH - 20);
+      const imgX = (isRight ? width - margin - minImgSize - 35 : margin + 35) + imgOffsetX;
+      const imgY = computeImgY(minImgSize, 28, 28);
 
       renderImage(
         draw,
@@ -205,7 +243,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
           opacity: 0.5,
         });
 
-      const textX = isRight ? margin + 35 : divX + 30;
+      const textX = (isRight ? margin + 35 : divX + 30) + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -218,12 +256,12 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         );
       }
     } else {
-      renderTitle(draw, options.title, margin + 40, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+      renderTitle(draw, options.title, margin + 40 + textOffsetX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
           draw,
           options.description,
-          margin + 40,
+          margin + 40 + textOffsetX,
           descY,
           { ...options.descriptionFont, fontSize: descFontSize },
           "start",
@@ -239,14 +277,14 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   // --------------------------------------------------------------------------
   if (variant === "badge") {
     const isRight = options.imagePosition === "right";
-    const badgeImgSize = Math.min(options.image.size || 150, innerH - 40);
-    const { titleY, descY } = computeCenteredTextY(textCenterY);
+    const badgeImgSize = Math.min(options.image.size || 150, innerW - 40, innerH - 20);
+    const { titleY, descY } = computeTextY(textCenterY);
 
     if (hasImage) {
-      const imgX = isRight
+      const imgX = (isRight
         ? width - margin - badgeImgSize - 40
-        : margin + 40;
-      const imgY = (height - badgeImgSize) / 2;
+        : margin + 40) + imgOffsetX;
+      const imgY = computeImgY(badgeImgSize, 28, 28);
 
       renderImage(
         draw,
@@ -257,7 +295,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         "wideBadgeLogo",
       );
 
-      const textX = isRight ? margin + 50 : imgX + badgeImgSize + 35;
+      const textX = (isRight ? margin + 50 : imgX + badgeImgSize + 35) + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -270,12 +308,12 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         );
       }
     } else {
-      renderTitle(draw, options.title, width / 2, titleY, { ...options.titleFont, fontSize: titleFontSize }, "middle");
+      renderTitle(draw, options.title, width / 2 + textOffsetX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "middle");
       if (numLines > 0) {
         renderMultilineDescription(
           draw,
           options.description,
-          width / 2,
+          width / 2 + textOffsetX,
           descY,
           { ...options.descriptionFont, fontSize: descFontSize },
           "middle",
@@ -287,15 +325,15 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   }
 
   // --------------------------------------------------------------------------
-  // Variant 5: STANDARD (Classic horizontal default, vertically centered)
+  // Variant 5: STANDARD (Classic horizontal default)
   // --------------------------------------------------------------------------
-  const stdImgSize = Math.min(options.image.size || 170, innerH - 35);
-  const { titleY, descY } = computeCenteredTextY(textCenterY);
+  const stdImgSize = Math.min(options.image.size || 170, innerW - 40, innerH - 20);
+  const { titleY, descY } = computeTextY(textCenterY);
 
   if (options.imagePosition === "right") {
     if (hasImage) {
-      const imgX = width - margin - stdImgSize - 30;
-      const imgY = (height - stdImgSize) / 2;
+      const imgX = width - margin - stdImgSize - 30 + imgOffsetX;
+      const imgY = computeImgY(stdImgSize, 28, 28);
       renderImage(
         draw,
         options.image,
@@ -305,12 +343,12 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         "wideLogo",
       );
     }
-    renderTitle(draw, options.title, margin + 35, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+    renderTitle(draw, options.title, margin + 35 + textOffsetX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
     if (numLines > 0) {
       renderMultilineDescription(
         draw,
         options.description,
-        margin + 35,
+        margin + 35 + textOffsetX,
         descY,
         { ...options.descriptionFont, fontSize: descFontSize },
         "start",
@@ -319,8 +357,8 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   } else {
     // Left (default)
     if (hasImage) {
-      const imgX = margin + 30;
-      const imgY = (height - stdImgSize) / 2;
+      const imgX = margin + 30 + imgOffsetX;
+      const imgY = computeImgY(stdImgSize, 28, 28);
       renderImage(
         draw,
         options.image,
@@ -330,7 +368,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         "wideLogo",
       );
 
-      const textX = imgX + stdImgSize + 32;
+      const textX = imgX + stdImgSize + 32 + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -343,12 +381,12 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         );
       }
     } else {
-      renderTitle(draw, options.title, margin + 40, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+      renderTitle(draw, options.title, margin + 40 + textOffsetX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
           draw,
           options.description,
-          margin + 40,
+          margin + 40 + textOffsetX,
           descY,
           { ...options.descriptionFont, fontSize: descFontSize },
           "start",

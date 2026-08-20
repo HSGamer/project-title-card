@@ -8,6 +8,7 @@ import {
   GenerateType,
   StandardCardOptions,
   TextAlign,
+  VerticalAlign,
   WideCardOptions,
   WideVariant,
   WidescreenCardOptions,
@@ -40,6 +41,12 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
     { label: "Badge", value: "badge" },
   ];
 
+  const verticalAlignOptions: { label: string; value: VerticalAlign }[] = [
+    { label: "Top", value: "top" },
+    { label: "Middle", value: "middle" },
+    { label: "Bottom", value: "bottom" },
+  ];
+
   return (
     <div class="flex flex-col gap-4">
       {/* 1. Layout Format */}
@@ -70,7 +77,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
 
       {/* Format-Specific Layout Controls: Standard Card */}
       {options.generateType === "card" && (
-        <div class="flex flex-col gap-3 w-full">
+        <div class="flex flex-col gap-3.5 w-full">
           {/* Card Variant Selector */}
           <div class="flex flex-col gap-1.5 w-full">
             <div class="flex justify-between items-center min-h-[22px]">
@@ -81,10 +88,10 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 w-full">
               {[
                 { label: "Standard", value: "standard" },
-                { label: "Hero", value: "hero" },
-                { label: "Compact", value: "compact" },
-                { label: "Minimal", value: "minimal" },
-                { label: "Split", value: "split" },
+                { label: "Hero Glass", value: "hero" },
+                { label: "Split Seam", value: "split" },
+                { label: "Minimalist", value: "minimal" },
+                { label: "Centered", value: "centered" },
               ].map((v) => (
                 <button
                   type="button"
@@ -106,17 +113,17 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
             </div>
           </div>
 
-          {/* Text Alignment */}
+          {/* Horizontal Text Alignment */}
           <div class="flex flex-col gap-1.5 w-full">
             <div class="flex justify-between items-center min-h-[22px]">
               <span class="text-xs font-semibold text-base-content">
-                Text Alignment
+                Horizontal Text Alignment
               </span>
             </div>
-            <div class="grid grid-cols-2 gap-1.5 w-full">
+            <div class="grid grid-cols-2 gap-2 w-full">
               <button
                 type="button"
-                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as StandardCardOptions).textAlign !== "left"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -131,7 +138,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               </button>
               <button
                 type="button"
-                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as StandardCardOptions).textAlign === "left"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -146,12 +153,73 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Text Vertical Alignment */}
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center min-h-[22px]">
+              <span class="text-xs font-semibold text-base-content">
+                Text Vertical Alignment
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 w-full">
+              {verticalAlignOptions.map((va) => (
+                <button
+                  type="button"
+                  key={va.value}
+                  class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                    ((options as StandardCardOptions).verticalAlign || "middle") === va.value
+                      ? "btn-active btn-primary shadow-xs font-semibold"
+                      : "btn-ghost bg-base-200 hover:bg-base-300"
+                  }`}
+                  onClick={() =>
+                    setOptions((prev) => ({
+                      ...(prev as StandardCardOptions),
+                      verticalAlign: va.value,
+                    }))}
+                >
+                  <span>{va.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Text Alignment Offsets */}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+            <SliderControl
+              label="Text Vertical Offset"
+              value={options.verticalOffset || 0}
+              min={-150}
+              max={150}
+              step={1}
+              unit="px"
+              presets={[-30, -10, 0, 10, 30]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  verticalOffset: val,
+                }))}
+            />
+            <SliderControl
+              label="Text Horizontal Offset"
+              value={options.horizontalOffset || 0}
+              min={-150}
+              max={150}
+              step={1}
+              unit="px"
+              presets={[-30, -10, 0, 10, 30]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  horizontalOffset: val,
+                }))}
+            />
+          </div>
         </div>
       )}
 
       {/* Format-Specific Layout Controls: Wide Card */}
       {options.generateType === "widecard" && (
-        <div class="flex flex-col gap-3 w-full">
+        <div class="flex flex-col gap-3.5 w-full">
           {/* Wide Variant Selector */}
           <div class="flex flex-col gap-1.5 w-full">
             <div class="flex justify-between items-center min-h-[22px]">
@@ -194,10 +262,10 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 Logo Placement
               </span>
             </div>
-            <div class="grid grid-cols-2 gap-1.5 w-full">
+            <div class="grid grid-cols-2 gap-2 w-full">
               <button
                 type="button"
-                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as WideCardOptions).imagePosition !== "right"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -212,7 +280,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               </button>
               <button
                 type="button"
-                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
                   (options as WideCardOptions).imagePosition === "right"
                     ? "btn-active btn-primary shadow-xs font-semibold"
                     : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -227,45 +295,169 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Text Vertical Alignment */}
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center min-h-[22px]">
+              <span class="text-xs font-semibold text-base-content">
+                Text Vertical Alignment
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 w-full">
+              {verticalAlignOptions.map((va) => (
+                <button
+                  type="button"
+                  key={va.value}
+                  class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                    ((options as WideCardOptions).verticalAlign || "middle") === va.value
+                      ? "btn-active btn-primary shadow-xs font-semibold"
+                      : "btn-ghost bg-base-200 hover:bg-base-300"
+                  }`}
+                  onClick={() =>
+                    setOptions((prev) => ({
+                      ...(prev as WideCardOptions),
+                      verticalAlign: va.value,
+                    }))}
+                >
+                  <span>{va.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Text Alignment Offsets */}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+            <SliderControl
+              label="Text Vertical Offset"
+              value={options.verticalOffset || 0}
+              min={-150}
+              max={150}
+              step={1}
+              unit="px"
+              presets={[-30, -10, 0, 10, 30]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  verticalOffset: val,
+                }))}
+            />
+            <SliderControl
+              label="Text Horizontal Offset"
+              value={options.horizontalOffset || 0}
+              min={-150}
+              max={150}
+              step={1}
+              unit="px"
+              presets={[-30, -10, 0, 10, 30]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  horizontalOffset: val,
+                }))}
+            />
+          </div>
         </div>
       )}
 
       {/* Format-Specific Layout Controls: Widescreen Banner */}
       {options.generateType === "widescreen" && (
-        <div class="flex flex-col gap-1.5 w-full">
-          <div class="flex justify-between items-center min-h-[22px]">
-            <span class="text-xs font-semibold text-base-content">
-              Banner Layout Variant
-            </span>
+        <div class="flex flex-col gap-3.5 w-full">
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center min-h-[22px]">
+              <span class="text-xs font-semibold text-base-content">
+                Banner Layout Variant
+              </span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 w-full">
+              {[
+                { label: "Split", value: "split" },
+                { label: "Centered", value: "centered" },
+                { label: "Banner", value: "banner" },
+                { label: "Hero Glass", value: "hero" },
+                { label: "Minimal", value: "minimal" },
+              ].map((st) => (
+                <button
+                  type="button"
+                  key={st.value}
+                  class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                    ((options as WidescreenCardOptions).bannerVariant ||
+                      (options as WidescreenCardOptions).layoutStyle ||
+                      "split") === st.value
+                      ? "btn-active btn-primary shadow-xs font-semibold"
+                      : "btn-ghost bg-base-200 hover:bg-base-300"
+                  }`}
+                  onClick={() =>
+                    setOptions((prev) => ({
+                      ...(prev as WidescreenCardOptions),
+                      layoutStyle: st.value as WidescreenLayout,
+                      bannerVariant: st.value as BannerVariant,
+                    }))}
+                >
+                  <span>{st.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 w-full">
-            {[
-              { label: "Split", value: "split" },
-              { label: "Centered", value: "centered" },
-              { label: "Banner", value: "banner" },
-              { label: "Hero Glass", value: "hero" },
-              { label: "Minimal", value: "minimal" },
-            ].map((st) => (
-              <button
-                type="button"
-                key={st.value}
-                class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
-                  ((options as WidescreenCardOptions).bannerVariant ||
-                    (options as WidescreenCardOptions).layoutStyle ||
-                    "split") === st.value
-                    ? "btn-active btn-primary shadow-xs font-semibold"
-                    : "btn-ghost bg-base-200 hover:bg-base-300"
-                }`}
-                onClick={() =>
-                  setOptions((prev) => ({
-                    ...(prev as WidescreenCardOptions),
-                    layoutStyle: st.value as WidescreenLayout,
-                    bannerVariant: st.value as BannerVariant,
-                  }))}
-              >
-                <span>{st.label}</span>
-              </button>
-            ))}
+
+          {/* Text Vertical Alignment */}
+          <div class="flex flex-col gap-1.5 w-full">
+            <div class="flex justify-between items-center min-h-[22px]">
+              <span class="text-xs font-semibold text-base-content">
+                Text Vertical Alignment
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 w-full">
+              {verticalAlignOptions.map((va) => (
+                <button
+                  type="button"
+                  key={va.value}
+                  class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                    ((options as WidescreenCardOptions).verticalAlign || "middle") === va.value
+                      ? "btn-active btn-primary shadow-xs font-semibold"
+                      : "btn-ghost bg-base-200 hover:bg-base-300"
+                  }`}
+                  onClick={() =>
+                    setOptions((prev) => ({
+                      ...(prev as WidescreenCardOptions),
+                      verticalAlign: va.value,
+                    }))}
+                >
+                  <span>{va.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Text Alignment Offsets */}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+            <SliderControl
+              label="Text Vertical Offset"
+              value={options.verticalOffset || 0}
+              min={-150}
+              max={150}
+              step={1}
+              unit="px"
+              presets={[-30, -10, 0, 10, 30]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  verticalOffset: val,
+                }))}
+            />
+            <SliderControl
+              label="Text Horizontal Offset"
+              value={options.horizontalOffset || 0}
+              min={-150}
+              max={150}
+              step={1}
+              unit="px"
+              presets={[-30, -10, 0, 10, 30]}
+              onChange={(val) =>
+                setOptions((prev) => ({
+                  ...prev,
+                  horizontalOffset: val,
+                }))}
+            />
           </div>
         </div>
       )}

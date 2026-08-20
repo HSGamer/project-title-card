@@ -1,7 +1,7 @@
 import { FunctionalComponent } from "preact";
 import { useRef } from "preact/hooks";
 import { IconPhoto, IconUpload, IconX } from "@tabler/icons-preact";
-import { CardOptions, ImageShape } from "../../types.ts";
+import { CardOptions, ImageShape, VerticalAlign } from "../../types.ts";
 import { FieldGuide } from "../FieldGuide.tsx";
 import { SliderControl } from "../SliderControl.tsx";
 import { LOGO_SUGGESTIONS } from "../../data/suggestions.ts";
@@ -47,6 +47,12 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
     { label: "Original", value: "original" },
     { label: "Rounded", value: "rounded" },
     { label: "Circle", value: "circle" },
+  ];
+
+  const verticalAligns: { label: string; value: VerticalAlign }[] = [
+    { label: "Top", value: "top" },
+    { label: "Middle", value: "middle" },
+    { label: "Bottom", value: "bottom" },
   ];
 
   return (
@@ -176,14 +182,75 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
         <SliderControl
           label="Logo Size"
           value={options.image?.size ||
-            (options.generateType === "badge" ? 70 : 240)}
-          min={options.generateType === "badge" ? 20 : 60}
-          max={options.generateType === "badge" ? 180 : 360}
+            (options.generateType === "badge" ? 70 : 220)}
+          min={options.generateType === "badge" ? 20 : 30}
+          max={options.generateType === "badge" ? 240 : 550}
           step={5}
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
               image: { ...prev.image, size: val },
+            }))}
+        />
+      </div>
+
+      {/* Logo Vertical Alignment */}
+      <div class="flex flex-col gap-1.5 w-full mt-1">
+        <div class="flex justify-between items-center min-h-[22px]">
+          <span class="text-xs font-semibold text-base-content">
+            Logo Vertical Alignment
+          </span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 w-full">
+          {verticalAligns.map((va) => (
+            <button
+              type="button"
+              key={va.value}
+              class={`btn btn-sm text-xs px-2 py-1.5 h-auto min-h-[36px] text-center leading-tight flex items-center justify-center ${
+                (options.image?.verticalAlign || "middle") === va.value
+                  ? "btn-active btn-primary shadow-xs font-semibold"
+                  : "btn-ghost bg-base-200 hover:bg-base-300"
+              }`}
+              onClick={() =>
+                setOptions((prev) => ({
+                  ...prev,
+                  image: { ...prev.image, verticalAlign: va.value },
+                }))}
+            >
+              <span>{va.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Logo Alignment Offsets */}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-0.5">
+        <SliderControl
+          label="Logo Vertical Offset"
+          value={options.image?.verticalOffset || 0}
+          min={-150}
+          max={150}
+          step={1}
+          unit="px"
+          presets={[-30, -10, 0, 10, 30]}
+          onChange={(val) =>
+            setOptions((prev) => ({
+              ...prev,
+              image: { ...prev.image, verticalOffset: val },
+            }))}
+        />
+        <SliderControl
+          label="Logo Horizontal Offset"
+          value={options.image?.horizontalOffset || 0}
+          min={-150}
+          max={150}
+          step={1}
+          unit="px"
+          presets={[-30, -10, 0, 10, 30]}
+          onChange={(val) =>
+            setOptions((prev) => ({
+              ...prev,
+              image: { ...prev.image, horizontalOffset: val },
             }))}
         />
       </div>

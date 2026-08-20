@@ -79,7 +79,7 @@ export const CardPreview: FunctionalComponent<CardPreviewProps> = ({
 
   return (
     <section
-      class="card bg-base-100 shadow-md border border-base-300 p-3 sm:p-4 w-full"
+      class="card bg-base-100 shadow-md border border-base-300 p-3 sm:p-4 w-full max-w-full min-w-0"
       aria-labelledby="preview-heading"
     >
       {/* Header and Controls in a single streamlined bar */}

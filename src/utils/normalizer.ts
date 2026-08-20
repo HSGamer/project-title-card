@@ -13,6 +13,7 @@ import {
   StandardCardOptions,
   TextAlign,
   TitleFontWeight,
+  VerticalAlign,
   WideCardOptions,
   WideVariant,
   WidescreenCardOptions,
@@ -96,19 +97,31 @@ export function parseFontFamily(
   if (!familyStr) return fallback;
   const clean = familyStr.replace(/;/g, "").trim();
   const lower = clean.toLowerCase();
+
+  if (lower === "monospace" || lower.startsWith("monospace")) {
+    return "monospace";
+  }
+  if (lower === "arial" || lower.startsWith("arial")) {
+    return "Arial, Helvetica, sans-serif";
+  }
   if (
-    lower.includes("monospace") || lower.includes("mono") ||
-    lower.includes("courier") || lower.includes("consolas")
+    lower.includes("jetbrains mono") || lower.includes("fira code")
   ) {
     return '"JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace';
   }
   if (
-    lower.includes("serif") || lower.includes("georgia") ||
-    lower.includes("times")
+    lower.includes("courier") || lower.includes("consolas") ||
+    lower.includes("menlo") || lower.includes("monaco")
   ) {
+    return 'Menlo, Monaco, Consolas, "Courier New", monospace';
+  }
+  if (lower.includes("times")) {
+    return '"Times New Roman", Times, Georgia, serif';
+  }
+  if (lower.includes("georgia") || lower.includes("serif")) {
     return 'Georgia, "Times New Roman", Times, serif';
   }
-  if (lower.includes("verdana") || lower.includes("geneva")) {
+  if (lower.includes("verdana") || lower.includes("geneva") || lower.includes("tahoma")) {
     return "Verdana, Geneva, Tahoma, sans-serif";
   }
   if (lower.includes("montserrat")) {
@@ -117,12 +130,11 @@ export function parseFontFamily(
   if (lower.includes("poppins") || lower.includes("quicksand")) {
     return 'Poppins, Quicksand, "Nunito", sans-serif';
   }
-  if (
-    lower.includes("arial") || lower.includes("helvetica") ||
-    lower.includes("sans-serif") || lower.includes("system-ui") ||
-    lower.includes("inter")
-  ) {
+  if (lower.includes("inter")) {
     return 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  }
+  if (lower.includes("system-ui")) {
+    return 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
   }
   return clean;
 }
@@ -465,6 +477,35 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     ? Boolean(rawImage.show)
     : Boolean(imgUrl && imgUrl.trim());
 
+  const rawImgVAlign = String(
+    rawImage?.verticalAlign || rawObj.logoVerticalAlign || rawObj.imageVerticalAlign || "",
+  ).toLowerCase();
+  const imgVerticalAlign: VerticalAlign = rawImgVAlign === "top"
+    ? "top"
+    : rawImgVAlign === "bottom"
+    ? "bottom"
+    : "middle";
+
+  const rawImgVOffset = typeof rawImage?.verticalOffset === "number"
+    ? rawImage.verticalOffset
+    : typeof rawImage?.offsetY === "number"
+    ? rawImage.offsetY
+    : typeof rawObj.logoVerticalOffset === "number"
+    ? rawObj.logoVerticalOffset
+    : typeof rawObj.logoOffsetY === "number"
+    ? rawObj.logoOffsetY
+    : 0;
+
+  const rawImgHOffset = typeof rawImage?.horizontalOffset === "number"
+    ? rawImage.horizontalOffset
+    : typeof rawImage?.offsetX === "number"
+    ? rawImage.offsetX
+    : typeof rawObj.logoHorizontalOffset === "number"
+    ? rawObj.logoHorizontalOffset
+    : typeof rawObj.logoOffsetX === "number"
+    ? rawObj.logoOffsetX
+    : 0;
+
   const title = typeof rawObj.title === "string"
     ? rawObj.title
     : baseDefault.title;
@@ -512,6 +553,9 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     shape: imgShape,
     size: imgSize,
     show: imgShow,
+    verticalAlign: imgVerticalAlign,
+    verticalOffset: rawImgVOffset,
+    horizontalOffset: rawImgHOffset,
   };
 
   const descriptionFont = {
@@ -522,6 +566,33 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     lineHeight: descLineHeight,
     opacity: descOpacity,
   };
+
+  const rawVAlign = String(rawObj.verticalAlign || "").toLowerCase();
+  const verticalAlign: VerticalAlign = rawVAlign === "top"
+    ? "top"
+    : rawVAlign === "bottom"
+    ? "bottom"
+    : "middle";
+
+  const verticalOffset = typeof rawObj.verticalOffset === "number"
+    ? rawObj.verticalOffset
+    : typeof rawObj.offsetY === "number"
+    ? rawObj.offsetY
+    : typeof rawObj.textVerticalOffset === "number"
+    ? rawObj.textVerticalOffset
+    : typeof rawObj.textOffsetY === "number"
+    ? rawObj.textOffsetY
+    : 0;
+
+  const horizontalOffset = typeof rawObj.horizontalOffset === "number"
+    ? rawObj.horizontalOffset
+    : typeof rawObj.offsetX === "number"
+    ? rawObj.offsetX
+    : typeof rawObj.textHorizontalOffset === "number"
+    ? rawObj.textHorizontalOffset
+    : typeof rawObj.textOffsetX === "number"
+    ? rawObj.textOffsetX
+    : 0;
 
   if (format === "widecard") {
     const imgPos =
@@ -540,6 +611,9 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       title,
       description,
       textAlign,
+      verticalAlign,
+      verticalOffset,
+      horizontalOffset,
       imagePosition: imgPos,
       background,
       border,
@@ -566,6 +640,9 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       title,
       description,
       textAlign,
+      verticalAlign,
+      verticalOffset,
+      horizontalOffset,
       background,
       border,
       titleFont,
@@ -613,6 +690,9 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       border,
       titleFont,
       image,
+      verticalAlign,
+      verticalOffset,
+      horizontalOffset,
     };
     return badge;
   }
@@ -630,6 +710,9 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     title,
     description,
     textAlign,
+    verticalAlign,
+    verticalOffset,
+    horizontalOffset,
     background,
     border,
     titleFont,

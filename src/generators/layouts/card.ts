@@ -20,6 +20,12 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
   const titleFontSize = Math.min(options.titleFont.fontSize || 34, 40);
   const descFontSize = Math.min(options.descriptionFont.fontSize || 20, 24);
   const lineHeight = options.descriptionFont.lineHeight || 1.3;
+  const vAlign = options.verticalAlign || "middle";
+  const imgVAlign = options.image.verticalAlign || "middle";
+  const textOffsetY = options.verticalOffset || options.offsetY || 0;
+  const textOffsetX = options.horizontalOffset || options.offsetX || 0;
+  const imgOffsetY = options.image.verticalOffset || options.image.offsetY || 0;
+  const imgOffsetX = options.image.horizontalOffset || options.image.offsetX || 0;
 
   const descLines = options.description
     ? options.description.split("\n").filter((l) => l.trim().length > 0)
@@ -29,12 +35,21 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
     ? (numLines - 1) * (descFontSize * lineHeight) + descFontSize
     : 0;
 
+  const computeStartY = (totalH: number, topPad = 24, bottomPad = 24) => {
+    if (vAlign === "top") {
+      return margin + topPad;
+    }
+    if (vAlign === "bottom") {
+      return height - margin - bottomPad - totalH;
+    }
+    return margin + Math.max(16, (innerH - totalH) / 2);
+  };
+
   // --------------------------------------------------------------------------
   // Variant 1: HERO (Dedicated floating hero stage plate with spotlight framing)
   // --------------------------------------------------------------------------
   if (variant === "hero") {
-    const maxHeroImg = Math.min(innerH * 0.38, innerW - 60);
-    const heroImgSize = Math.min(options.image.size || 200, maxHeroImg);
+    const heroImgSize = Math.min(options.image.size || 200, innerW - 40, innerH - 40);
     const stagePad = 18;
     const stageW = innerW - 24;
     const stageH = hasImage ? heroImgSize + stagePad * 2 : 70;
@@ -44,13 +59,35 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
     const gapTitleDesc = numLines > 0 ? 16 : 0;
     const totalH = stageH + gapStageTitle + titleFontSize + gapTitleDesc + descH;
 
-    const startY = margin + Math.max(16, (innerH - totalH) / 2);
-    const stageY = startY;
+    let stageY: number;
+    let titleY: number;
+
+    if (imgVAlign !== vAlign) {
+      if (imgVAlign === "top") {
+        stageY = margin + 20;
+      } else if (imgVAlign === "bottom") {
+        stageY = height - margin - 20 - stageH;
+      } else {
+        stageY = margin + Math.max(16, (innerH - stageH) / 2);
+      }
+
+      if (vAlign === "top") {
+        titleY = margin + 20 + titleFontSize * 0.8;
+      } else if (vAlign === "bottom") {
+        titleY = height - margin - 20 - descH - (numLines > 0 ? 14 : 0);
+      } else {
+        titleY = margin + Math.max(16, (innerH - (titleFontSize + gapTitleDesc + descH)) / 2) + titleFontSize * 0.8;
+      }
+    } else {
+      const startY = computeStartY(totalH, 20, 20);
+      stageY = startY;
+      titleY = stageY + stageH + gapStageTitle + titleFontSize * 0.8;
+    }
 
     // Floating Hero Stage Pedestal Plate
     draw
       .rect(stageW, stageH)
-      .move(stageX, stageY)
+      .move(stageX + imgOffsetX, stageY + imgOffsetY)
       .radius(Math.max(10, radius - 4))
       .attr({
         fill: "#ffffff",
@@ -64,14 +101,14 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
     if (hasImage) {
       draw
         .circle(heroImgSize * 1.1)
-        .center(width / 2, stageY + stageH / 2)
+        .center(width / 2 + imgOffsetX, stageY + stageH / 2 + imgOffsetY)
         .attr({
           fill: options.border.color || "#3b82f6",
           "fill-opacity": 0.08,
         });
 
-      const imgX = (width - heroImgSize) / 2;
-      const imgY = stageY + stagePad;
+      const imgX = (width - heroImgSize) / 2 + imgOffsetX;
+      const imgY = stageY + stagePad + imgOffsetY;
       renderImage(
         draw,
         options.image,
@@ -82,21 +119,20 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
       );
     }
 
-    const titleY = stageY + stageH + gapStageTitle + titleFontSize * 0.8;
-    const textX = isLeft ? margin + 25 : width / 2;
+    const textX = (isLeft ? margin + 25 : width / 2) + textOffsetX;
     const textAnchor = isLeft ? "start" : "middle";
 
     renderTitle(
       draw,
       options.title,
       textX,
-      titleY,
+      titleY + textOffsetY,
       { ...options.titleFont, fontSize: titleFontSize },
       textAnchor,
     );
 
     if (numLines > 0) {
-      const descY = titleY + titleFontSize + 14;
+      const descY = titleY + textOffsetY + titleFontSize + 14;
       renderMultilineDescription(
         draw,
         options.description,
@@ -114,28 +150,28 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
   // Variant 2: COMPACT (Header row with logo & title, divider, full-width desc)
   // --------------------------------------------------------------------------
   if (variant === "compact") {
-    const headerImgSize = Math.min(options.image.size || 80, 90);
+    const headerImgSize = Math.min(options.image.size || 80, innerW - 60, innerH - 60);
     const compactTitleSize = Math.min(titleFontSize, 28);
     const headerH = hasImage ? Math.max(headerImgSize, compactTitleSize) : compactTitleSize;
     const dividerGap = 18;
     const descGap = numLines > 0 ? 24 : 0;
     const totalH = headerH + dividerGap + descGap + descH;
 
-    const startY = margin + Math.max(20, (innerH - totalH) / 2);
-    const headerY = startY;
-    let headerTextX = margin + 20;
+    const startY = computeStartY(totalH, 24, 24);
+    const headerY = startY + textOffsetY;
+    let headerTextX = margin + 20 + textOffsetX;
 
     if (hasImage) {
-      const imgY = headerY + (headerH - headerImgSize) / 2;
+      const imgY = headerY + (headerH - headerImgSize) / 2 + imgOffsetY;
       renderImage(
         draw,
         options.image,
-        { x: margin + 20, y: imgY },
+        { x: margin + 20 + imgOffsetX, y: imgY },
         headerImgSize,
         headerImgSize,
         "cardCompactLogo",
       );
-      headerTextX = margin + 20 + headerImgSize + 16;
+      headerTextX = margin + 20 + headerImgSize + 16 + textOffsetX;
     }
 
     const headerTitleY = hasImage
@@ -164,7 +200,7 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
 
     if (numLines > 0) {
       const descY = dividerY + descGap;
-      const descX = isLeft ? margin + 20 : width / 2;
+      const descX = (isLeft ? margin + 20 : width / 2) + textOffsetX;
       const descAnchor = isLeft ? "start" : "middle";
       renderMultilineDescription(
         draw,
@@ -191,46 +227,68 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
       .fill(options.border.color || "#3b82f6")
       .opacity(0.8);
 
-    const minImgSize = Math.min(options.image.size || 160, 170);
+    const minImgSize = Math.min(options.image.size || 160, innerW - 40, innerH - 40);
     const imgH = hasImage ? minImgSize : 0;
     const gapImgTitle = hasImage ? 28 : 0;
     const gapTitleDesc = numLines > 0 ? 16 : 0;
-    const totalH = imgH + gapImgTitle + titleFontSize + gapTitleDesc + descH;
-
+    const textH = titleFontSize + gapTitleDesc + descH;
+    const totalH = imgH + gapImgTitle + textH;
     const availableH = innerH - 24;
-    const startY = margin + 24 + Math.max(16, (availableH - totalH) / 2);
-    const imgX = (width - minImgSize) / 2;
-    const imgY = startY;
+
+    let imgY: number;
+    let titleY: number;
+
+    if (hasImage && imgVAlign !== vAlign) {
+      if (imgVAlign === "top") {
+        imgY = margin + 36;
+      } else if (imgVAlign === "bottom") {
+        imgY = height - margin - 24 - minImgSize;
+      } else {
+        imgY = margin + 24 + Math.max(16, (availableH - minImgSize) / 2);
+      }
+
+      if (vAlign === "top") {
+        titleY = margin + 36 + titleFontSize * 0.8;
+      } else if (vAlign === "bottom") {
+        titleY = height - margin - 24 - descH - (numLines > 0 ? 14 : 0);
+      } else {
+        titleY = margin + 24 + Math.max(16, (availableH - textH) / 2) + titleFontSize * 0.8;
+      }
+    } else {
+      const startY = computeStartY(totalH, 36, 24);
+      imgY = startY;
+      titleY = hasImage
+        ? imgY + minImgSize + gapImgTitle + titleFontSize * 0.8
+        : startY + titleFontSize * 0.8;
+    }
+
+    const imgX = (width - minImgSize) / 2 + imgOffsetX;
 
     if (hasImage) {
       renderImage(
         draw,
         options.image,
-        { x: imgX, y: imgY },
+        { x: imgX, y: imgY + imgOffsetY },
         minImgSize,
         minImgSize,
         "cardMinLogo",
       );
     }
 
-    const titleY = hasImage
-      ? imgY + minImgSize + gapImgTitle + titleFontSize * 0.8
-      : startY + titleFontSize * 0.8;
-
-    const textX = isLeft ? margin + 25 : width / 2;
+    const textX = (isLeft ? margin + 25 : width / 2) + textOffsetX;
     const textAnchor = isLeft ? "start" : "middle";
 
     renderTitle(
       draw,
       options.title,
       textX,
-      titleY,
+      titleY + textOffsetY,
       { ...options.titleFont, fontSize: titleFontSize },
       textAnchor,
     );
 
     if (numLines > 0) {
-      const descY = titleY + titleFontSize + 14;
+      const descY = titleY + textOffsetY + titleFontSize + 14;
       renderMultilineDescription(
         draw,
         options.description,
@@ -271,41 +329,55 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
       .line(margin, splitY + 1, width - margin, splitY + 1)
       .stroke({ color: "#ffffff", width: 1, opacity: 0.12 });
 
-    const splitImgSize = Math.min(options.image.size || 160, topH - 28, innerW - 40);
-    const imgX = (width - splitImgSize) / 2;
-    const imgY = margin + (topH - splitImgSize) / 2;
+    const splitImgSize = Math.min(options.image.size || 160, topH - 16, innerW - 24);
+    const imgX = (width - splitImgSize) / 2 + imgOffsetX;
+    let imgY: number;
+    if (imgVAlign === "top") {
+      imgY = margin + 14;
+    } else if (imgVAlign === "bottom") {
+      imgY = splitY - splitImgSize - 14;
+    } else {
+      imgY = margin + (topH - splitImgSize) / 2;
+    }
 
     if (hasImage) {
       renderImage(
         draw,
         options.image,
-        { x: imgX, y: imgY },
+        { x: imgX, y: imgY + imgOffsetY },
         splitImgSize,
         splitImgSize,
         "cardSplitLogo",
       );
     }
 
-    // Bottom compartment content vertically centered
+    // Bottom compartment content vertically positioned
     const gapTitleDesc = numLines > 0 ? 16 : 0;
     const textH = titleFontSize + gapTitleDesc + descH;
-    const textStartY = splitY + Math.max(16, (bottomH - textH) / 2);
+    let textStartY: number;
+    if (vAlign === "top") {
+      textStartY = splitY + 24;
+    } else if (vAlign === "bottom") {
+      textStartY = height - margin - 24 - textH;
+    } else {
+      textStartY = splitY + Math.max(16, (bottomH - textH) / 2);
+    }
     const titleY = textStartY + titleFontSize * 0.85;
 
-    const textX = isLeft ? margin + 25 : width / 2;
+    const textX = (isLeft ? margin + 25 : width / 2) + textOffsetX;
     const textAnchor = isLeft ? "start" : "middle";
 
     renderTitle(
       draw,
       options.title,
       textX,
-      titleY,
+      titleY + textOffsetY,
       { ...options.titleFont, fontSize: titleFontSize },
       textAnchor,
     );
 
     if (numLines > 0) {
-      const descY = titleY + titleFontSize + 14;
+      const descY = titleY + textOffsetY + titleFontSize + 14;
       renderMultilineDescription(
         draw,
         options.description,
@@ -320,35 +392,59 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
   }
 
   // --------------------------------------------------------------------------
-  // Variant 5: STANDARD (Classic default, vertically centered)
+  // Variant 5: STANDARD (Classic default)
   // --------------------------------------------------------------------------
-  const stdImgSize = Math.min(options.image.size || 220, Math.round(innerH * 0.4), innerW - 40);
+  const stdImgSize = Math.min(options.image.size || 220, innerW - 30, innerH - 30);
   const imgH = hasImage ? stdImgSize : 0;
   const gapImgTitle = hasImage ? 28 : 0;
   const gapTitleDesc = numLines > 0 ? 16 : 0;
-  const totalH = imgH + gapImgTitle + titleFontSize + gapTitleDesc + descH;
-  const startY = margin + Math.max(16, (innerH - totalH) / 2);
+  const textH = titleFontSize + gapTitleDesc + descH;
+  const totalH = imgH + gapImgTitle + textH;
+
+  let imgY: number;
+  let titleY: number;
+
+  if (hasImage && imgVAlign !== vAlign) {
+    if (imgVAlign === "top") {
+      imgY = margin + 24;
+    } else if (imgVAlign === "bottom") {
+      imgY = height - margin - 24 - stdImgSize;
+    } else {
+      imgY = margin + Math.max(16, (innerH - stdImgSize) / 2);
+    }
+
+    if (vAlign === "top") {
+      titleY = margin + 24 + titleFontSize * 0.8;
+    } else if (vAlign === "bottom") {
+      titleY = height - margin - 24 - descH - (numLines > 0 ? 14 : 0);
+    } else {
+      titleY = margin + Math.max(16, (innerH - textH) / 2) + titleFontSize * 0.8;
+    }
+  } else {
+    const startY = computeStartY(totalH, 24, 24);
+    imgY = startY;
+    titleY = hasImage
+      ? imgY + stdImgSize + gapImgTitle + titleFontSize * 0.8
+      : startY + titleFontSize * 0.8;
+  }
 
   if (isLeft) {
-    const textX = margin + 25;
+    const textX = margin + 25 + textOffsetX;
     if (hasImage) {
       renderImage(
         draw,
         options.image,
-        { x: textX, y: startY },
+        { x: textX + imgOffsetX, y: imgY + imgOffsetY },
         stdImgSize,
         stdImgSize,
         "cardLogo",
       );
     }
-    const titleY = hasImage
-      ? startY + stdImgSize + gapImgTitle + titleFontSize * 0.8
-      : startY + titleFontSize * 0.8;
 
-    renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
+    renderTitle(draw, options.title, textX, titleY + textOffsetY, { ...options.titleFont, fontSize: titleFontSize }, "start");
 
     if (numLines > 0) {
-      const descY = titleY + titleFontSize + 14;
+      const descY = titleY + textOffsetY + titleFontSize + 14;
       renderMultilineDescription(
         draw,
         options.description,
@@ -360,38 +456,34 @@ export function generateCard(options: StandardCardOptions): SVGSVGElement {
     }
   } else {
     // Center (default)
-    const imgX = (width - stdImgSize) / 2;
-    const imgY = startY;
+    const imgX = (width - stdImgSize) / 2 + imgOffsetX;
 
     if (hasImage) {
       renderImage(
         draw,
         options.image,
-        { x: imgX, y: imgY },
+        { x: imgX, y: imgY + imgOffsetY },
         stdImgSize,
         stdImgSize,
         "cardLogo",
       );
     }
-    const titleY = hasImage
-      ? imgY + stdImgSize + gapImgTitle + titleFontSize * 0.8
-      : startY + titleFontSize * 0.8;
 
     renderTitle(
       draw,
       options.title,
-      width / 2,
-      titleY,
+      width / 2 + textOffsetX,
+      titleY + textOffsetY,
       { ...options.titleFont, fontSize: titleFontSize },
       "middle",
     );
 
     if (numLines > 0) {
-      const descY = titleY + titleFontSize + 14;
+      const descY = titleY + textOffsetY + titleFontSize + 14;
       renderMultilineDescription(
         draw,
         options.description,
-        width / 2,
+        width / 2 + textOffsetX,
         descY,
         { ...options.descriptionFont, fontSize: descFontSize },
         "middle",

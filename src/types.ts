@@ -1,137 +1,292 @@
-export type LayoutFormatType = "card" | "widecard" | "widescreen" | "badge";
+import { z } from "zod";
+
+// Layout & Enums
+export const LayoutFormatTypeSchema = z.enum([
+  "card",
+  "widecard",
+  "widescreen",
+  "badge",
+]);
+export type LayoutFormatType = z.infer<typeof LayoutFormatTypeSchema>;
 
 // Re-export GenerateType for backwards compatibility
+export const GenerateTypeSchema = LayoutFormatTypeSchema;
 export type GenerateType = LayoutFormatType;
 
-export type BackgroundType = "solid" | "gradient" | "glass" | "image";
-export type GradientDirection = "to-r" | "to-br" | "to-b" | "to-bl" | "radial";
-export type BorderStyle = "solid" | "dashed" | "dotted" | "none";
-export type ShadowEffect = "none" | "subtle" | "soft" | "glow" | "strong";
-export type ImageShape = "original" | "rounded" | "circle";
-export type TitleFontWeight = "400" | "500" | "600" | "700" | "800" | "900";
-export type DescriptionFontWeight = "300" | "400" | "500" | "600" | "700";
+export const BackgroundTypeSchema = z.enum([
+  "solid",
+  "gradient",
+  "glass",
+  "image",
+]);
+export type BackgroundType = z.infer<typeof BackgroundTypeSchema>;
 
-export type TextAlign = "left" | "center";
-export type WidescreenLayout = "split" | "centered" | "banner" | "hero" | "minimal";
+export const GradientDirectionSchema = z.enum([
+  "to-r",
+  "to-br",
+  "to-b",
+  "to-bl",
+  "radial",
+]);
+export type GradientDirection = z.infer<typeof GradientDirectionSchema>;
+
+export const BorderStyleSchema = z.enum(["solid", "dashed", "dotted", "none"]);
+export type BorderStyle = z.infer<typeof BorderStyleSchema>;
+
+export const ShadowEffectSchema = z.enum([
+  "none",
+  "subtle",
+  "soft",
+  "glow",
+  "strong",
+]);
+export type ShadowEffect = z.infer<typeof ShadowEffectSchema>;
+
+export const ImageShapeSchema = z.enum(["original", "rounded", "circle"]);
+export type ImageShape = z.infer<typeof ImageShapeSchema>;
+
+export const TitleFontWeightSchema = z.enum([
+  "400",
+  "500",
+  "600",
+  "700",
+  "800",
+  "900",
+]);
+export type TitleFontWeight = z.infer<typeof TitleFontWeightSchema>;
+
+export const DescriptionFontWeightSchema = z.enum([
+  "300",
+  "400",
+  "500",
+  "600",
+  "700",
+]);
+export type DescriptionFontWeight = z.infer<typeof DescriptionFontWeightSchema>;
+
+export const TextAlignSchema = z.enum(["left", "center", "right"]);
+export type TextAlign = z.infer<typeof TextAlignSchema>;
+
+export const VerticalAlignSchema = z.enum(["top", "middle", "bottom"]);
+export type VerticalAlign = z.infer<typeof VerticalAlignSchema>;
+
+export const WidescreenLayoutSchema = z.enum([
+  "split",
+  "centered",
+  "banner",
+  "hero",
+  "minimal",
+]);
+export type WidescreenLayout = z.infer<typeof WidescreenLayoutSchema>;
+export const BannerVariantSchema = WidescreenLayoutSchema;
 export type BannerVariant = WidescreenLayout;
 
-export type CardVariant = "standard" | "hero" | "compact" | "minimal" | "split";
-export type WideVariant = "standard" | "split" | "centered" | "minimal" | "badge";
+export const CardVariantSchema = z.enum([
+  "standard",
+  "hero",
+  "compact",
+  "minimal",
+  "split",
+]);
+export type CardVariant = z.infer<typeof CardVariantSchema>;
 
-export interface BackgroundConfig {
-  type: BackgroundType;
-  color: string;
-  gradientStart: string;
-  gradientEnd: string;
-  gradientMiddle?: string;
-  gradientDirection: GradientDirection;
-  opacity: number;
-  // Custom background image settings
-  imageUrl?: string;
-  imageOpacity?: number;
-  overlayColor?: string;
-  overlayOpacity?: number;
-}
+export const WideVariantSchema = z.enum([
+  "standard",
+  "split",
+  "centered",
+  "minimal",
+  "badge",
+]);
+export type WideVariant = z.infer<typeof WideVariantSchema>;
 
-export interface BorderConfig {
-  color: string;
-  width: number;
-  style: BorderStyle;
-  radius: number;
-  margin: number;
-  shadow: ShadowEffect;
-  glowColor?: string;
-}
+export const BadgeVariantSchema = z.enum([
+  "standard",
+  "pill",
+  "split",
+  "status",
+  "outline",
+]);
+export type BadgeVariant = z.infer<typeof BadgeVariantSchema>;
 
-export interface TitleFontConfig {
-  color: string;
-  fontFamily: string;
-  fontWeight: TitleFontWeight;
-  fontSize: number;
-  letterSpacing: number;
-  uppercase: boolean;
-}
+export const BadgeStatusStyleSchema = z.enum(["pill", "dot"]);
+export type BadgeStatusStyle = z.infer<typeof BadgeStatusStyleSchema>;
 
-export interface DescriptionFontConfig {
-  color: string;
-  fontFamily: string;
-  fontWeight: DescriptionFontWeight;
-  fontSize: number;
-  lineHeight: number;
-  opacity: number;
-}
+export const IconPositionSchema = z.enum(["left", "right", "none"]);
+export type IconPosition = z.infer<typeof IconPositionSchema>;
 
-export interface ImageConfig {
-  url: string;
-  shape: ImageShape;
-  size: number;
-  show: boolean;
-}
+export const ImagePositionSchema = z.enum(["left", "right"]);
+export type ImagePosition = z.infer<typeof ImagePositionSchema>;
 
-export interface BaseCardOptions {
-  generateType: LayoutFormatType;
-  title: string;
-  background: BackgroundConfig;
-  border: BorderConfig;
-  titleFont: TitleFontConfig;
-  image: ImageConfig;
-  textAlign?: TextAlign;
-}
+export const StatusPositionSchema = z.enum(["right", "left"]);
+export type StatusPosition = z.infer<typeof StatusPositionSchema>;
 
-export interface StandardCardOptions extends BaseCardOptions {
-  generateType: "card";
-  cardVariant?: CardVariant;
-  description: string;
-  descriptionFont: DescriptionFontConfig;
-  textAlign: TextAlign;
-}
+// Config Schemas
+export const BackgroundConfigSchema = z.object({
+  type: BackgroundTypeSchema.describe("Background style type"),
+  color: z.string().describe("Background solid color hex or CSS color"),
+  gradientStart: z.string().describe("Gradient start color"),
+  gradientEnd: z.string().describe("Gradient end color"),
+  gradientMiddle: z
+    .string()
+    .optional()
+    .describe("Gradient middle color (optional)"),
+  gradientDirection: GradientDirectionSchema.describe("Gradient direction"),
+  opacity: z.number().describe("Background opacity (0-1)"),
+  imageUrl: z.string().optional().describe("Background image URL/data URI"),
+  imageOpacity: z.number().optional().describe("Background image opacity (0-1)"),
+  overlayColor: z.string().optional().describe("Background overlay color"),
+  overlayOpacity: z
+    .number()
+    .optional()
+    .describe("Background overlay opacity (0-1)"),
+});
+export type BackgroundConfig = z.infer<typeof BackgroundConfigSchema>;
 
-export interface WideCardOptions extends BaseCardOptions {
-  generateType: "widecard";
-  wideVariant?: WideVariant;
-  description: string;
-  descriptionFont: DescriptionFontConfig;
-  imagePosition: "left" | "right";
-}
+export const BorderConfigSchema = z.object({
+  color: z.string().describe("Border stroke color"),
+  width: z.number().describe("Border thickness in px"),
+  style: BorderStyleSchema.describe("Border line style"),
+  radius: z.number().describe("Border corner radius in px"),
+  margin: z.number().describe("Border outer margin in px"),
+  shadow: ShadowEffectSchema.describe("Border shadow/elevation effect"),
+  glowColor: z
+    .string()
+    .optional()
+    .describe("Neon glow color (when shadow is glow)"),
+});
+export type BorderConfig = z.infer<typeof BorderConfigSchema>;
 
-export interface WidescreenCardOptions extends BaseCardOptions {
-  generateType: "widescreen";
-  bannerVariant?: BannerVariant;
-  description: string;
-  descriptionFont: DescriptionFontConfig;
-  layoutStyle: WidescreenLayout;
-}
+export const TitleFontConfigSchema = z.object({
+  color: z.string().describe("Title text color"),
+  fontFamily: z.string().describe("Title font family name"),
+  fontWeight: TitleFontWeightSchema.describe("Title font weight"),
+  fontSize: z.number().describe("Title font size in px"),
+  letterSpacing: z.number().describe("Title letter spacing in px"),
+  uppercase: z.boolean().describe("Force uppercase title text"),
+});
+export type TitleFontConfig = z.infer<typeof TitleFontConfigSchema>;
 
-export type BadgeVariant =
-  | "standard"
-  | "pill"
-  | "split"
-  | "status"
-  | "outline";
+export const DescriptionFontConfigSchema = z.object({
+  color: z.string().describe("Description text color"),
+  fontFamily: z.string().describe("Description font family name"),
+  fontWeight: DescriptionFontWeightSchema.describe("Description font weight"),
+  fontSize: z.number().describe("Description font size in px"),
+  lineHeight: z.number().describe("Description line height multiplier"),
+  opacity: z.number().describe("Description text opacity (0-1)"),
+});
+export type DescriptionFontConfig = z.infer<typeof DescriptionFontConfigSchema>;
 
-export type BadgeStatusStyle = "pill" | "dot";
+export const ImageConfigSchema = z.object({
+  url: z.string().describe("Logo / illustration image URL or data URI"),
+  shape: ImageShapeSchema.describe("Image crop shape"),
+  size: z.number().describe("Image dimensions in px"),
+  show: z.boolean().describe("Whether to display the logo image"),
+  verticalAlign: VerticalAlignSchema.optional().describe(
+    "Logo vertical alignment (top, middle, bottom)",
+  ),
+  verticalOffset: z.number().optional().describe(
+    "Logo vertical offset in px (shift up/down)",
+  ),
+  horizontalOffset: z.number().optional().describe(
+    "Logo horizontal offset in px (shift left/right)",
+  ),
+  offsetY: z.number().optional().describe("Alias for verticalOffset"),
+  offsetX: z.number().optional().describe("Alias for horizontalOffset"),
+});
+export type ImageConfig = z.infer<typeof ImageConfigSchema>;
 
-export interface BadgeCardOptions extends BaseCardOptions {
-  generateType: "badge";
-  badgeVariant?: BadgeVariant;
-  badgeWidth: number;
-  badgeHeight: number;
-  badgeAutoSize?: boolean;
-  iconPosition: "left" | "right" | "none";
-  // Split badge variant options
-  badgeLabel?: string;
-  labelBackground?: string;
-  labelColor?: string;
-  splitPosition?: number;
-  // Status badge variant options
-  statusText?: string;
-  statusColor?: string;
-  statusStyle?: BadgeStatusStyle;
-  statusPosition?: "right" | "left";
-}
+// Base Card Options Schema
+export const BaseCardOptionsSchema = z.object({
+  generateType: LayoutFormatTypeSchema.describe("Card layout format"),
+  title: z.string().describe("Card main title text"),
+  background: BackgroundConfigSchema,
+  border: BorderConfigSchema,
+  titleFont: TitleFontConfigSchema,
+  image: ImageConfigSchema,
+  textAlign: TextAlignSchema.optional().describe("Text horizontal alignment"),
+  verticalAlign: VerticalAlignSchema.optional().describe(
+    "Content vertical alignment (top, middle, bottom)",
+  ),
+  verticalOffset: z.number().optional().describe(
+    "Content/text vertical offset in px (shift up/down)",
+  ),
+  horizontalOffset: z.number().optional().describe(
+    "Content/text horizontal offset in px (shift left/right)",
+  ),
+  offsetY: z.number().optional().describe("Alias for verticalOffset"),
+  offsetX: z.number().optional().describe("Alias for horizontalOffset"),
+});
+export type BaseCardOptions = z.infer<typeof BaseCardOptionsSchema>;
 
-export type CardOptions =
-  | StandardCardOptions
-  | WideCardOptions
-  | WidescreenCardOptions
-  | BadgeCardOptions;
+// Specific Options Schemas
+export const StandardCardOptionsSchema = BaseCardOptionsSchema.extend({
+  generateType: z.literal("card"),
+  cardVariant: CardVariantSchema.optional().describe(
+    "Card visual layout variant",
+  ),
+  description: z.string().describe("Card description text"),
+  descriptionFont: DescriptionFontConfigSchema,
+  textAlign: TextAlignSchema.describe("Text alignment"),
+});
+export type StandardCardOptions = z.infer<typeof StandardCardOptionsSchema>;
+
+export const WideCardOptionsSchema = BaseCardOptionsSchema.extend({
+  generateType: z.literal("widecard"),
+  wideVariant: WideVariantSchema.optional().describe(
+    "Wide card visual layout variant",
+  ),
+  description: z.string().describe("Card description text"),
+  descriptionFont: DescriptionFontConfigSchema,
+  imagePosition: ImagePositionSchema.describe("Logo position (left or right)"),
+});
+export type WideCardOptions = z.infer<typeof WideCardOptionsSchema>;
+
+export const WidescreenCardOptionsSchema = BaseCardOptionsSchema.extend({
+  generateType: z.literal("widescreen"),
+  bannerVariant: BannerVariantSchema.optional().describe(
+    "Widescreen banner variant",
+  ),
+  description: z.string().describe("Card description text"),
+  descriptionFont: DescriptionFontConfigSchema,
+  layoutStyle: WidescreenLayoutSchema.describe("Widescreen layout style"),
+});
+export type WidescreenCardOptions = z.infer<typeof WidescreenCardOptionsSchema>;
+
+export const BadgeCardOptionsSchema = BaseCardOptionsSchema.extend({
+  generateType: z.literal("badge"),
+  badgeVariant: BadgeVariantSchema.optional().describe("Badge visual variant"),
+  badgeWidth: z.number().describe("Badge width in px"),
+  badgeHeight: z.number().describe("Badge height in px"),
+  badgeAutoSize: z
+    .boolean()
+    .optional()
+    .describe("Automatically compute badge width"),
+  iconPosition: IconPositionSchema.describe("Icon position"),
+  badgeLabel: z.string().optional().describe("Split badge left label text"),
+  labelBackground: z
+    .string()
+    .optional()
+    .describe("Split badge label background color"),
+  labelColor: z.string().optional().describe("Split badge label text color"),
+  splitPosition: z.number().optional().describe("Split divider position in px"),
+  statusText: z
+    .string()
+    .optional()
+    .describe("Status text (for status badge variant)"),
+  statusColor: z.string().optional().describe("Status indicator color"),
+  statusStyle: BadgeStatusStyleSchema.optional().describe(
+    "Status indicator shape style",
+  ),
+  statusPosition: StatusPositionSchema.optional().describe(
+    "Status indicator position",
+  ),
+});
+export type BadgeCardOptions = z.infer<typeof BadgeCardOptionsSchema>;
+
+export const CardOptionsSchema = z.discriminatedUnion("generateType", [
+  StandardCardOptionsSchema,
+  WideCardOptionsSchema,
+  WidescreenCardOptionsSchema,
+  BadgeCardOptionsSchema,
+]);
+export type CardOptions = z.infer<typeof CardOptionsSchema>;

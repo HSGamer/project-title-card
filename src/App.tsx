@@ -63,7 +63,7 @@ export const App: FunctionalComponent = () => {
   };
 
   return (
-    <div class="min-h-screen bg-base-200 text-base-content flex flex-col">
+    <div class="min-h-screen bg-base-200 text-base-content flex flex-col w-full max-w-full overflow-x-hidden">
       {/* Skip to main content link for keyboard accessibility */}
       <a
         href="#main-content"
@@ -85,11 +85,11 @@ export const App: FunctionalComponent = () => {
 
       <main
         id="main-content"
-        class="flex-1 container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-7xl"
+        class="flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-6 min-w-0"
         tabIndex={-1}
       >
         {/* Mobile View Switcher (Visible on < lg screens) */}
-        <div class="lg:hidden flex mb-3 bg-base-100 p-1 rounded-xl border border-base-300 shadow-xs">
+        <div class="lg:hidden flex mb-3 bg-base-100 p-1 rounded-xl border border-base-300 shadow-xs w-full">
           <button
             type="button"
             class={`flex-1 btn btn-sm gap-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all ${
@@ -117,8 +117,8 @@ export const App: FunctionalComponent = () => {
         </div>
 
         {/* Responsive Grid Layout */}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <div class={mobileView === "form" ? "block" : "hidden lg:block"}>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start w-full min-w-0">
+          <div class={`${mobileView === "form" ? "block" : "hidden lg:block"} w-full min-w-0`}>
             <CardForm
               options={options}
               setOptions={setOptions}
@@ -130,7 +130,7 @@ export const App: FunctionalComponent = () => {
           <div
             class={`${
               mobileView === "preview" ? "block" : "hidden lg:block"
-            } lg:sticky lg:top-[68px]`}
+            } w-full min-w-0 lg:sticky lg:top-[68px]`}
           >
             <CardPreview
               svgElement={svgElement}

@@ -23,6 +23,11 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
     pillRadius,
   );
 
+  const textOffsetY = options.verticalOffset || options.offsetY || 0;
+  const textOffsetX = options.horizontalOffset || options.offsetX || 0;
+  const imgOffsetY = options.image.verticalOffset || options.image.offsetY || 0;
+  const imgOffsetX = options.image.horizontalOffset || options.image.offsetX || 0;
+
   const hasImage = Boolean(
     options.image.show && options.image.url && options.iconPosition !== "none",
   );
@@ -30,7 +35,14 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
     14,
     Math.min(options.image.size || 60, height - 2 * margin - 12),
   );
-  const imgY = (height - imgSize) / 2;
+  const imgVAlign = options.image.verticalAlign || "middle";
+  let imgY = (height - imgSize) / 2;
+  if (imgVAlign === "top") {
+    imgY = margin + 6;
+  } else if (imgVAlign === "bottom") {
+    imgY = height - margin - 6 - imgSize;
+  }
+  imgY += imgOffsetY;
 
   const titleFontSize = options.titleFont.fontSize ||
     Math.min(Math.max(14, height * 0.32), 48);
@@ -452,7 +464,7 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
   // --------------------------------------------------------------------------
   if (hasImage) {
     if (options.iconPosition === "right") {
-      const imgX = width - margin - 14 - imgSize;
+      const imgX = width - margin - 14 - imgSize + imgOffsetX;
       renderImage(
         draw,
         options.image,
@@ -462,18 +474,18 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
         "badgeLogo",
       );
 
-      const textX = margin + 18;
+      const textX = margin + 18 + textOffsetX;
       renderTitle(
         draw,
         options.title,
         textX,
-        centerY,
+        centerY + textOffsetY,
         { ...options.titleFont, fontSize: titleFontSize },
         "start",
         "central",
       );
     } else {
-      const imgX = margin + 14;
+      const imgX = margin + 14 + imgOffsetX;
       renderImage(
         draw,
         options.image,
@@ -483,12 +495,12 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
         "badgeLogo",
       );
 
-      const textX = imgX + imgSize + 14;
+      const textX = imgX + imgSize + 14 + textOffsetX;
       renderTitle(
         draw,
         options.title,
         textX,
-        centerY,
+        centerY + textOffsetY,
         { ...options.titleFont, fontSize: titleFontSize },
         "start",
         "central",
@@ -498,8 +510,8 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
     renderTitle(
       draw,
       options.title,
-      width / 2,
-      centerY,
+      width / 2 + textOffsetX,
+      centerY + textOffsetY,
       { ...options.titleFont, fontSize: titleFontSize },
       "middle",
       "central",

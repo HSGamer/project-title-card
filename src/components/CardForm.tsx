@@ -146,7 +146,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
 
   return (
     <section
-      class="card bg-base-100 shadow-md border border-base-300 p-3 sm:p-4"
+      class="card bg-base-100 shadow-md border border-base-300 p-3 sm:p-4 w-full max-w-full min-w-0"
       aria-labelledby="card-form-heading"
     >
       {/* Header bar matching CardPreview */}
@@ -194,15 +194,15 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         </div>
       </div>
 
-      {/* Main Tabs (Scrollable on Mobile, Grid on Desktop) */}
+      {/* Main Tabs (2x2 on mobile, 4 in a row on tablet/desktop) */}
       <div
         role="tablist"
-        class="flex sm:grid sm:grid-cols-4 gap-1.5 bg-base-200 p-1.5 rounded-xl mb-4 overflow-x-auto no-scrollbar scroll-smooth"
+        class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-base-200 p-1.5 rounded-xl mb-4 w-full"
       >
         <button
           type="button"
           role="tab"
-          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
+          class={`btn btn-sm px-2.5 sm:px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
             activeTab === "layout"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -216,7 +216,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
+          class={`btn btn-sm px-2.5 sm:px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
             activeTab === "background"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -230,7 +230,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
+          class={`btn btn-sm px-2.5 sm:px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
             activeTab === "border"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"
@@ -244,7 +244,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         <button
           type="button"
           role="tab"
-          class={`btn btn-sm px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap flex-shrink-0 sm:flex-1 transition-all ${
+          class={`btn btn-sm px-2.5 sm:px-3 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
             activeTab === "typography"
               ? "btn-primary shadow-xs"
               : "btn-ghost text-base-content/70 hover:bg-base-300"

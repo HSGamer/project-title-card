@@ -12,12 +12,18 @@ export const defaultStandardOptions: StandardCardOptions = {
   title: "MaskedGUI",
   description: "Fast • Lightweight • Type-Safe\nZero Dependencies",
   textAlign: "center",
+  verticalAlign: "middle",
+  verticalOffset: 0,
+  horizontalOffset: 0,
   image: {
     url:
       "https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg",
     shape: "rounded",
     size: 220,
     show: true,
+    verticalAlign: "middle",
+    verticalOffset: 0,
+    horizontalOffset: 0,
   },
   background: {
     type: "solid",
@@ -62,12 +68,18 @@ export const defaultWideOptions: WideCardOptions = {
   description:
     "A modern, high-performance inventory GUI library for developers",
   imagePosition: "left",
+  verticalAlign: "middle",
+  verticalOffset: 0,
+  horizontalOffset: 0,
   image: {
     url:
       "https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg",
     shape: "rounded",
     size: 170,
     show: true,
+    verticalAlign: "middle",
+    verticalOffset: 0,
+    horizontalOffset: 0,
   },
   background: {
     type: "solid",
@@ -112,12 +124,18 @@ export const defaultWidescreenOptions: WidescreenCardOptions = {
   description:
     "Fast • Lightweight • Type-Safe\nZero Dependency Inventory UI Framework",
   layoutStyle: "split",
+  verticalAlign: "middle",
+  verticalOffset: 0,
+  horizontalOffset: 0,
   image: {
     url:
       "https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg",
     shape: "rounded",
     size: 200,
     show: true,
+    verticalAlign: "middle",
+    verticalOffset: 0,
+    horizontalOffset: 0,
   },
   background: {
     type: "solid",
@@ -171,12 +189,18 @@ export const defaultBadgeOptions: BadgeCardOptions = {
   statusColor: "#10b981",
   statusStyle: "pill",
   statusPosition: "right",
+  verticalAlign: "middle",
+  verticalOffset: 0,
+  horizontalOffset: 0,
   image: {
     url:
       "https://raw.githubusercontent.com/BetterGUI-MC/MaskedGUI/master/.github/image/logo.svg",
     shape: "rounded",
     size: 70,
     show: true,
+    verticalAlign: "middle",
+    verticalOffset: 0,
+    horizontalOffset: 0,
   },
   background: {
     type: "solid",

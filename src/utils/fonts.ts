@@ -309,6 +309,16 @@ export const SYSTEM_FONTS: FontOption[] = [
     category: "System",
   },
   {
+    label: "Arial / Clean Sans",
+    value: "Arial, Helvetica, sans-serif",
+    category: "System",
+  },
+  {
+    label: "Clean Monospace",
+    value: "monospace",
+    category: "System",
+  },
+  {
     label: "Clean Verdana / Tahoma",
     value: "Verdana, Geneva, Tahoma, sans-serif",
     category: "System",
@@ -319,7 +329,7 @@ export const SYSTEM_FONTS: FontOption[] = [
     category: "System",
   },
   {
-    label: "Standard Monospace (Courier / Menlo)",
+    label: "Developer Monospace (Courier / Menlo)",
     value: 'Menlo, Monaco, Consolas, "Courier New", monospace',
     category: "System",
   },
