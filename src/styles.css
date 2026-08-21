@@ -58,14 +58,13 @@ input[type="color"]::-moz-color-swatch {
 }
 
 /* ==========================================================================
-   4. Mobile-Friendly Interactive Elements
+   4. Scrollbars & Clean Interactions
    ========================================================================== */
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hide scrollbar for clean horizontal pill/tab scrolling on mobile */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -74,3 +73,15 @@ html {
   scrollbar-width: none;
 }
 
+/* ==========================================================================
+   5. Sticky Desktop Preview
+   ========================================================================== */
+@media (min-width: 1024px) {
+  .sticky-desktop-preview {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 68px;
+    align-self: flex-start;
+    z-index: 10;
+  }
+}

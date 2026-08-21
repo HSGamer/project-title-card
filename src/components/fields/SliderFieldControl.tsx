@@ -1,31 +1,27 @@
 import { FunctionalComponent } from "preact";
-import { FieldGuide } from "./FieldGuide.tsx";
-import { FIELD_GUIDES } from "../data/suggestions.ts";
 
-interface SliderControlProps {
+export interface SliderFieldControlProps {
   label: string;
-  fieldKey?: keyof typeof FIELD_GUIDES;
   value: number;
   min: number;
   max: number;
   step?: number;
-  quickValues?: number[];
   unit?: string;
+  quickValues?: number[];
   onChange: (val: number) => void;
-  ariaLabel?: string;
+  description?: string;
 }
 
-export const SliderControl: FunctionalComponent<SliderControlProps> = ({
+export const SliderFieldControl: FunctionalComponent<SliderFieldControlProps> = ({
   label,
-  fieldKey,
   value,
   min,
   max,
   step = 1,
-  quickValues = [],
   unit = "px",
+  quickValues = [],
   onChange,
-  ariaLabel,
+  description,
 }) => {
   const handleInputChange = (e: Event) => {
     const raw = (e.currentTarget as HTMLInputElement).value;
@@ -47,12 +43,14 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
 
   return (
     <div class="flex flex-col gap-1.5 w-full">
-      {/* Label and Value Header with Manual Input Field */}
+      {/* Label, Description and Value Header with Manual Input Field */}
       <div class="flex justify-between items-center min-h-[26px]">
-        <label class="text-xs font-semibold text-base-content flex items-center gap-1">
-          <span>{label}</span>
-          {fieldKey && <FieldGuide fieldKey={fieldKey} />}
-        </label>
+        <div class="flex flex-col">
+          <span class="text-xs font-semibold text-base-content">{label}</span>
+          {description && (
+            <span class="text-[10px] text-base-content/60">{description}</span>
+          )}
+        </div>
         <div class="flex items-center gap-1">
           <input
             type="number"
@@ -63,7 +61,7 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
             onInput={handleInputChange}
             onBlur={handleInputBlur}
             class="input input-bordered input-xs w-16 text-right font-mono font-semibold text-xs px-1.5 py-0.5 rounded-md focus:input-primary"
-            aria-label={ariaLabel || `Manual value for ${label}`}
+            aria-label={`Manual value for ${label}`}
           />
           {unit && (
             <span class="text-[11px] font-mono text-base-content/60 select-none">
@@ -83,7 +81,7 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
           value={value}
           onInput={(e) => onChange(Number(e.currentTarget.value))}
           class="range range-primary range-sm w-full cursor-pointer"
-          aria-label={ariaLabel || `${label}: ${value}${unit}`}
+          aria-label={`${label}: ${value}${unit}`}
         />
       </div>
 
@@ -110,5 +108,3 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
     </div>
   );
 };
-
-

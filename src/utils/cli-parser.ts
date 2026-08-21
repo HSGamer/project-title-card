@@ -2,18 +2,14 @@ import { parseArgs } from "@std/cli/parse-args";
 import { z } from "zod";
 import {
   BackgroundConfigSchema,
-  BadgeCardOptionsSchema,
   BorderConfigSchema,
   DescriptionFontConfigSchema,
   ImageConfigSchema,
-  LayoutFormatTypeSchema,
-  StandardCardOptionsSchema,
   TextAlignSchema,
   TitleFontConfigSchema,
   VerticalAlignSchema,
-  WideCardOptionsSchema,
-  WidescreenCardOptionsSchema,
 } from "../types.ts";
+import { getAllLayouts } from "../layouts/registry.ts";
 
 /**
  * Converts kebab-case or snake_case string to camelCase
@@ -59,7 +55,10 @@ const PREFIX_ROUTES: [RegExp, string][] = [
   [/^(?:bg|background)[-_]/, "background"],
   [/^border[-_]/, "border"],
   [/^(?:title[-_]font|title)[-_]/, "titleFont"],
-  [/^(?:description[-_]font|desc[-_]font|description|desc)[-_]/, "descriptionFont"],
+  [
+    /^(?:description[-_]font|desc[-_]font|description|desc)[-_]/,
+    "descriptionFont",
+  ],
   [/^(?:image|logo)[-_]/, "image"],
 ];
 
@@ -79,7 +78,9 @@ export function mapFlagToPath(rawKey: string): string[] {
   if (normalized === "desc") return ["description"];
   if (normalized === "logo" || normalized === "image") return ["image", "url"];
   if (normalized === "align") return ["textAlign"];
-  if (normalized === "valign" || normalized === "vertical-align") return ["verticalAlign"];
+  if (normalized === "valign" || normalized === "vertical-align") {
+    return ["verticalAlign"];
+  }
 
   // 1. Prefix-based routing (e.g. --bg-color, --split-bg-color, --border-width, --title-font-size)
   for (const [pattern, section] of PREFIX_ROUTES) {
@@ -124,6 +125,7 @@ export interface ParsedCliResult {
   controlFlags: {
     help?: boolean;
     listThemes?: boolean;
+    listFormats?: boolean;
     theme?: string;
     input?: string;
     stdin?: boolean;
@@ -152,6 +154,7 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
       "help",
       "h",
       "list-themes",
+      "list-formats",
       "stdin",
       "png",
       "stdout",
@@ -164,10 +167,13 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
   const controlFlags: ParsedCliResult["controlFlags"] = {
     help: Boolean(rawFlags.help || rawFlags.h),
     listThemes: Boolean(rawFlags["list-themes"]),
+    listFormats: Boolean(rawFlags["list-formats"]),
     theme: (rawFlags.theme || rawFlags.t) as string | undefined,
     input: (rawFlags.input || rawFlags.i) as string | undefined,
     stdin: Boolean(rawFlags.stdin),
-    output: (rawFlags.output || rawFlags.out || rawFlags.o) as string | undefined,
+    output: (rawFlags.output || rawFlags.out || rawFlags.o) as
+      | string
+      | undefined,
     png: Boolean(rawFlags.png),
     scale: rawFlags.scale ? Number(rawFlags.scale) : undefined,
     stdout: Boolean(rawFlags.stdout),
@@ -178,6 +184,7 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
     "help",
     "h",
     "list-themes",
+    "list-formats",
     "theme",
     "t",
     "input",
@@ -264,8 +271,12 @@ function getSchemaTypeInfo(schema: z.ZodTypeAny): {
   };
 }
 
-function formatOptionLine(flag: string, typeHint: string, description: string): string {
-  const left = `  ${flag} ${typeHint}`.padEnd(36);
+function formatOptionLine(
+  flag: string,
+  typeHint: string,
+  description: string,
+): string {
+  const left = `  ${flag} ${typeHint}`.padEnd(38);
   return `${left} ${description}`;
 }
 
@@ -276,36 +287,90 @@ function formatSchemaFields(
 ): string[] {
   const lines: string[] = [];
   for (const [key, fieldSchema] of Object.entries(schema.shape)) {
-    const { typeHint, description } = getSchemaTypeInfo(fieldSchema as z.ZodTypeAny);
+    const { typeHint, description } = getSchemaTypeInfo(
+      fieldSchema as z.ZodTypeAny,
+    );
     const flagName = aliasMap[key] || `--${prefix}${camelToKebab(key)}`;
     lines.push(formatOptionLine(flagName, typeHint, description));
   }
   return lines;
 }
 
+const COMMON_FIELD_KEYS = new Set([
+  "generateType",
+  "title",
+  "background",
+  "splitBackground",
+  "border",
+  "titleFont",
+  "descriptionFont",
+  "image",
+  "textAlign",
+  "verticalAlign",
+  "verticalOffset",
+  "horizontalOffset",
+]);
+
 /**
- * Dynamically generates CLI help message by introspecting Zod schemas.
+ * Dynamically generates CLI help message by introspecting Zod schemas and all registered layouts.
  */
 export function generateHelpMessage(): string {
-  const formats = LayoutFormatTypeSchema.options.join("|");
+  const layouts = getAllLayouts();
+  const formats = layouts.map((l) => l.id).join("|");
 
   const basicOptions = [
     formatOptionLine("--title", "<string>", "Card main title text"),
-    formatOptionLine("--desc, --description", "<string>", "Card description lines"),
-    formatOptionLine("--format, -f", `<${formats}>`, "Card layout format (default: card)"),
-    formatOptionLine("--theme, -t", "<id>", "Apply style & typography theme (run --list-themes to view)"),
-    formatOptionLine("--output, -o", "<path>", "Output file path (default: title-card.svg or title-card.png)"),
+    formatOptionLine(
+      "--desc, --description",
+      "<string>",
+      "Card description lines",
+    ),
+    formatOptionLine(
+      "--format, -f",
+      `<${formats}>`,
+      "Card layout format (default: card)",
+    ),
+    formatOptionLine(
+      "--theme, -t",
+      "<id>",
+      "Apply style & typography theme (run --list-themes to view)",
+    ),
+    formatOptionLine(
+      "--output, -o",
+      "<path>",
+      "Output file path (default: title-card.svg or title-card.png)",
+    ),
     formatOptionLine("--png", "(flag)", "Render as PNG image instead of SVG"),
-    formatOptionLine("--scale", "<number>", "PNG resolution scale multiplier (default: 1)"),
+    formatOptionLine(
+      "--scale",
+      "<number>",
+      "PNG resolution scale multiplier (default: 1)",
+    ),
     formatOptionLine("--stdout", "(flag)", "Print SVG string to stdout"),
-    formatOptionLine("--input, -i", "<file.json>", "Load options from JSON file"),
+    formatOptionLine(
+      "--input, -i",
+      "<file.json>",
+      "Load options from JSON file",
+    ),
     formatOptionLine("--stdin", "(flag)", "Read JSON options from stdin"),
-    formatOptionLine("--list-themes", "(flag)", "List all available style & typography themes"),
+    formatOptionLine(
+      "--list-formats",
+      "(flag)",
+      "List all available card layout formats",
+    ),
+    formatOptionLine(
+      "--list-themes",
+      "(flag)",
+      "List all available style & typography themes",
+    ),
     formatOptionLine("--help, -h", "(flag)", "Show this help message"),
   ];
 
   const bgOptions = formatSchemaFields(BackgroundConfigSchema, "bg-");
-  const splitBgOptions = formatSchemaFields(BackgroundConfigSchema, "split-bg-");
+  const splitBgOptions = formatSchemaFields(
+    BackgroundConfigSchema,
+    "split-bg-",
+  );
   const borderOptions = formatSchemaFields(BorderConfigSchema, "border-");
   const titleOptions = formatSchemaFields(TitleFontConfigSchema, "title-");
   const descOptions = formatSchemaFields(DescriptionFontConfigSchema, "desc-");
@@ -314,50 +379,57 @@ export function generateHelpMessage(): string {
   });
 
   const layoutOptions = [
-    formatOptionLine("--align", `<${TextAlignSchema.options.join("|")}>`, "Text horizontal alignment"),
-    formatOptionLine("--valign", `<${VerticalAlignSchema.options.join("|")}>`, "Content vertical alignment"),
-    formatOptionLine("--vertical-offset", "<number>", "Content/text vertical offset in px"),
-    formatOptionLine("--horizontal-offset", "<number>", "Content/text horizontal offset in px"),
+    formatOptionLine(
+      "--align",
+      `<${TextAlignSchema.options.join("|")}>`,
+      "Text horizontal alignment",
+    ),
+    formatOptionLine(
+      "--valign",
+      `<${VerticalAlignSchema.options.join("|")}>`,
+      "Content vertical alignment",
+    ),
+    formatOptionLine(
+      "--vertical-offset",
+      "<number>",
+      "Content/text vertical offset in px",
+    ),
+    formatOptionLine(
+      "--horizontal-offset",
+      "<number>",
+      "Content/text horizontal offset in px",
+    ),
   ];
 
-  const standardFields = formatSchemaFields(
-    z.object({ cardVariant: StandardCardOptionsSchema.shape.cardVariant }),
-    "",
-  );
-  const wideFields = formatSchemaFields(
-    z.object({
-      wideVariant: WideCardOptionsSchema.shape.wideVariant,
-      imagePosition: WideCardOptionsSchema.shape.imagePosition,
-    }),
-    "",
-  );
-  const wsFields = formatSchemaFields(
-    z.object({ layoutStyle: WidescreenCardOptionsSchema.shape.layoutStyle }),
-    "",
-  );
-  const badgeFields = formatSchemaFields(
-    z.object({
-      badgeVariant: BadgeCardOptionsSchema.shape.badgeVariant,
-      badgeWidth: BadgeCardOptionsSchema.shape.badgeWidth,
-      badgeHeight: BadgeCardOptionsSchema.shape.badgeHeight,
-      badgeAutoSize: BadgeCardOptionsSchema.shape.badgeAutoSize,
-      iconPosition: BadgeCardOptionsSchema.shape.iconPosition,
-      badgeLabel: BadgeCardOptionsSchema.shape.badgeLabel,
-      labelColor: BadgeCardOptionsSchema.shape.labelColor,
-      splitPosition: BadgeCardOptionsSchema.shape.splitPosition,
-      statusText: BadgeCardOptionsSchema.shape.statusText,
-      statusColor: BadgeCardOptionsSchema.shape.statusColor,
-      statusStyle: BadgeCardOptionsSchema.shape.statusStyle,
-      statusPosition: BadgeCardOptionsSchema.shape.statusPosition,
-    }),
-    "",
-  );
+  // Dynamically inspect each layout for specific options
+  const layoutSections: string[] = [];
+  for (const layout of layouts) {
+    if ("shape" in layout.schema) {
+      const shape = (layout.schema as z.ZodObject<any>).shape;
+      const specificShape: Record<string, z.ZodTypeAny> = {};
+      for (const [k, v] of Object.entries(shape)) {
+        if (!COMMON_FIELD_KEYS.has(k)) {
+          specificShape[k] = v as z.ZodTypeAny;
+        }
+      }
+
+      if (Object.keys(specificShape).length > 0) {
+        const lines = formatSchemaFields(z.object(specificShape), "");
+        layoutSections.push(`  ${layout.name} (--format ${layout.id}):`);
+        layoutSections.push(...lines.map((l) => `  ${l}`));
+      }
+    }
+  }
 
   return [
     "project-title-card CLI - Generate SVG & PNG title cards from the terminal\n",
     "USAGE:",
     "  deno task cli [OPTIONS]\n",
-    "BASIC OPTIONS:",
+    "AVAILABLE LAYOUT FORMATS:",
+    ...layouts.map((l) =>
+      `  ${l.id.padEnd(16)} ${l.name.padEnd(20)} ${l.description}`
+    ),
+    "\nBASIC OPTIONS:",
     ...basicOptions,
     "\nBACKGROUND OPTIONS:",
     ...bgOptions,
@@ -373,15 +445,8 @@ export function generateHelpMessage(): string {
     ...imageOptions,
     "\nLAYOUT & ALIGNMENT OPTIONS:",
     ...layoutOptions,
-    "\nFORMAT-SPECIFIC OPTIONS:",
-    "  Standard Card:",
-    ...standardFields.map((l) => `  ${l}`),
-    "  Wide Card:",
-    ...wideFields.map((l) => `  ${l}`),
-    "  Widescreen:",
-    ...wsFields.map((l) => `  ${l}`),
-    "  Badge:",
-    ...badgeFields.map((l) => `  ${l}`),
+    "\nFORMAT-SPECIFIC OPTIONS (Extensible):",
+    ...layoutSections,
     "\nNOTE: All options also support dot-notation (e.g. --background.color #fff, --border.radius 20).",
   ].join("\n");
 }

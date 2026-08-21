@@ -1,18 +1,6 @@
 import { z } from "zod";
 
-// Layout & Enums
-export const LayoutFormatTypeSchema = z.enum([
-  "card",
-  "widecard",
-  "widescreen",
-  "badge",
-]);
-export type LayoutFormatType = z.infer<typeof LayoutFormatTypeSchema>;
-
-// Re-export GenerateType for backwards compatibility
-export const GenerateTypeSchema = LayoutFormatTypeSchema;
-export type GenerateType = LayoutFormatType;
-
+// Base Config Enums & Schemas
 export const BackgroundTypeSchema = z.enum([
   "solid",
   "gradient",
@@ -70,45 +58,6 @@ export type TextAlign = z.infer<typeof TextAlignSchema>;
 export const VerticalAlignSchema = z.enum(["top", "middle", "bottom"]);
 export type VerticalAlign = z.infer<typeof VerticalAlignSchema>;
 
-export const WidescreenLayoutSchema = z.enum([
-  "split",
-  "centered",
-  "banner",
-  "hero",
-  "minimal",
-]);
-export type WidescreenLayout = z.infer<typeof WidescreenLayoutSchema>;
-
-export const CardVariantSchema = z.enum([
-  "standard",
-  "hero",
-  "compact",
-  "minimal",
-  "split",
-]);
-export type CardVariant = z.infer<typeof CardVariantSchema>;
-
-export const WideVariantSchema = z.enum([
-  "standard",
-  "split",
-  "centered",
-  "minimal",
-  "badge",
-]);
-export type WideVariant = z.infer<typeof WideVariantSchema>;
-
-export const BadgeVariantSchema = z.enum([
-  "standard",
-  "pill",
-  "split",
-  "status",
-  "outline",
-]);
-export type BadgeVariant = z.infer<typeof BadgeVariantSchema>;
-
-export const BadgeStatusStyleSchema = z.enum(["pill", "dot"]);
-export type BadgeStatusStyle = z.infer<typeof BadgeStatusStyleSchema>;
-
 export const IconPositionSchema = z.enum(["left", "right", "none"]);
 export type IconPosition = z.infer<typeof IconPositionSchema>;
 
@@ -118,7 +67,7 @@ export type ImagePosition = z.infer<typeof ImagePositionSchema>;
 export const StatusPositionSchema = z.enum(["right", "left"]);
 export type StatusPosition = z.infer<typeof StatusPositionSchema>;
 
-// Config Schemas
+// Configuration Schemas
 export const BackgroundConfigSchema = z.object({
   type: BackgroundTypeSchema.describe("Background style type"),
   color: z.string().describe("Background solid color hex or CSS color"),
@@ -191,9 +140,9 @@ export const ImageConfigSchema = z.object({
 });
 export type ImageConfig = z.infer<typeof ImageConfigSchema>;
 
-// Base Card Options Schema
+// Base Card Options Schema - common to all layouts
 export const BaseCardOptionsSchema = z.object({
-  generateType: LayoutFormatTypeSchema.describe("Card layout format"),
+  generateType: z.string().describe("Card layout format"),
   title: z.string().describe("Card main title text"),
   background: BackgroundConfigSchema,
   splitBackground: BackgroundConfigSchema.optional().describe(
@@ -215,68 +164,15 @@ export const BaseCardOptionsSchema = z.object({
 });
 export type BaseCardOptions = z.infer<typeof BaseCardOptionsSchema>;
 
-// Specific Options Schemas
-export const StandardCardOptionsSchema = BaseCardOptionsSchema.extend({
-  generateType: z.literal("card"),
-  cardVariant: CardVariantSchema.optional().describe(
-    "Card visual layout variant",
-  ),
-  description: z.string().describe("Card description text"),
-  descriptionFont: DescriptionFontConfigSchema,
-  textAlign: TextAlignSchema.describe("Text alignment"),
-});
-export type StandardCardOptions = z.infer<typeof StandardCardOptionsSchema>;
+export type GenerateType = string;
+export type LayoutFormatType = string;
 
-export const WideCardOptionsSchema = BaseCardOptionsSchema.extend({
-  generateType: z.literal("widecard"),
-  wideVariant: WideVariantSchema.optional().describe(
-    "Wide card visual layout variant",
-  ),
-  description: z.string().describe("Card description text"),
-  descriptionFont: DescriptionFontConfigSchema,
-  imagePosition: ImagePositionSchema.describe("Logo position (left or right)"),
-});
-export type WideCardOptions = z.infer<typeof WideCardOptionsSchema>;
-
-export const WidescreenCardOptionsSchema = BaseCardOptionsSchema.extend({
-  generateType: z.literal("widescreen"),
-  description: z.string().describe("Card description text"),
-  descriptionFont: DescriptionFontConfigSchema,
-  layoutStyle: WidescreenLayoutSchema.describe("Widescreen layout style"),
-});
-export type WidescreenCardOptions = z.infer<typeof WidescreenCardOptionsSchema>;
-
-export const BadgeCardOptionsSchema = BaseCardOptionsSchema.extend({
-  generateType: z.literal("badge"),
-  badgeVariant: BadgeVariantSchema.optional().describe("Badge visual variant"),
-  badgeWidth: z.number().describe("Badge width in px"),
-  badgeHeight: z.number().describe("Badge height in px"),
-  badgeAutoSize: z
-    .boolean()
-    .optional()
-    .describe("Automatically compute badge width"),
-  iconPosition: IconPositionSchema.describe("Icon position"),
-  badgeLabel: z.string().optional().describe("Split badge left label text"),
-  labelColor: z.string().optional().describe("Split badge label text color"),
-  splitPosition: z.number().optional().describe("Split divider position in px"),
-  statusText: z
-    .string()
-    .optional()
-    .describe("Status text (for status badge variant)"),
-  statusColor: z.string().optional().describe("Status indicator color"),
-  statusStyle: BadgeStatusStyleSchema.optional().describe(
-    "Status indicator shape style",
-  ),
-  statusPosition: StatusPositionSchema.optional().describe(
-    "Status indicator position",
-  ),
-});
-export type BadgeCardOptions = z.infer<typeof BadgeCardOptionsSchema>;
-
-export const CardOptionsSchema = z.discriminatedUnion("generateType", [
-  StandardCardOptionsSchema,
-  WideCardOptionsSchema,
-  WidescreenCardOptionsSchema,
-  BadgeCardOptionsSchema,
-]);
-export type CardOptions = z.infer<typeof CardOptionsSchema>;
+/**
+ * Universal Card Options structure.
+ * Extensible for any registered layout format.
+ */
+export type CardOptions = BaseCardOptions & {
+  description?: string;
+  descriptionFont?: DescriptionFontConfig;
+  [key: string]: any;
+};

@@ -4,22 +4,25 @@ export interface VerticalStackConfig {
   topPad?: number;
   bottomPad?: number;
   minGap?: number;
+  gapTitleDesc?: number;
   hasImage: boolean;
   imgSize: number;
   imgVAlign?: "top" | "middle" | "bottom";
   textH: number;
   titleFontSize: number;
+  descFontSize?: number;
   vAlign?: "top" | "middle" | "bottom";
 }
 
 export interface VerticalStackResult {
   imgY: number;
   titleY: number;
+  descY: number;
 }
 
 /**
  * Computes non-overlapping, decoupled vertical positions for Logo and Text in vertical-stack layouts.
- * Guarantees a minimum gap between elements and centers elements appropriately in remaining space.
+ * Guarantees a minimum gap between elements and centers elements symmetrically in remaining space.
  */
 export function computeVerticalStackPositions(
   config: VerticalStackConfig,
@@ -30,11 +33,13 @@ export function computeVerticalStackPositions(
     topPad = 24,
     bottomPad = 24,
     minGap = 24,
+    gapTitleDesc = 18,
     hasImage,
     imgSize,
     imgVAlign = "middle",
     textH,
     titleFontSize,
+    descFontSize = 22,
     vAlign = "middle",
   } = config;
 
@@ -54,6 +59,7 @@ export function computeVerticalStackPositions(
     return {
       imgY: topLimit,
       titleY: textTop + titleFontSize * 0.85,
+      descY: textTop + titleFontSize + gapTitleDesc + descFontSize * 0.85,
     };
   }
 
@@ -122,5 +128,6 @@ export function computeVerticalStackPositions(
   return {
     imgY,
     titleY: textTop + titleFontSize * 0.85,
+    descY: textTop + titleFontSize + gapTitleDesc + descFontSize * 0.85,
   };
 }

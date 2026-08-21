@@ -1,5 +1,9 @@
 import { Svg } from "@svgdotjs/svg.js";
-import { CardOptions, DescriptionFontConfig } from "../types.ts";
+import {
+  CardOptions,
+  DescriptionFontConfig,
+  TitleFontConfig,
+} from "../types.ts";
 
 /**
  * Renders an image element with shape clipping (circle/rounded/original)
@@ -61,7 +65,7 @@ export function renderTitle(
   text: string,
   x: number,
   y: number,
-  fontConfig: CardOptions["titleFont"],
+  fontConfig: Partial<TitleFontConfig> = {},
   anchor: "start" | "middle" | "end" = "middle",
   dominantBaseline?: string,
 ): void {
@@ -101,7 +105,7 @@ export function renderMultilineDescription(
   text: string,
   x: number,
   y: number,
-  fontConfig: DescriptionFontConfig,
+  fontConfig: Partial<DescriptionFontConfig> = {},
   anchor: "start" | "middle" | "end" = "middle",
 ): void {
   const lines = (text || "").split("\n");

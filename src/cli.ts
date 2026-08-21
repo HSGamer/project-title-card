@@ -1,12 +1,5 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-net
-import { CardOptions, CardOptionsSchema, LayoutFormatType } from "./types.ts";
-import {
-  defaultBadgeOptions,
-  defaultOptions,
-  defaultStandardOptions,
-  defaultWideOptions,
-  defaultWidescreenOptions,
-} from "./generators/defaults.ts";
+import { CardOptions } from "./types.ts";
 import { THEMES } from "./data/themes.ts";
 import { normalizeCardOptions } from "./utils/normalizer.ts";
 import {
@@ -15,6 +8,25 @@ import {
   writeCardToFile,
 } from "./utils/headless-export.ts";
 import { generateHelpMessage, parseCliArgs } from "./utils/cli-parser.ts";
+import { getAllLayouts, getDefaultLayout, getLayout } from "./layouts/registry.ts";
+
+function listFormats() {
+  console.log("\nAvailable Card Layout Formats:\n");
+  console.log(
+    "ID".padEnd(16) +
+      "Name".padEnd(22) +
+      "Description",
+  );
+  console.log("-".repeat(78));
+  for (const l of getAllLayouts()) {
+    console.log(
+      l.id.padEnd(16) +
+        l.name.padEnd(22) +
+        l.description,
+    );
+  }
+  console.log("");
+}
 
 function listThemes() {
   console.log("\nAvailable Themes (Style & Typography):\n");
@@ -82,13 +94,20 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     return;
   }
 
+  if (controlFlags.listFormats) {
+    listFormats();
+    return;
+  }
+
   if (controlFlags.listThemes) {
     listThemes();
     return;
   }
 
-  // 1. Initial base options
-  let options: CardOptions = { ...defaultOptions };
+  // 1. Initial base options from registry
+  const requestedFormat = (cardOverrides.generateType as string) || "card";
+  const initialLayout = getLayout(requestedFormat);
+  let options: CardOptions = { ...initialLayout.defaultOptions };
 
   // Load from file or stdin if specified
   if (controlFlags.stdin) {
@@ -123,7 +142,9 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     if (theme) {
       options = deepMerge(options, {
         background: theme.background,
-        ...(theme.splitBackground ? { splitBackground: theme.splitBackground } : {}),
+        ...(theme.splitBackground
+          ? { splitBackground: theme.splitBackground }
+          : {}),
         border: theme.border,
         titleFont: theme.titleFont,
         ...("descriptionFont" in options
@@ -136,27 +157,15 @@ export async function main(args: string[] = Deno.args): Promise<void> {
         `Warning: Theme "${themeId}" not found. Run --list-themes to view available options.`,
       );
     }
-  } else if (cardOverrides.generateType) {
-    const type = cardOverrides.generateType as LayoutFormatType;
-    if (type === "widecard") options = { ...defaultWideOptions };
-    else if (type === "widescreen") options = { ...defaultWidescreenOptions };
-    else if (type === "badge") options = { ...defaultBadgeOptions };
-    else options = { ...defaultStandardOptions };
   }
 
-  // 3. Format override if base wasn't already initialized for it
+  // 2. Format override if base wasn't already initialized for it
   if (
     cardOverrides.generateType &&
     cardOverrides.generateType !== options.generateType
   ) {
-    const type = cardOverrides.generateType as LayoutFormatType;
-    let baseByType: CardOptions;
-    if (type === "widecard") baseByType = defaultWideOptions;
-    else if (type === "widescreen") baseByType = defaultWidescreenOptions;
-    else if (type === "badge") baseByType = defaultBadgeOptions;
-    else baseByType = defaultStandardOptions;
-
-    options = deepMerge(baseByType, {
+    const targetLayout = getLayout(cardOverrides.generateType as string);
+    options = deepMerge({ ...targetLayout.defaultOptions }, {
       title: options.title,
       background: options.background,
       border: options.border,
@@ -165,12 +174,13 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     });
   }
 
-  // 4. Deep merge all schema-mapped CLI flags
+  // 3. Deep merge all schema-mapped CLI flags
   const merged = deepMerge(options, cardOverrides);
   options = normalizeCardOptions(merged);
 
-  // Validate normalized output against CardOptionsSchema
-  const validation = CardOptionsSchema.safeParse(options);
+  // Validate normalized output against layout schema
+  const layout = getLayout(options.generateType);
+  const validation = layout.schema.safeParse(options);
   if (!validation.success) {
     console.warn(
       "Warning: Card options validation issues:",
@@ -178,7 +188,7 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     );
   }
 
-  // 5. Output handling
+  // 4. Output handling
   if (controlFlags.stdout) {
     const svg = generateSVGString(options);
     console.log(svg);

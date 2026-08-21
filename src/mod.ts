@@ -8,6 +8,7 @@
  */
 
 export * from "./types.ts";
+export * from "./layouts/index.ts";
 export * from "./generators/index.ts";
 export * from "./data/themes.ts";
 export * from "./data/suggestions.ts";
@@ -15,3 +16,4 @@ export * from "./utils/dimensions.ts";
 export * from "./utils/fonts.ts";
 export * from "./utils/normalizer.ts";
 export * from "./utils/headless-export.ts";
+export * from "./utils/cli-parser.ts";

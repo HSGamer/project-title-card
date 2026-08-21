@@ -1,36 +1,16 @@
-import {
-  BadgeCardOptions,
-  CardOptions,
-  StandardCardOptions,
-  WideCardOptions,
-  WidescreenCardOptions,
-} from "../types.ts";
-
-import { generateCard } from "./layouts/card.ts";
-import { generateWidecard } from "./layouts/wide.ts";
-import { generateWidescreen } from "./layouts/widescreen.ts";
-import { generateBadge } from "./layouts/badge.ts";
+import { CardOptions } from "../types.ts";
+import { getLayout } from "../layouts/registry.ts";
 
 export * from "./defaults.ts";
 export * from "./svg-base.ts";
 export * from "./elements.ts";
 export * from "./vertical-stack.ts";
-
-export { generateBadge, generateCard, generateWidecard, generateWidescreen };
+export * from "../layouts/index.ts";
 
 /**
- * Strategy Dispatcher: Generates SVG element based on options.generateType
+ * Strategy Dispatcher: Generates SVG element using the registered layout generator.
  */
 export function generateSVG(options: CardOptions): SVGSVGElement {
-  switch (options.generateType) {
-    case "widecard":
-      return generateWidecard(options as WideCardOptions);
-    case "widescreen":
-      return generateWidescreen(options as WidescreenCardOptions);
-    case "badge":
-      return generateBadge(options as BadgeCardOptions);
-    case "card":
-    default:
-      return generateCard(options as StandardCardOptions);
-  }
+  const layout = getLayout(options.generateType);
+  return layout.generate(options);
 }
