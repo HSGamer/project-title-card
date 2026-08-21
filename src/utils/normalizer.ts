@@ -1,17 +1,21 @@
 import {
+  BackgroundConfig,
   BackgroundType,
   BadgeCardOptions,
+  BorderConfig,
   BorderStyle,
-  BannerVariant,
   CardOptions,
   CardVariant,
+  DescriptionFontConfig,
   DescriptionFontWeight,
-  GenerateType,
   GradientDirection,
+  ImageConfig,
   ImageShape,
+  LayoutFormatType,
   ShadowEffect,
   StandardCardOptions,
   TextAlign,
+  TitleFontConfig,
   TitleFontWeight,
   VerticalAlign,
   WideCardOptions,
@@ -20,6 +24,7 @@ import {
   WidescreenLayout,
 } from "../types.ts";
 import {
+  DEFAULT_SPLIT_BACKGROUND,
   defaultBadgeOptions,
   defaultStandardOptions,
   defaultWideOptions,
@@ -53,25 +58,6 @@ export function normalizeColor(
     return NAMED_COLORS[clean];
   }
   return colorStr.trim();
-}
-
-export function parseCssStyle(
-  styleStr: string | undefined,
-): Record<string, string> {
-  const result: Record<string, string> = {};
-  if (!styleStr || typeof styleStr !== "string") return result;
-
-  const declarations = styleStr.split(";");
-  for (const decl of declarations) {
-    const colonIdx = decl.indexOf(":");
-    if (colonIdx === -1) continue;
-    const key = decl.slice(0, colonIdx).trim().toLowerCase();
-    const value = decl.slice(colonIdx + 1).trim();
-    if (key && value) {
-      result[key] = value;
-    }
-  }
-  return result;
 }
 
 export function parseFontWeight(
@@ -139,46 +125,15 @@ export function parseFontFamily(
   return clean;
 }
 
-export function extractGradientStops(
-  defsStr: string,
-): { start?: string; middle?: string; end?: string; isRadial: boolean } {
-  const result: {
-    start?: string;
-    middle?: string;
-    end?: string;
-    isRadial: boolean;
-  } = {
-    isRadial: defsStr.includes("<radialGradient"),
-  };
-  const stopColors: string[] = [];
-  const stopMatches = defsStr.matchAll(/stop-color=["']([^"']+)["']/g);
-  for (const m of stopMatches) {
-    if (m[1]) stopColors.push(m[1]);
-  }
-  if (stopColors.length === 1) {
-    result.start = normalizeColor(stopColors[0], "#ea580c");
-    result.end = normalizeColor(stopColors[0], "#7c3aed");
-  } else if (stopColors.length === 2) {
-    result.start = normalizeColor(stopColors[0], "#ea580c");
-    result.end = normalizeColor(stopColors[1], "#7c3aed");
-  } else if (stopColors.length >= 3) {
-    result.start = normalizeColor(stopColors[0], "#ea580c");
-    result.middle = normalizeColor(stopColors[1], "#db2777");
-    result.end = normalizeColor(stopColors[stopColors.length - 1], "#7c3aed");
-  }
-  return result;
-}
-
 export function normalizeCardOptions(raw: unknown): CardOptions {
   if (!raw || typeof raw !== "object") {
     return defaultStandardOptions;
   }
 
   const rawObj = raw as Record<string, unknown>;
-  const rawBg =
-    typeof rawObj.background === "object" && rawObj.background !== null
-      ? (rawObj.background as Record<string, unknown>)
-      : null;
+  const rawBg = typeof rawObj.background === "object" && rawObj.background !== null
+    ? (rawObj.background as Record<string, unknown>)
+    : null;
   const rawBorder = typeof rawObj.border === "object" && rawObj.border !== null
     ? (rawObj.border as Record<string, unknown>)
     : null;
@@ -194,37 +149,13 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     ? (rawObj.image as Record<string, unknown>)
     : null;
 
-  // Parse legacy CSS styles if present
-  const legacyBgCss = parseCssStyle(
-    typeof rawObj.backgroundStyle === "string"
-      ? rawObj.backgroundStyle
-      : undefined,
-  );
-  const legacyTitleCss = parseCssStyle(
-    typeof rawObj.titleStyle === "string" ? rawObj.titleStyle : undefined,
-  );
-  const legacyDescCss = parseCssStyle(
-    typeof rawObj.descriptionStyle === "string"
-      ? rawObj.descriptionStyle
-      : undefined,
-  );
-  const legacyDefs = typeof rawObj.defs === "string" ? rawObj.defs : "";
-
-  // Determine format (support legacy & alias)
-  let format: GenerateType = "card";
-  if (
-    rawObj.generateType === "widecard" ||
-    rawObj.generateType === "readme-banner"
-  ) {
+  // Determine format
+  let format: LayoutFormatType = "card";
+  if (rawObj.generateType === "widecard") {
     format = "widecard";
-  } else if (
-    rawObj.generateType === "widescreen" ||
-    rawObj.generateType === "social-preview"
-  ) {
+  } else if (rawObj.generateType === "widescreen") {
     format = "widescreen";
-  } else if (
-    rawObj.generateType === "badge" || rawObj.generateType === "compact-badge"
-  ) {
+  } else if (rawObj.generateType === "badge") {
     format = "badge";
   }
 
@@ -237,60 +168,41 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     : defaultStandardOptions;
 
   // 1. Background parsing
-  const isGradientFromLegacy = Boolean(
-    legacyBgCss.fill?.startsWith("url(") ||
-      legacyDefs.includes("<linearGradient") ||
-      legacyDefs.includes("<radialGradient"),
-  );
-
   const bgType: BackgroundType =
     rawBg?.type === "solid" || rawBg?.type === "gradient" ||
       rawBg?.type === "glass" || rawBg?.type === "image"
       ? (rawBg.type as BackgroundType)
-      : isGradientFromLegacy
-      ? "gradient"
       : "solid";
 
-  const extractedStops: {
-    start?: string;
-    middle?: string;
-    end?: string;
-    isRadial?: boolean;
-  } = isGradientFromLegacy ? extractGradientStops(legacyDefs) : {};
-
   const bgColor = typeof rawBg?.color === "string"
-    ? rawBg.color
-    : legacyBgCss.fill && !legacyBgCss.fill.startsWith("url(")
-    ? normalizeColor(legacyBgCss.fill, baseDefault.background.color)
+    ? normalizeColor(rawBg.color, baseDefault.background.color)
+    : typeof rawObj.backgroundColor === "string"
+    ? normalizeColor(rawObj.backgroundColor, baseDefault.background.color)
     : baseDefault.background.color;
 
   const gradStart = typeof rawBg?.gradientStart === "string"
     ? rawBg.gradientStart
-    : extractedStops.start || "#ea580c";
+    : baseDefault.background.gradientStart;
 
   const gradEnd = typeof rawBg?.gradientEnd === "string"
     ? rawBg.gradientEnd
-    : extractedStops.end || "#7c3aed";
+    : baseDefault.background.gradientEnd;
 
   const gradMiddle = typeof rawBg?.gradientMiddle === "string"
     ? rawBg.gradientMiddle
-    : extractedStops.middle;
+    : baseDefault.background.gradientMiddle;
 
   const gradDir: GradientDirection = rawBg?.gradientDirection === "to-r" ||
       rawBg?.gradientDirection === "to-b" ||
       rawBg?.gradientDirection === "to-bl" ||
       rawBg?.gradientDirection === "radial"
     ? rawBg.gradientDirection
-    : extractedStops.isRadial
-    ? "radial"
     : "to-br";
 
   const bgOpacity = typeof rawBg?.opacity === "number"
     ? rawBg.opacity
-    : legacyBgCss["fill-opacity"] !== undefined
-    ? parseFloat(legacyBgCss["fill-opacity"]) || 1
-    : legacyBgCss.opacity !== undefined
-    ? parseFloat(legacyBgCss.opacity) || 1
+    : typeof rawObj.backgroundOpacity === "number"
+    ? rawObj.backgroundOpacity
     : 1;
 
   const bgImageUrl = typeof rawBg?.imageUrl === "string"
@@ -306,65 +218,133 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     ? rawBg.overlayOpacity
     : 0.5;
 
+  const background: BackgroundConfig = {
+    type: bgType,
+    color: bgColor,
+    gradientStart: gradStart,
+    gradientEnd: gradEnd,
+    gradientMiddle: gradMiddle,
+    gradientDirection: gradDir,
+    opacity: bgOpacity,
+    imageUrl: bgImageUrl,
+    imageOpacity: bgImageOpacity,
+    overlayColor: bgOverlayColor,
+    overlayOpacity: bgOverlayOpacity,
+  };
+
+  // Split background parsing
+  const rawSplitBg =
+    typeof rawObj.splitBackground === "object" && rawObj.splitBackground !== null
+      ? (rawObj.splitBackground as Record<string, unknown>)
+      : typeof rawObj.splitBackground === "string"
+      ? { type: "solid", color: rawObj.splitBackground }
+      : typeof rawObj.splitBackgroundColor === "string"
+      ? { type: "solid", color: rawObj.splitBackgroundColor }
+      : null;
+
+  const splitBackground: BackgroundConfig | undefined = rawSplitBg
+    ? {
+      type: (rawSplitBg.type === "gradient" ||
+          rawSplitBg.type === "glass" ||
+          rawSplitBg.type === "image")
+        ? (rawSplitBg.type as BackgroundType)
+        : "solid",
+      color: typeof rawSplitBg.color === "string"
+        ? normalizeColor(rawSplitBg.color, DEFAULT_SPLIT_BACKGROUND.color)
+        : DEFAULT_SPLIT_BACKGROUND.color,
+      gradientStart: typeof rawSplitBg.gradientStart === "string"
+        ? rawSplitBg.gradientStart
+        : DEFAULT_SPLIT_BACKGROUND.gradientStart,
+      gradientEnd: typeof rawSplitBg.gradientEnd === "string"
+        ? rawSplitBg.gradientEnd
+        : DEFAULT_SPLIT_BACKGROUND.gradientEnd,
+      gradientMiddle: typeof rawSplitBg.gradientMiddle === "string"
+        ? rawSplitBg.gradientMiddle
+        : undefined,
+      gradientDirection: (rawSplitBg.gradientDirection === "to-r" ||
+          rawSplitBg.gradientDirection === "to-b" ||
+          rawSplitBg.gradientDirection === "to-bl" ||
+          rawSplitBg.gradientDirection === "radial")
+        ? (rawSplitBg.gradientDirection as GradientDirection)
+        : "to-br",
+      opacity: typeof rawSplitBg.opacity === "number" ? rawSplitBg.opacity : 1,
+      imageUrl: typeof rawSplitBg.imageUrl === "string"
+        ? rawSplitBg.imageUrl
+        : undefined,
+      imageOpacity: typeof rawSplitBg.imageOpacity === "number"
+        ? rawSplitBg.imageOpacity
+        : 1,
+      overlayColor: typeof rawSplitBg.overlayColor === "string"
+        ? rawSplitBg.overlayColor
+        : undefined,
+      overlayOpacity: typeof rawSplitBg.overlayOpacity === "number"
+        ? rawSplitBg.overlayOpacity
+        : 0.5,
+    }
+    : undefined;
+
   // 2. Border parsing
   const borderColor = typeof rawBorder?.color === "string"
-    ? rawBorder.color
-    : legacyBgCss.stroke
-    ? normalizeColor(legacyBgCss.stroke, baseDefault.border.color)
+    ? normalizeColor(rawBorder.color, baseDefault.border.color)
+    : typeof rawObj.borderColor === "string"
+    ? normalizeColor(rawObj.borderColor, baseDefault.border.color)
     : baseDefault.border.color;
 
   const borderWidth = typeof rawBorder?.width === "number"
     ? rawBorder.width
-    : legacyBgCss["stroke-width"] !== undefined
-    ? parseFloat(legacyBgCss["stroke-width"]) || 0
+    : typeof rawObj.borderWidth === "number"
+    ? rawObj.borderWidth
     : baseDefault.border.width;
 
   const borderStyle: BorderStyle =
     rawBorder?.style === "dashed" || rawBorder?.style === "dotted" ||
       rawBorder?.style === "none"
       ? rawBorder.style
-      : legacyBgCss["stroke-dasharray"]?.includes("3")
-      ? "dotted"
-      : legacyBgCss["stroke-dasharray"]
-      ? "dashed"
-      : legacyBgCss.stroke === "none" || borderWidth === 0
-      ? "none"
       : "solid";
 
   const borderRadius = typeof rawBorder?.radius === "number"
     ? rawBorder.radius
-    : parseFloat(String(rawObj.borderRadius || "16")) || 16;
+    : typeof rawObj.borderRadius === "number"
+    ? rawObj.borderRadius
+    : 16;
 
   const borderMargin = typeof rawBorder?.margin === "number"
     ? rawBorder.margin
-    : parseFloat(String(rawObj.borderMargin || "10")) || 10;
+    : typeof rawObj.borderMargin === "number"
+    ? rawObj.borderMargin
+    : 10;
 
   const shadow: ShadowEffect = rawBorder?.shadow === "none" ||
       rawBorder?.shadow === "subtle" ||
       rawBorder?.shadow === "strong" ||
       rawBorder?.shadow === "glow"
     ? rawBorder.shadow
-    : legacyDefs.includes('<filter id="glow"') ||
-        legacyDefs.includes("feGaussianBlur")
-    ? "glow"
     : baseDefault.border.shadow;
 
   const glowColor = typeof rawBorder?.glowColor === "string"
     ? rawBorder.glowColor
     : borderColor || "#06b6d4";
 
+  const border: BorderConfig = {
+    color: borderColor,
+    width: borderWidth,
+    style: borderStyle,
+    radius: borderRadius,
+    margin: borderMargin,
+    shadow,
+    glowColor,
+  };
+
   // 3. Title typography parsing
   const titleColor = typeof rawTitleFont?.color === "string"
-    ? rawTitleFont.color
-    : legacyTitleCss.fill
-    ? normalizeColor(legacyTitleCss.fill, baseDefault.titleFont.color)
+    ? normalizeColor(rawTitleFont.color, baseDefault.titleFont.color)
+    : typeof rawObj.titleColor === "string"
+    ? normalizeColor(rawObj.titleColor, baseDefault.titleFont.color)
     : baseDefault.titleFont.color;
 
   const titleFontFamily = typeof rawTitleFont?.fontFamily === "string"
-    ? rawTitleFont.fontFamily
-    : legacyTitleCss["font-family"]
     ? parseFontFamily(
-      legacyTitleCss["font-family"],
+      rawTitleFont.fontFamily,
       baseDefault.titleFont.fontFamily,
     )
     : baseDefault.titleFont.fontFamily;
@@ -375,36 +355,31 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       rawTitleFont?.fontWeight === "700" ||
       rawTitleFont?.fontWeight === "900"
     ? rawTitleFont.fontWeight
-    : legacyTitleCss["font-weight"]
-    ? parseFontWeight(
-      legacyTitleCss["font-weight"],
-      baseDefault.titleFont.fontWeight,
-    )
     : baseDefault.titleFont.fontWeight;
 
   const titleFontSize = typeof rawTitleFont?.fontSize === "number"
     ? rawTitleFont.fontSize
-    : legacyTitleCss["font-size"]
-    ? parseFloat(legacyTitleCss["font-size"]) || baseDefault.titleFont.fontSize
     : baseDefault.titleFont.fontSize;
 
   const titleLetterSpacing = typeof rawTitleFont?.letterSpacing === "number"
     ? rawTitleFont.letterSpacing
-    : legacyTitleCss["letter-spacing"]
-    ? parseFloat(legacyTitleCss["letter-spacing"]) || 0
     : 0;
 
-  const titleUppercase = Boolean(
-    rawTitleFont?.uppercase ??
-      legacyTitleCss["text-transform"]?.toLowerCase() === "uppercase",
-  );
+  const titleUppercase = Boolean(rawTitleFont?.uppercase);
+
+  const titleFont: TitleFontConfig = {
+    color: titleColor,
+    fontFamily: titleFontFamily,
+    fontWeight: titleFontWeight,
+    fontSize: titleFontSize,
+    letterSpacing: titleLetterSpacing,
+    uppercase: titleUppercase,
+  };
 
   // 4. Description typography parsing
   const descColor = typeof rawDescFont?.color === "string"
-    ? rawDescFont.color
-    : legacyDescCss.fill
     ? normalizeColor(
-      legacyDescCss.fill,
+      rawDescFont.color,
       "descriptionFont" in baseDefault
         ? baseDefault.descriptionFont.color
         : "#94a3b8",
@@ -414,10 +389,8 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     : "#94a3b8";
 
   const descFontFamily = typeof rawDescFont?.fontFamily === "string"
-    ? rawDescFont.fontFamily
-    : legacyDescCss["font-family"]
     ? parseFontFamily(
-      legacyDescCss["font-family"],
+      rawDescFont.fontFamily,
       "descriptionFont" in baseDefault
         ? baseDefault.descriptionFont.fontFamily
         : baseDefault.titleFont.fontFamily,
@@ -432,17 +405,10 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       rawDescFont?.fontWeight === "600" ||
       rawDescFont?.fontWeight === "700"
       ? rawDescFont.fontWeight
-      : legacyDescCss["font-weight"]
-      ? (parseFontWeight(
-        legacyDescCss["font-weight"],
-        "500",
-      ) as DescriptionFontWeight)
       : "500";
 
   const descFontSize = typeof rawDescFont?.fontSize === "number"
     ? rawDescFont.fontSize
-    : legacyDescCss["font-size"]
-    ? parseFloat(legacyDescCss["font-size"]) || 22
     : "descriptionFont" in baseDefault
     ? baseDefault.descriptionFont.fontSize
     : 22;
@@ -453,15 +419,20 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
 
   const descOpacity = typeof rawDescFont?.opacity === "number"
     ? rawDescFont.opacity
-    : legacyDescCss["fill-opacity"] !== undefined
-    ? parseFloat(legacyDescCss["fill-opacity"]) || 1
     : 1;
+
+  const descriptionFont: DescriptionFontConfig = {
+    color: descColor,
+    fontFamily: descFontFamily,
+    fontWeight: descFontWeight,
+    fontSize: descFontSize,
+    lineHeight: descLineHeight,
+    opacity: descOpacity,
+  };
 
   // 5. Image parsing
   const imgUrl = typeof rawImage?.url === "string"
     ? rawImage.url
-    : typeof rawObj.imageLink === "string"
-    ? rawObj.imageLink
     : baseDefault.image.url;
 
   const imgShape: ImageShape =
@@ -477,9 +448,7 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     ? Boolean(rawImage.show)
     : Boolean(imgUrl && imgUrl.trim());
 
-  const rawImgVAlign = String(
-    rawImage?.verticalAlign || rawObj.logoVerticalAlign || rawObj.imageVerticalAlign || "",
-  ).toLowerCase();
+  const rawImgVAlign = String(rawImage?.verticalAlign || "").toLowerCase();
   const imgVerticalAlign: VerticalAlign = rawImgVAlign === "top"
     ? "top"
     : rawImgVAlign === "bottom"
@@ -488,23 +457,21 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
 
   const rawImgVOffset = typeof rawImage?.verticalOffset === "number"
     ? rawImage.verticalOffset
-    : typeof rawImage?.offsetY === "number"
-    ? rawImage.offsetY
-    : typeof rawObj.logoVerticalOffset === "number"
-    ? rawObj.logoVerticalOffset
-    : typeof rawObj.logoOffsetY === "number"
-    ? rawObj.logoOffsetY
     : 0;
 
   const rawImgHOffset = typeof rawImage?.horizontalOffset === "number"
     ? rawImage.horizontalOffset
-    : typeof rawImage?.offsetX === "number"
-    ? rawImage.offsetX
-    : typeof rawObj.logoHorizontalOffset === "number"
-    ? rawObj.logoHorizontalOffset
-    : typeof rawObj.logoOffsetX === "number"
-    ? rawObj.logoOffsetX
     : 0;
+
+  const image: ImageConfig = {
+    url: imgUrl,
+    shape: imgShape,
+    size: imgSize,
+    show: imgShow,
+    verticalAlign: imgVerticalAlign,
+    verticalOffset: rawImgVOffset,
+    horizontalOffset: rawImgHOffset,
+  };
 
   const title = typeof rawObj.title === "string"
     ? rawObj.title
@@ -515,58 +482,6 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     ? baseDefault.description
     : "";
 
-  const background = {
-    type: bgType,
-    color: bgColor,
-    gradientStart: gradStart,
-    gradientEnd: gradEnd,
-    gradientMiddle: gradMiddle,
-    gradientDirection: gradDir,
-    opacity: bgOpacity,
-    imageUrl: bgImageUrl,
-    imageOpacity: bgImageOpacity,
-    overlayColor: bgOverlayColor,
-    overlayOpacity: bgOverlayOpacity,
-  };
-
-  const border = {
-    color: borderColor,
-    width: borderWidth,
-    style: borderStyle,
-    radius: borderRadius,
-    margin: borderMargin,
-    shadow,
-    glowColor,
-  };
-
-  const titleFont = {
-    color: titleColor,
-    fontFamily: titleFontFamily,
-    fontWeight: titleFontWeight,
-    fontSize: titleFontSize,
-    letterSpacing: titleLetterSpacing,
-    uppercase: titleUppercase,
-  };
-
-  const image = {
-    url: imgUrl,
-    shape: imgShape,
-    size: imgSize,
-    show: imgShow,
-    verticalAlign: imgVerticalAlign,
-    verticalOffset: rawImgVOffset,
-    horizontalOffset: rawImgHOffset,
-  };
-
-  const descriptionFont = {
-    color: descColor,
-    fontFamily: descFontFamily,
-    fontWeight: descFontWeight,
-    fontSize: descFontSize,
-    lineHeight: descLineHeight,
-    opacity: descOpacity,
-  };
-
   const rawVAlign = String(rawObj.verticalAlign || "").toLowerCase();
   const verticalAlign: VerticalAlign = rawVAlign === "top"
     ? "top"
@@ -576,29 +491,14 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
 
   const verticalOffset = typeof rawObj.verticalOffset === "number"
     ? rawObj.verticalOffset
-    : typeof rawObj.offsetY === "number"
-    ? rawObj.offsetY
-    : typeof rawObj.textVerticalOffset === "number"
-    ? rawObj.textVerticalOffset
-    : typeof rawObj.textOffsetY === "number"
-    ? rawObj.textOffsetY
     : 0;
 
   const horizontalOffset = typeof rawObj.horizontalOffset === "number"
     ? rawObj.horizontalOffset
-    : typeof rawObj.offsetX === "number"
-    ? rawObj.offsetX
-    : typeof rawObj.textHorizontalOffset === "number"
-    ? rawObj.textHorizontalOffset
-    : typeof rawObj.textOffsetX === "number"
-    ? rawObj.textOffsetX
     : 0;
 
   if (format === "widecard") {
-    const imgPos =
-      rawObj.imagePosition === "right" || rawObj.logoPlacement === "right"
-        ? "right"
-        : "left";
+    const imgPos = rawObj.imagePosition === "right" ? "right" : "left";
     const validWideVariants = ["standard", "split", "centered", "minimal", "badge"];
     const wideVariant: WideVariant = validWideVariants.includes(String(rawObj.wideVariant))
       ? (rawObj.wideVariant as WideVariant)
@@ -616,6 +516,7 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       horizontalOffset,
       imagePosition: imgPos,
       background,
+      splitBackground,
       border,
       titleFont,
       descriptionFont,
@@ -627,15 +528,14 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
   if (format === "widescreen") {
     const validWsLayouts = ["split", "centered", "banner", "hero", "minimal"];
     const layoutStyle: WidescreenLayout = validWsLayouts.includes(
-      String(rawObj.bannerVariant || rawObj.layoutStyle),
+      String(rawObj.layoutStyle),
     )
-      ? ((rawObj.bannerVariant || rawObj.layoutStyle) as WidescreenLayout)
+      ? (rawObj.layoutStyle as WidescreenLayout)
       : "split";
 
     const textAlign: TextAlign = rawObj.textAlign === "left" ? "left" : "center";
     const ws: WidescreenCardOptions = {
       generateType: "widescreen",
-      bannerVariant: layoutStyle,
       layoutStyle,
       title,
       description,
@@ -644,6 +544,7 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       verticalOffset,
       horizontalOffset,
       background,
+      splitBackground,
       border,
       titleFont,
       descriptionFont,
@@ -679,7 +580,6 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       badgeAutoSize,
       iconPosition: iconPos,
       badgeLabel: typeof rawObj.badgeLabel === "string" ? rawObj.badgeLabel : "BUILD",
-      labelBackground: typeof rawObj.labelBackground === "string" ? rawObj.labelBackground : "#1e293b",
       labelColor: typeof rawObj.labelColor === "string" ? rawObj.labelColor : "#94a3b8",
       splitPosition: splitPos,
       statusText: typeof rawObj.statusText === "string" ? rawObj.statusText : "OPERATIONAL",
@@ -687,6 +587,7 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
       statusStyle,
       statusPosition: statusPos,
       background,
+      splitBackground,
       border,
       titleFont,
       image,
@@ -714,6 +615,7 @@ export function normalizeCardOptions(raw: unknown): CardOptions {
     verticalOffset,
     horizontalOffset,
     background,
+    splitBackground,
     border,
     titleFont,
     descriptionFont,

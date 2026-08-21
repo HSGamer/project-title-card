@@ -14,6 +14,7 @@ import { generateBadge } from "./layouts/badge.ts";
 export * from "./defaults.ts";
 export * from "./svg-base.ts";
 export * from "./elements.ts";
+export * from "./vertical-stack.ts";
 
 export { generateBadge, generateCard, generateWidecard, generateWidescreen };
 

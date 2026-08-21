@@ -9,7 +9,7 @@ interface SliderControlProps {
   min: number;
   max: number;
   step?: number;
-  presets?: number[];
+  quickValues?: number[];
   unit?: string;
   onChange: (val: number) => void;
   ariaLabel?: string;
@@ -22,7 +22,7 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
   min,
   max,
   step = 1,
-  presets = [],
+  quickValues = [],
   unit = "px",
   onChange,
   ariaLabel,
@@ -87,22 +87,22 @@ export const SliderControl: FunctionalComponent<SliderControlProps> = ({
         />
       </div>
 
-      {/* Minimalist Preset Chips */}
-      {presets.length > 0 && (
+      {/* Quick Value Chips */}
+      {quickValues.length > 0 && (
         <div class="flex flex-wrap items-center gap-1 pt-0.5">
-          {presets.map((preset) => (
+          {quickValues.map((val) => (
             <button
               type="button"
-              key={preset}
+              key={val}
               class={`px-2 py-0.5 rounded-md text-[11px] font-mono font-medium transition-colors ${
-                value === preset
+                value === val
                   ? "bg-primary text-primary-content font-bold shadow-xs"
                   : "bg-base-200 hover:bg-base-300 text-base-content/80"
               }`}
-              onClick={() => onChange(preset)}
-              aria-label={`Set ${label} to ${preset}${unit}`}
+              onClick={() => onChange(val)}
+              aria-label={`Set ${label} to ${val}${unit}`}
             >
-              {preset}{unit}
+              {val}{unit}
             </button>
           ))}
         </div>

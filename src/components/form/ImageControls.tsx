@@ -232,7 +232,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
           max={150}
           step={1}
           unit="px"
-          presets={[-30, -10, 0, 10, 30]}
+          quickValues={[-30, -10, 0, 10, 30]}
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
@@ -246,7 +246,7 @@ export const ImageControls: FunctionalComponent<ImageControlsProps> = (
           max={150}
           step={1}
           unit="px"
-          presets={[-30, -10, 0, 10, 30]}
+          quickValues={[-30, -10, 0, 10, 30]}
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,

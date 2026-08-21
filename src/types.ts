@@ -78,8 +78,6 @@ export const WidescreenLayoutSchema = z.enum([
   "minimal",
 ]);
 export type WidescreenLayout = z.infer<typeof WidescreenLayoutSchema>;
-export const BannerVariantSchema = WidescreenLayoutSchema;
-export type BannerVariant = WidescreenLayout;
 
 export const CardVariantSchema = z.enum([
   "standard",
@@ -190,8 +188,6 @@ export const ImageConfigSchema = z.object({
   horizontalOffset: z.number().optional().describe(
     "Logo horizontal offset in px (shift left/right)",
   ),
-  offsetY: z.number().optional().describe("Alias for verticalOffset"),
-  offsetX: z.number().optional().describe("Alias for horizontalOffset"),
 });
 export type ImageConfig = z.infer<typeof ImageConfigSchema>;
 
@@ -200,6 +196,9 @@ export const BaseCardOptionsSchema = z.object({
   generateType: LayoutFormatTypeSchema.describe("Card layout format"),
   title: z.string().describe("Card main title text"),
   background: BackgroundConfigSchema,
+  splitBackground: BackgroundConfigSchema.optional().describe(
+    "Split panel background configuration (for split variants)",
+  ),
   border: BorderConfigSchema,
   titleFont: TitleFontConfigSchema,
   image: ImageConfigSchema,
@@ -213,8 +212,6 @@ export const BaseCardOptionsSchema = z.object({
   horizontalOffset: z.number().optional().describe(
     "Content/text horizontal offset in px (shift left/right)",
   ),
-  offsetY: z.number().optional().describe("Alias for verticalOffset"),
-  offsetX: z.number().optional().describe("Alias for horizontalOffset"),
 });
 export type BaseCardOptions = z.infer<typeof BaseCardOptionsSchema>;
 
@@ -243,9 +240,6 @@ export type WideCardOptions = z.infer<typeof WideCardOptionsSchema>;
 
 export const WidescreenCardOptionsSchema = BaseCardOptionsSchema.extend({
   generateType: z.literal("widescreen"),
-  bannerVariant: BannerVariantSchema.optional().describe(
-    "Widescreen banner variant",
-  ),
   description: z.string().describe("Card description text"),
   descriptionFont: DescriptionFontConfigSchema,
   layoutStyle: WidescreenLayoutSchema.describe("Widescreen layout style"),
@@ -263,10 +257,6 @@ export const BadgeCardOptionsSchema = BaseCardOptionsSchema.extend({
     .describe("Automatically compute badge width"),
   iconPosition: IconPositionSchema.describe("Icon position"),
   badgeLabel: z.string().optional().describe("Split badge left label text"),
-  labelBackground: z
-    .string()
-    .optional()
-    .describe("Split badge label background color"),
   labelColor: z.string().optional().describe("Split badge label text color"),
   splitPosition: z.number().optional().describe("Split divider position in px"),
   statusText: z

@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-net
-import { CardOptions, CardOptionsSchema, GenerateType } from "./types.ts";
+import { CardOptions, CardOptionsSchema, LayoutFormatType } from "./types.ts";
 import {
   defaultBadgeOptions,
   defaultOptions,
@@ -7,7 +7,7 @@ import {
   defaultWideOptions,
   defaultWidescreenOptions,
 } from "./generators/defaults.ts";
-import { CARD_PRESETS, PRESET_THEMES } from "./data/presets.ts";
+import { THEMES } from "./data/themes.ts";
 import { normalizeCardOptions } from "./utils/normalizer.ts";
 import {
   generatePNGBuffer,
@@ -16,32 +16,23 @@ import {
 } from "./utils/headless-export.ts";
 import { generateHelpMessage, parseCliArgs } from "./utils/cli-parser.ts";
 
-function listPresets() {
-  console.log("\nFull Card Presets (All Settings):\n");
+function listThemes() {
+  console.log("\nAvailable Themes (Style & Typography):\n");
   console.log(
-    "ID".padEnd(22) + "Name".padEnd(26) + "Format".padEnd(16) + "Category",
+    "ID".padEnd(22) +
+      "Name".padEnd(26) +
+      "Category".padEnd(14) +
+      "Background".padEnd(16) +
+      "Border",
   );
-  console.log("-".repeat(75));
-  for (const p of CARD_PRESETS) {
+  console.log("-".repeat(88));
+  for (const t of THEMES) {
     console.log(
-      p.id.padEnd(22) +
-        p.name.padEnd(26) +
-        p.options.generateType.padEnd(16) +
-        p.category,
-    );
-  }
-
-  console.log("\nTheme Presets (Style Only):\n");
-  console.log(
-    "ID".padEnd(22) + "Name".padEnd(26) + "Background".padEnd(16) + "Border",
-  );
-  console.log("-".repeat(75));
-  for (const p of PRESET_THEMES) {
-    console.log(
-      p.id.padEnd(22) +
-        p.name.padEnd(26) +
-        p.background.type.padEnd(16) +
-        (p.border.shadow || "none"),
+      t.id.padEnd(22) +
+        t.name.padEnd(26) +
+        t.category.padEnd(14) +
+        t.background.type.padEnd(16) +
+        (t.border.shadow || "none"),
     );
   }
   console.log("");
@@ -91,8 +82,8 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     return;
   }
 
-  if (controlFlags.listPresets) {
-    listPresets();
+  if (controlFlags.listThemes) {
+    listThemes();
     return;
   }
 
@@ -126,30 +117,27 @@ export async function main(args: string[] = Deno.args): Promise<void> {
       );
       Deno.exit(1);
     }
-  } else if (controlFlags.preset) {
-    const presetId = controlFlags.preset;
-    const cardPreset = CARD_PRESETS.find((p) => p.id === presetId);
-    if (cardPreset) {
-      options = { ...cardPreset.options };
+  } else if (controlFlags.theme) {
+    const themeId = controlFlags.theme;
+    const theme = THEMES.find((t) => t.id === themeId);
+    if (theme) {
+      options = deepMerge(options, {
+        background: theme.background,
+        ...(theme.splitBackground ? { splitBackground: theme.splitBackground } : {}),
+        border: theme.border,
+        titleFont: theme.titleFont,
+        ...("descriptionFont" in options
+          ? { descriptionFont: theme.descriptionFont }
+          : {}),
+        ...(theme.image ? { image: theme.image } : {}),
+      });
     } else {
-      const themePreset = PRESET_THEMES.find((p) => p.id === presetId);
-      if (themePreset) {
-        options = deepMerge(options, {
-          background: themePreset.background,
-          border: themePreset.border,
-          titleFont: themePreset.titleFont,
-          ...("descriptionFont" in options
-            ? { descriptionFont: themePreset.descriptionFont }
-            : {}),
-        });
-      } else {
-        console.warn(
-          `Warning: Preset "${presetId}" not found. Run --list-presets to view available options.`,
-        );
-      }
+      console.warn(
+        `Warning: Theme "${themeId}" not found. Run --list-themes to view available options.`,
+      );
     }
   } else if (cardOverrides.generateType) {
-    const type = cardOverrides.generateType as GenerateType;
+    const type = cardOverrides.generateType as LayoutFormatType;
     if (type === "widecard") options = { ...defaultWideOptions };
     else if (type === "widescreen") options = { ...defaultWidescreenOptions };
     else if (type === "badge") options = { ...defaultBadgeOptions };
@@ -161,7 +149,7 @@ export async function main(args: string[] = Deno.args): Promise<void> {
     cardOverrides.generateType &&
     cardOverrides.generateType !== options.generateType
   ) {
-    const type = cardOverrides.generateType as GenerateType;
+    const type = cardOverrides.generateType as LayoutFormatType;
     let baseByType: CardOptions;
     if (type === "widecard") baseByType = defaultWideOptions;
     else if (type === "widescreen") baseByType = defaultWidescreenOptions;

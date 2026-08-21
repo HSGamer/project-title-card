@@ -1,6 +1,6 @@
 import { BadgeCardOptions } from "../../types.ts";
 import { getCardDimensions } from "../../utils/dimensions.ts";
-import { createBaseSvg } from "../svg-base.ts";
+import { createBaseSvg, renderPanelBackground } from "../svg-base.ts";
 import { renderImage, renderTitle } from "../elements.ts";
 
 export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
@@ -23,10 +23,10 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
     pillRadius,
   );
 
-  const textOffsetY = options.verticalOffset || options.offsetY || 0;
-  const textOffsetX = options.horizontalOffset || options.offsetX || 0;
-  const imgOffsetY = options.image.verticalOffset || options.image.offsetY || 0;
-  const imgOffsetX = options.image.horizontalOffset || options.image.offsetX || 0;
+  const textOffsetY = options.verticalOffset || 0;
+  const textOffsetX = options.horizontalOffset || 0;
+  const imgOffsetY = options.image.verticalOffset || 0;
+  const imgOffsetX = options.image.horizontalOffset || 0;
 
   const hasImage = Boolean(
     options.image.show && options.image.url && options.iconPosition !== "none",
@@ -74,13 +74,26 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
     const bgClipId = `cardBgClip_${width}_${height}_${margin}_${radius}`;
 
     // Left label compartment background (clipped to card's outer radius)
-    draw
-      .rect(splitX - margin, height - 2 * margin)
-      .move(margin, margin)
-      .attr({
-        fill: options.labelBackground || "#1e293b",
-        "clip-path": `url(#${bgClipId})`,
-      });
+    const splitBg = options.splitBackground || {
+      type: "solid",
+      color: "#1e293b",
+      gradientStart: "#1e293b",
+      gradientEnd: "#0f172a",
+      gradientDirection: "to-br",
+      opacity: 1,
+    };
+    renderPanelBackground(
+      draw,
+      splitBg,
+      {
+        x: margin,
+        y: margin,
+        width: splitX - margin,
+        height: height - 2 * margin,
+      },
+      bgClipId,
+      "badgeSplitBg",
+    );
 
     // Inset vertical seam line
     draw
@@ -495,7 +508,7 @@ export function generateBadge(options: BadgeCardOptions): SVGSVGElement {
         "badgeLogo",
       );
 
-      const textX = imgX + imgSize + 14 + textOffsetX;
+      const textX = margin + 14 + imgSize + 14 + textOffsetX;
       renderTitle(
         draw,
         options.title,

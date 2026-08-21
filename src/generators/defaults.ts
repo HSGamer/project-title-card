@@ -1,10 +1,20 @@
 import {
+  BackgroundConfig,
   BadgeCardOptions,
   CardOptions,
   StandardCardOptions,
   WideCardOptions,
   WidescreenCardOptions,
 } from "../types.ts";
+
+export const DEFAULT_SPLIT_BACKGROUND: BackgroundConfig = {
+  type: "solid",
+  color: "#0b1329",
+  gradientStart: "#0b1329",
+  gradientEnd: "#1e293b",
+  gradientDirection: "to-br",
+  opacity: 1,
+};
 
 export const defaultStandardOptions: StandardCardOptions = {
   generateType: "card",
@@ -119,7 +129,6 @@ export const defaultWideOptions: WideCardOptions = {
 
 export const defaultWidescreenOptions: WidescreenCardOptions = {
   generateType: "widescreen",
-  bannerVariant: "split",
   title: "MaskedGUI",
   description:
     "Fast • Lightweight • Type-Safe\nZero Dependency Inventory UI Framework",
@@ -182,7 +191,6 @@ export const defaultBadgeOptions: BadgeCardOptions = {
   badgeAutoSize: false,
   iconPosition: "left",
   badgeLabel: "BUILD",
-  labelBackground: "#1e293b",
   labelColor: "#94a3b8",
   splitPosition: 0,
   statusText: "OPERATIONAL",

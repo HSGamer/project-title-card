@@ -1,21 +1,18 @@
 import { parseArgs } from "@std/cli/parse-args";
+import { z } from "zod";
 import {
   BackgroundConfigSchema,
+  BadgeCardOptionsSchema,
   BorderConfigSchema,
   DescriptionFontConfigSchema,
   ImageConfigSchema,
-  TitleFontConfigSchema,
-  CardVariantSchema,
-  WideVariantSchema,
-  BadgeVariantSchema,
-  BadgeStatusStyleSchema,
-  BackgroundTypeSchema,
-  BorderStyleSchema,
-  ShadowEffectSchema,
-  ImageShapeSchema,
-  GradientDirectionSchema,
+  LayoutFormatTypeSchema,
+  StandardCardOptionsSchema,
   TextAlignSchema,
-  WidescreenLayoutSchema,
+  TitleFontConfigSchema,
+  VerticalAlignSchema,
+  WideCardOptionsSchema,
+  WidescreenCardOptionsSchema,
 } from "../types.ts";
 
 /**
@@ -23,6 +20,13 @@ import {
  */
 export function kebabToCamel(str: string): string {
   return str.replace(/[-_]([a-z0-9])/g, (_, g) => g.toUpperCase());
+}
+
+/**
+ * Converts camelCase to kebab-case
+ */
+export function camelToKebab(str: string): string {
+  return str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
 
 /**
@@ -40,174 +44,59 @@ function setDeep(obj: Record<string, any>, path: string[], value: any) {
   curr[path[path.length - 1]] = value;
 }
 
-/**
- * Introspected key sets from Zod schemas
- */
-const bgKeys = new Set(Object.keys(BackgroundConfigSchema.shape));
-const borderKeys = new Set(Object.keys(BorderConfigSchema.shape));
-const titleFontKeys = new Set(Object.keys(TitleFontConfigSchema.shape));
-const descFontKeys = new Set(Object.keys(DescriptionFontConfigSchema.shape));
-const imageKeys = new Set(Object.keys(ImageConfigSchema.shape));
-
-/**
- * Known flag aliases and shortcuts
- */
-const FLAG_ALIASES: Record<string, string[]> = {
-  // Direct top level
-  "title": ["title"],
-  "desc": ["description"],
-  "description": ["description"],
-  "format": ["generateType"],
-  "f": ["generateType"],
-  "align": ["textAlign"],
-  "vertical-align": ["verticalAlign"],
-  "valign": ["verticalAlign"],
-  "v-align": ["verticalAlign"],
-  "uppercase": ["titleFont", "uppercase"],
-
-  // Background
-  "bg-type": ["background", "type"],
-  "bg-color": ["background", "color"],
-  "gradient-start": ["background", "gradientStart"],
-  "gradient-middle": ["background", "gradientMiddle"],
-  "gradient-end": ["background", "gradientEnd"],
-  "gradient-dir": ["background", "gradientDirection"],
-  "gradient-direction": ["background", "gradientDirection"],
-  "bg-opacity": ["background", "opacity"],
-  "bg-image": ["background", "imageUrl"],
-  "bg-image-opacity": ["background", "imageOpacity"],
-  "overlay-color": ["background", "overlayColor"],
-  "overlay-opacity": ["background", "overlayOpacity"],
-
-  // Border
-  "border-color": ["border", "color"],
-  "border-width": ["border", "width"],
-  "border-style": ["border", "style"],
-  "border-radius": ["border", "radius"],
-  "border-margin": ["border", "margin"],
-  "border-shadow": ["border", "shadow"],
-  "glow-color": ["border", "glowColor"],
-
-  // Title Font
-  "font-title": ["titleFont", "fontFamily"],
-  "font-title-size": ["titleFont", "fontSize"],
-  "title-font": ["titleFont", "fontFamily"],
-  "title-font-size": ["titleFont", "fontSize"],
-  "title-color": ["titleFont", "color"],
-  "title-weight": ["titleFont", "fontWeight"],
-  "title-letter-spacing": ["titleFont", "letterSpacing"],
-
-  // Description Font
-  "font-desc": ["descriptionFont", "fontFamily"],
-  "font-desc-size": ["descriptionFont", "fontSize"],
-  "desc-font": ["descriptionFont", "fontFamily"],
-  "desc-font-size": ["descriptionFont", "fontSize"],
-  "desc-color": ["descriptionFont", "color"],
-  "desc-weight": ["descriptionFont", "fontWeight"],
-  "desc-line-height": ["descriptionFont", "lineHeight"],
-  "desc-opacity": ["descriptionFont", "opacity"],
-
-  // Logo / Image
-  "logo": ["image", "url"],
-  "image": ["image", "url"],
-  "logo-size": ["image", "size"],
-  "image-size": ["image", "size"],
-  "logo-shape": ["image", "shape"],
-  "image-shape": ["image", "shape"],
-  "logo-pos": ["imagePosition"],
-  "logo-valign": ["image", "verticalAlign"],
-  "logo-vertical-align": ["image", "verticalAlign"],
-  "image-valign": ["image", "verticalAlign"],
-  "image-vertical-align": ["image", "verticalAlign"],
-  "logo-offset-y": ["image", "verticalOffset"],
-  "logo-vertical-offset": ["image", "verticalOffset"],
-  "image-offset-y": ["image", "verticalOffset"],
-  "logo-offset-x": ["image", "horizontalOffset"],
-  "logo-horizontal-offset": ["image", "horizontalOffset"],
-  "image-offset-x": ["image", "horizontalOffset"],
-
-  // Text & Alignment Offsets
-  "vertical-offset": ["verticalOffset"],
-  "text-offset-y": ["verticalOffset"],
-  "offset-y": ["verticalOffset"],
-  "horizontal-offset": ["horizontalOffset"],
-  "text-offset-x": ["horizontalOffset"],
-  "offset-x": ["horizontalOffset"],
-
-  // Variants & Specific layout flags
-  "card-variant": ["cardVariant"],
-  "variant": ["cardVariant"],
-  "wide-variant": ["wideVariant"],
-  "banner-variant": ["bannerVariant"],
-  "widescreen-layout": ["layoutStyle"],
-  "layout-style": ["layoutStyle"],
-  "badge-width": ["badgeWidth"],
-  "badge-height": ["badgeHeight"],
-  "auto-size": ["badgeAutoSize"],
-  "badge-auto-size": ["badgeAutoSize"],
-  "badge-variant": ["badgeVariant"],
-  "badge-label": ["badgeLabel"],
-  "label-bg": ["labelBackground"],
-  "label-color": ["labelColor"],
-  "split-pos": ["splitPosition"],
-  "split-position": ["splitPosition"],
-  "status-text": ["statusText"],
-  "status-color": ["statusColor"],
-  "status-style": ["statusStyle"],
-  "status-pos": ["statusPosition"],
-  "status-position": ["statusPosition"],
-  "icon-pos": ["iconPosition"],
-  "icon-position": ["iconPosition"],
+// Sub-schemas for field introspection
+const subSchemas: Record<string, Set<string>> = {
+  background: new Set(Object.keys(BackgroundConfigSchema.shape)),
+  border: new Set(Object.keys(BorderConfigSchema.shape)),
+  titleFont: new Set(Object.keys(TitleFontConfigSchema.shape)),
+  descriptionFont: new Set(Object.keys(DescriptionFontConfigSchema.shape)),
+  image: new Set(Object.keys(ImageConfigSchema.shape)),
 };
 
+// Prefix routes to match and map dynamically
+const PREFIX_ROUTES: [RegExp, string][] = [
+  [/^split[-_](?:bg|background)[-_]?/, "splitBackground"],
+  [/^(?:bg|background)[-_]/, "background"],
+  [/^border[-_]/, "border"],
+  [/^(?:title[-_]font|title)[-_]/, "titleFont"],
+  [/^(?:description[-_]font|desc[-_]font|description|desc)[-_]/, "descriptionFont"],
+  [/^(?:image|logo)[-_]/, "image"],
+];
+
 /**
- * Automatically maps any arbitrary CLI flag into nested option paths.
+ * Dynamically routes any CLI flag into nested option paths without hardcoded tables.
  */
 export function mapFlagToPath(rawKey: string): string[] {
-  const normalizedKey = rawKey.toLowerCase();
-
-  // 1. Check direct aliases
-  if (FLAG_ALIASES[normalizedKey]) {
-    return FLAG_ALIASES[normalizedKey];
-  }
-
-  // 2. Handle dot-notation: e.g. "background.color" -> ["background", "color"]
   if (rawKey.includes(".")) {
     return rawKey.split(".").map(kebabToCamel);
   }
 
+  const normalized = rawKey.toLowerCase();
   const camel = kebabToCamel(rawKey);
 
-  // 3. Handle prefix based mappings
-  if (rawKey.startsWith("background-") || rawKey.startsWith("bg-")) {
-    const subKey = kebabToCamel(rawKey.replace(/^(background|bg)-/, ""));
-    return ["background", subKey];
-  }
-  if (rawKey.startsWith("border-")) {
-    const subKey = kebabToCamel(rawKey.replace(/^border-/, ""));
-    return ["border", subKey];
-  }
-  if (rawKey.startsWith("title-font-") || rawKey.startsWith("font-title-")) {
-    const subKey = kebabToCamel(rawKey.replace(/^(title-font|font-title)-/, ""));
-    return ["titleFont", subKey];
-  }
-  if (rawKey.startsWith("desc-font-") || rawKey.startsWith("font-desc-") || rawKey.startsWith("description-font-")) {
-    const subKey = kebabToCamel(rawKey.replace(/^(desc-font|font-desc|description-font)-/, ""));
-    return ["descriptionFont", subKey];
-  }
-  if (rawKey.startsWith("image-") || rawKey.startsWith("logo-")) {
-    const subKey = kebabToCamel(rawKey.replace(/^(image|logo)-/, ""));
-    return ["image", subKey];
+  // Common root shortcuts
+  if (normalized === "format" || normalized === "f") return ["generateType"];
+  if (normalized === "desc") return ["description"];
+  if (normalized === "logo" || normalized === "image") return ["image", "url"];
+  if (normalized === "align") return ["textAlign"];
+  if (normalized === "valign" || normalized === "vertical-align") return ["verticalAlign"];
+
+  // 1. Prefix-based routing (e.g. --bg-color, --split-bg-color, --border-width, --title-font-size)
+  for (const [pattern, section] of PREFIX_ROUTES) {
+    if (pattern.test(rawKey)) {
+      const rest = kebabToCamel(rawKey.replace(pattern, ""));
+      return [section, rest || "color"];
+    }
   }
 
-  // 4. Match against known shape keys
-  if (bgKeys.has(camel)) return ["background", camel];
-  if (borderKeys.has(camel)) return ["border", camel];
-  if (titleFontKeys.has(camel)) return ["titleFont", camel];
-  if (descFontKeys.has(camel)) return ["descriptionFont", camel];
-  if (imageKeys.has(camel)) return ["image", camel];
+  // 2. Schema field introspection fallback (e.g. --gradient-start -> background.gradientStart)
+  for (const [section, keys] of Object.entries(subSchemas)) {
+    if (keys.has(camel)) {
+      return [section, camel];
+    }
+  }
 
-  // 5. Default to top-level camelCase
+  // 3. Default to top-level property
   return [camel];
 }
 
@@ -219,21 +108,23 @@ function coerceValue(val: unknown): unknown {
     const trimmed = val.trim();
     if (trimmed === "true") return true;
     if (trimmed === "false") return false;
-    if (!isNaN(Number(trimmed)) && trimmed !== "" && !trimmed.startsWith("#") && !trimmed.startsWith("0x")) {
+    if (
+      !isNaN(Number(trimmed)) &&
+      trimmed !== "" &&
+      !trimmed.startsWith("#") &&
+      !trimmed.startsWith("0x")
+    ) {
       return Number(trimmed);
     }
   }
   return val;
 }
 
-/**
- * Parsed CLI result containing runner control flags and normalized card option overrides
- */
 export interface ParsedCliResult {
   controlFlags: {
     help?: boolean;
-    listPresets?: boolean;
-    preset?: string;
+    listThemes?: boolean;
+    theme?: string;
     input?: string;
     stdin?: boolean;
     output?: string;
@@ -245,14 +136,12 @@ export interface ParsedCliResult {
   rawFlags: Record<string, any>;
 }
 
-/**
- * Parse command-line arguments into control flags and deeply nested card options
- */
 export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
   const rawFlags = parseArgs(args, {
     alias: {
       f: "format",
-      p: "preset",
+      t: "theme",
+      theme: "theme",
       o: "output",
       out: "output",
       i: "input",
@@ -262,7 +151,7 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
     boolean: [
       "help",
       "h",
-      "list-presets",
+      "list-themes",
       "stdin",
       "png",
       "stdout",
@@ -274,8 +163,8 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
 
   const controlFlags: ParsedCliResult["controlFlags"] = {
     help: Boolean(rawFlags.help || rawFlags.h),
-    listPresets: Boolean(rawFlags["list-presets"]),
-    preset: rawFlags.preset as string | undefined,
+    listThemes: Boolean(rawFlags["list-themes"]),
+    theme: (rawFlags.theme || rawFlags.t) as string | undefined,
     input: (rawFlags.input || rawFlags.i) as string | undefined,
     stdin: Boolean(rawFlags.stdin),
     output: (rawFlags.output || rawFlags.out || rawFlags.o) as string | undefined,
@@ -284,15 +173,13 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
     stdout: Boolean(rawFlags.stdout),
   };
 
-  const cardOverrides: Record<string, any> = {};
-
   const controlKeys = new Set([
     "_",
     "help",
     "h",
-    "list-presets",
-    "preset",
-    "p",
+    "list-themes",
+    "theme",
+    "t",
     "input",
     "i",
     "stdin",
@@ -304,6 +191,8 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
     "stdout",
   ]);
 
+  const cardOverrides: Record<string, any> = {};
+
   for (const [key, rawValue] of Object.entries(rawFlags)) {
     if (controlKeys.has(key)) continue;
     if (rawValue === undefined || rawValue === null) continue;
@@ -311,16 +200,7 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
     const coerced = coerceValue(rawValue);
     const path = mapFlagToPath(key);
 
-    // Format aliases
-    if (path.length === 1 && path[0] === "generateType") {
-      const formatVal = String(coerced).toLowerCase();
-      if (formatVal === "wide") setDeep(cardOverrides, ["generateType"], "widecard");
-      else if (formatVal === "banner") setDeep(cardOverrides, ["generateType"], "widescreen");
-      else setDeep(cardOverrides, ["generateType"], formatVal);
-      continue;
-    }
-
-    // Logo image shorthand: if logo is specified, auto-enable image.show = true
+    // Auto-enable image if image url is provided
     if (path.length === 2 && path[0] === "image" && path[1] === "url") {
       setDeep(cardOverrides, ["image", "show"], true);
     }
@@ -332,106 +212,176 @@ export function parseCliArgs(args: string[] = Deno.args): ParsedCliResult {
 }
 
 /**
- * Generate comprehensive, automated CLI help text derived from Zod schemas
+ * Extracts type hints and descriptions from Zod schemas dynamically.
+ */
+function getSchemaTypeInfo(schema: z.ZodTypeAny): {
+  typeHint: string;
+  description: string;
+} {
+  let curr: any = schema;
+  let description = schema.description || "";
+
+  while (curr._def?.innerType || curr._def?.schema) {
+    if (!description && curr.description) description = curr.description;
+    curr = curr._def.innerType || curr._def.schema;
+  }
+  if (!description && curr.description) description = curr.description;
+
+  const typeName = curr._def?.typeName;
+
+  if (typeName === "ZodEnum") {
+    const options = (curr.options as string[]).join("|");
+    return {
+      typeHint: `<${options}>`,
+      description,
+    };
+  }
+
+  if (typeName === "ZodBoolean") {
+    return {
+      typeHint: "(flag)",
+      description,
+    };
+  }
+
+  if (typeName === "ZodNumber") {
+    return {
+      typeHint: "<number>",
+      description,
+    };
+  }
+
+  if (typeName === "ZodString") {
+    return {
+      typeHint: "<string>",
+      description,
+    };
+  }
+
+  return {
+    typeHint: "<value>",
+    description,
+  };
+}
+
+function formatOptionLine(flag: string, typeHint: string, description: string): string {
+  const left = `  ${flag} ${typeHint}`.padEnd(36);
+  return `${left} ${description}`;
+}
+
+function formatSchemaFields(
+  schema: z.ZodObject<any>,
+  prefix = "",
+  aliasMap: Record<string, string> = {},
+): string[] {
+  const lines: string[] = [];
+  for (const [key, fieldSchema] of Object.entries(schema.shape)) {
+    const { typeHint, description } = getSchemaTypeInfo(fieldSchema as z.ZodTypeAny);
+    const flagName = aliasMap[key] || `--${prefix}${camelToKebab(key)}`;
+    lines.push(formatOptionLine(flagName, typeHint, description));
+  }
+  return lines;
+}
+
+/**
+ * Dynamically generates CLI help message by introspecting Zod schemas.
  */
 export function generateHelpMessage(): string {
-  const bgTypes = BackgroundTypeSchema.options.join(" | ");
-  const gradDirs = GradientDirectionSchema.options.join(" | ");
-  const borderStyles = BorderStyleSchema.options.join(" | ");
-  const shadowEffects = ShadowEffectSchema.options.join(" | ");
-  const imageShapes = ImageShapeSchema.options.join(" | ");
-  const cardVariants = CardVariantSchema.options.join(" | ");
-  const wideVariants = WideVariantSchema.options.join(" | ");
-  const wsLayouts = WidescreenLayoutSchema.options.join(" | ");
-  const badgeVariants = BadgeVariantSchema.options.join(" | ");
-  const badgeStatuses = BadgeStatusStyleSchema.options.join(" | ");
-  const textAligns = TextAlignSchema.options.join(" | ");
+  const formats = LayoutFormatTypeSchema.options.join("|");
 
-  return `
-project-title-card CLI - Generate SVG & PNG title cards from the terminal
+  const basicOptions = [
+    formatOptionLine("--title", "<string>", "Card main title text"),
+    formatOptionLine("--desc, --description", "<string>", "Card description lines"),
+    formatOptionLine("--format, -f", `<${formats}>`, "Card layout format (default: card)"),
+    formatOptionLine("--theme, -t", "<id>", "Apply style & typography theme (run --list-themes to view)"),
+    formatOptionLine("--output, -o", "<path>", "Output file path (default: title-card.svg or title-card.png)"),
+    formatOptionLine("--png", "(flag)", "Render as PNG image instead of SVG"),
+    formatOptionLine("--scale", "<number>", "PNG resolution scale multiplier (default: 1)"),
+    formatOptionLine("--stdout", "(flag)", "Print SVG string to stdout"),
+    formatOptionLine("--input, -i", "<file.json>", "Load options from JSON file"),
+    formatOptionLine("--stdin", "(flag)", "Read JSON options from stdin"),
+    formatOptionLine("--list-themes", "(flag)", "List all available style & typography themes"),
+    formatOptionLine("--help, -h", "(flag)", "Show this help message"),
+  ];
 
-USAGE:
-  deno task cli [OPTIONS]
-  deno run -A src/cli.ts [OPTIONS]
+  const bgOptions = formatSchemaFields(BackgroundConfigSchema, "bg-");
+  const splitBgOptions = formatSchemaFields(BackgroundConfigSchema, "split-bg-");
+  const borderOptions = formatSchemaFields(BorderConfigSchema, "border-");
+  const titleOptions = formatSchemaFields(TitleFontConfigSchema, "title-");
+  const descOptions = formatSchemaFields(DescriptionFontConfigSchema, "desc-");
+  const imageOptions = formatSchemaFields(ImageConfigSchema, "logo-", {
+    url: "--logo, --image",
+  });
 
-BASIC OPTIONS:
-  --title <text>              Card title (e.g. "My Project")
-  --desc, --description <t>   Card description lines
-  --format, -f <type>         Format: card | widecard | widescreen | badge (default: card)
-  --preset, -p <id>           Apply preset theme (e.g. "neon-cyber", "sunset-glow")
-  --output, -o <path>         Output file path (default: title-card.svg or title-card.png)
-  --png                       Output as PNG image instead of SVG
-  --scale <number>            PNG resolution scale multiplier (default: 1)
-  --stdout                    Print raw SVG string to stdout instead of writing file
+  const layoutOptions = [
+    formatOptionLine("--align", `<${TextAlignSchema.options.join("|")}>`, "Text horizontal alignment"),
+    formatOptionLine("--valign", `<${VerticalAlignSchema.options.join("|")}>`, "Content vertical alignment"),
+    formatOptionLine("--vertical-offset", "<number>", "Content/text vertical offset in px"),
+    formatOptionLine("--horizontal-offset", "<number>", "Content/text horizontal offset in px"),
+  ];
 
-INPUT CONFIGURATION:
-  --input, -i <file.json>     Load full options from a JSON file
-  --stdin                     Read full JSON options from standard input
+  const standardFields = formatSchemaFields(
+    z.object({ cardVariant: StandardCardOptionsSchema.shape.cardVariant }),
+    "",
+  );
+  const wideFields = formatSchemaFields(
+    z.object({
+      wideVariant: WideCardOptionsSchema.shape.wideVariant,
+      imagePosition: WideCardOptionsSchema.shape.imagePosition,
+    }),
+    "",
+  );
+  const wsFields = formatSchemaFields(
+    z.object({ layoutStyle: WidescreenCardOptionsSchema.shape.layoutStyle }),
+    "",
+  );
+  const badgeFields = formatSchemaFields(
+    z.object({
+      badgeVariant: BadgeCardOptionsSchema.shape.badgeVariant,
+      badgeWidth: BadgeCardOptionsSchema.shape.badgeWidth,
+      badgeHeight: BadgeCardOptionsSchema.shape.badgeHeight,
+      badgeAutoSize: BadgeCardOptionsSchema.shape.badgeAutoSize,
+      iconPosition: BadgeCardOptionsSchema.shape.iconPosition,
+      badgeLabel: BadgeCardOptionsSchema.shape.badgeLabel,
+      labelColor: BadgeCardOptionsSchema.shape.labelColor,
+      splitPosition: BadgeCardOptionsSchema.shape.splitPosition,
+      statusText: BadgeCardOptionsSchema.shape.statusText,
+      statusColor: BadgeCardOptionsSchema.shape.statusColor,
+      statusStyle: BadgeCardOptionsSchema.shape.statusStyle,
+      statusPosition: BadgeCardOptionsSchema.shape.statusPosition,
+    }),
+    "",
+  );
 
-STYLE CUSTOMIZATION:
-  --bg-type <type>            ${bgTypes}
-  --bg-color <hex>            Background solid color (e.g. "#0f172a")
-  --gradient-start <hex>      Gradient start color (e.g. "#ea580c")
-  --gradient-middle <hex>     Gradient middle color (optional)
-  --gradient-end <hex>        Gradient end color (e.g. "#7c3aed")
-  --gradient-dir <dir>        ${gradDirs}
-  --bg-opacity <number>       Background opacity (0 - 1)
-  --border-color <hex>        Border stroke color
-  --border-style <style>      ${borderStyles}
-  --border-shadow <shadow>    ${shadowEffects}
-  --glow-color <hex>          Neon glow tint color (when --border-shadow is glow)
-  --border-width <number>     Border thickness (px)
-  --border-radius <number>    Border corner radius (px)
-  --border-margin <number>    Border margin (px)
-
-TYPOGRAPHY & LOGO:
-  --font-title <name>         Title font family (e.g. "Space Grotesk")
-  --font-desc <name>          Description font family (e.g. "Inter")
-  --font-title-size <num>     Title font size in px
-  --font-desc-size <num>      Description font size in px
-  --title-color <hex>         Title text color
-  --desc-color <hex>          Description text color
-  --uppercase                 Force title uppercase (flag)
-  --align <align>             ${textAligns}
-  --valign <align>            Vertical alignment: top, middle, bottom
-  --logo, --image <url>       Logo image URL, local path, or base64 data URI
-  --logo-size <number>        Logo size in px
-  --logo-shape <shape>        ${imageShapes}
-  --logo-valign <align>       Logo vertical alignment: top, middle, bottom
-
-LAYOUT & VARIANT OPTIONS:
-  --card-variant <variant>    Standard card: ${cardVariants}
-  --wide-variant <variant>    Wide card: ${wideVariants}
-  --logo-pos <left|right>     Wide card logo position
-  --banner-variant <variant>  Widescreen: ${wsLayouts}
-  --badge-variant <variant>   Badge: ${badgeVariants}
-  --badge-width <number>      Badge width in px
-  --badge-height <number>     Badge height in px
-  --auto-size                 Badge auto calculate width (flag)
-  --badge-label <text>        Split badge label text
-  --label-bg <hex>            Split badge label background color
-  --label-color <hex>         Split badge label text color
-  --split-pos <number>        Split badge divider position in px
-  --status-text <text>        Status badge indicator text
-  --status-color <hex>        Status badge indicator color
-  --status-style <style>      ${badgeStatuses}
-  --status-pos <left|right>   Status indicator position
-
-INFORMATIONAL:
-  --list-presets              List all available preset themes
-  --help, -h                  Show this help message
-
-EXAMPLES:
-  # 1. Quick banner generation with preset
-  deno task cli --title "Deno Guard" --desc "Security First" --format widecard --preset neon-cyber --out banner.svg
-
-  # 2. Export high-res PNG
-  deno task cli --title "My API" --preset sunset-glow --png --scale 2 --out api-card.png
-
-  # 3. Dynamic nested flag overrides
-  deno task cli --title "Custom Card" --border.radius 24 --titleFont.fontSize 40 --out custom.svg
-
-  # 4. Pipe JSON directly into CLI
-  cat config.json | deno task cli --stdin --out card.svg
-`;
+  return [
+    "project-title-card CLI - Generate SVG & PNG title cards from the terminal\n",
+    "USAGE:",
+    "  deno task cli [OPTIONS]\n",
+    "BASIC OPTIONS:",
+    ...basicOptions,
+    "\nBACKGROUND OPTIONS:",
+    ...bgOptions,
+    "\nSPLIT BACKGROUND OPTIONS (for split variants):",
+    ...splitBgOptions,
+    "\nBORDER OPTIONS:",
+    ...borderOptions,
+    "\nTITLE TYPOGRAPHY OPTIONS:",
+    ...titleOptions,
+    "\nDESCRIPTION TYPOGRAPHY OPTIONS:",
+    ...descOptions,
+    "\nLOGO / IMAGE OPTIONS:",
+    ...imageOptions,
+    "\nLAYOUT & ALIGNMENT OPTIONS:",
+    ...layoutOptions,
+    "\nFORMAT-SPECIFIC OPTIONS:",
+    "  Standard Card:",
+    ...standardFields.map((l) => `  ${l}`),
+    "  Wide Card:",
+    ...wideFields.map((l) => `  ${l}`),
+    "  Widescreen:",
+    ...wsFields.map((l) => `  ${l}`),
+    "  Badge:",
+    ...badgeFields.map((l) => `  ${l}`),
+    "\nNOTE: All options also support dot-notation (e.g. --background.color #fff, --border.radius 20).",
+  ].join("\n");
 }

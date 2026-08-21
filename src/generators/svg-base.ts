@@ -1,5 +1,5 @@
 import { SVG, Svg } from "@svgdotjs/svg.js";
-import { CardOptions, GradientDirection } from "../types.ts";
+import { BackgroundConfig, CardOptions, GradientDirection } from "../types.ts";
 import { getSvgFontImports, loadWebFont } from "../utils/fonts.ts";
 
 export interface BaseSvgResult {
@@ -299,4 +299,112 @@ export function createBaseSvg(
   }
 
   return { draw, margin, radius };
+}
+
+/**
+ * Renders a full background (solid, gradient, glass, or image) into a panel/sub-region of the SVG canvas.
+ */
+export function renderPanelBackground(
+  draw: Svg,
+  bg: BackgroundConfig | undefined,
+  bounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    radius?: number;
+  },
+  clipId?: string,
+  idPrefix = "panelBg",
+): void {
+  if (!bg) return;
+  const defs = draw.defs();
+  const { x, y, width, height, radius } = bounds;
+
+  let fillValue = bg.color || "#0b1329";
+
+  if (bg.type === "gradient") {
+    const gradId = `${idPrefix}_grad_${Math.floor(x)}_${Math.floor(y)}`;
+    if (bg.gradientDirection === "radial") {
+      const radGrad = defs.element("radialGradient").attr({
+        id: gradId,
+        cx: "50%",
+        cy: "50%",
+        r: "70%",
+      });
+      radGrad.element("stop").attr({
+        offset: "0%",
+        "stop-color": bg.gradientStart,
+      });
+      if (bg.gradientMiddle) {
+        radGrad.element("stop").attr({
+          offset: "50%",
+          "stop-color": bg.gradientMiddle,
+        });
+      }
+      radGrad.element("stop").attr({
+        offset: "100%",
+        "stop-color": bg.gradientEnd,
+      });
+    } else {
+      const coords = getGradientCoordinates(bg.gradientDirection || "to-br");
+      const linGrad = defs.element("linearGradient").attr({
+        id: gradId,
+        ...coords,
+      });
+      linGrad.element("stop").attr({
+        offset: "0%",
+        "stop-color": bg.gradientStart,
+      });
+      if (bg.gradientMiddle) {
+        linGrad.element("stop").attr({
+          offset: "50%",
+          "stop-color": bg.gradientMiddle,
+        });
+      }
+      linGrad.element("stop").attr({
+        offset: "100%",
+        "stop-color": bg.gradientEnd,
+      });
+    }
+    fillValue = `url(#${gradId})`;
+  }
+
+  const bgRect = draw.rect(width, height).move(x, y);
+  if (radius) bgRect.radius(radius);
+  bgRect.attr({
+    fill: fillValue,
+    ...(clipId ? { "clip-path": `url(#${clipId})` } : {}),
+  });
+
+  if (bg.opacity !== undefined && bg.opacity < 1) {
+    bgRect.attr("fill-opacity", bg.opacity);
+  }
+
+  if (bg.type === "image" && bg.imageUrl) {
+    const bgImg = draw
+      .image(bg.imageUrl)
+      .size(width, height)
+      .move(x, y)
+      .attr({
+        ...(clipId ? { "clip-path": `url(#${clipId})` } : {}),
+        preserveAspectRatio: "xMidYMid slice",
+        role: "img",
+        "aria-label": "Panel Background Image",
+      });
+
+    if (bg.imageOpacity !== undefined && bg.imageOpacity < 1) {
+      bgImg.attr("opacity", bg.imageOpacity);
+    }
+
+    if (bg.overlayColor && (bg.overlayOpacity ?? 0) > 0) {
+      const overlay = draw.rect(width, height).move(x, y);
+      if (radius) overlay.radius(radius);
+      overlay.attr({
+        fill: bg.overlayColor,
+        "fill-opacity": bg.overlayOpacity ?? 0.5,
+        ...(clipId ? { "clip-path": `url(#${clipId})` } : {}),
+      });
+    }
+  }
 }

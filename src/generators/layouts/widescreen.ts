@@ -1,17 +1,18 @@
 import { WidescreenCardOptions } from "../../types.ts";
 import { getCardDimensions } from "../../utils/dimensions.ts";
-import { createBaseSvg } from "../svg-base.ts";
+import { createBaseSvg, renderPanelBackground } from "../svg-base.ts";
 import {
   renderImage,
   renderMultilineDescription,
   renderTitle,
 } from "../elements.ts";
+import { computeVerticalStackPositions } from "../vertical-stack.ts";
 
 export function generateWidescreen(
   options: WidescreenCardOptions,
 ): SVGSVGElement {
   const { width, height } = getCardDimensions(options);
-  const layout = options.bannerVariant || options.layoutStyle || "split";
+  const layout = options.layoutStyle || "split";
   const margin = options.border.margin ?? 10;
   const innerW = width - 2 * margin;
   const innerH = height - 2 * margin;
@@ -28,10 +29,10 @@ export function generateWidescreen(
   const lineHeight = options.descriptionFont.lineHeight || 1.3;
   const vAlign = options.verticalAlign || "middle";
   const imgVAlign = options.image.verticalAlign || "middle";
-  const textOffsetY = options.verticalOffset || options.offsetY || 0;
-  const textOffsetX = options.horizontalOffset || options.offsetX || 0;
-  const imgOffsetY = options.image.verticalOffset || options.image.offsetY || 0;
-  const imgOffsetX = options.image.horizontalOffset || options.image.offsetX || 0;
+  const textOffsetY = options.verticalOffset || 0;
+  const textOffsetX = options.horizontalOffset || 0;
+  const imgOffsetY = options.image.verticalOffset || 0;
+  const imgOffsetX = options.image.horizontalOffset || 0;
 
   const descLines = options.description
     ? options.description.split("\n").filter((l) => l.trim().length > 0)
@@ -74,31 +75,26 @@ export function generateWidescreen(
   // --------------------------------------------------------------------------
   if (layout === "centered") {
     const smallImg = Math.min(options.image.size || 120, innerW - 60, innerH - 40);
-    const imgH = hasImage ? smallImg : 0;
     const gapImgTitle = hasImage ? 24 : 0;
     const gapTitleDesc = numLines > 0 ? 16 : 0;
     const textH = titleFontSize + (numLines > 0 ? gapTitleDesc + descH : 0);
-    const totalH = imgH + gapImgTitle + textH;
 
-    let imgY: number;
-    let titleY: number;
+    const pos = computeVerticalStackPositions({
+      cardH: height,
+      margin,
+      topPad: 28,
+      bottomPad: 28,
+      minGap: gapImgTitle,
+      hasImage,
+      imgSize: smallImg,
+      imgVAlign,
+      textH,
+      titleFontSize,
+      vAlign,
+    });
 
-    if (hasImage && imgVAlign !== vAlign) {
-      imgY = computeImgY(smallImg, 28, 28);
-      const textPos = computeTextY(margin + innerH / 2, titleFontSize, descFontSize, 28, 28);
-      titleY = textPos.titleY;
-    } else {
-      const computeCenteredStartY = () => {
-        if (vAlign === "top") return margin + 28;
-        if (vAlign === "bottom") return height - margin - 28 - totalH;
-        return margin + Math.max(16, (innerH - totalH) / 2);
-      };
-      const startY = computeCenteredStartY();
-      imgY = startY + imgOffsetY;
-      titleY = (hasImage
-        ? imgY + smallImg + gapImgTitle + titleFontSize * 0.85
-        : startY + titleFontSize * 0.85) + textOffsetY;
-    }
+    const imgY = pos.imgY;
+    const titleY = pos.titleY;
 
     const imgX = (width - smallImg) / 2 + imgOffsetX;
 
@@ -106,7 +102,7 @@ export function generateWidescreen(
       renderImage(
         draw,
         options.image,
-        { x: imgX, y: imgY },
+        { x: imgX, y: imgY + imgOffsetY },
         smallImg,
         smallImg,
         "wsCenteredLogo",
@@ -211,7 +207,7 @@ export function generateWidescreen(
         "wsHeroLogo",
       );
 
-      const textX = imgX + heroImgSize + 30 + textOffsetX;
+      const textX = innerCardX + 25 + heroImgSize + 30 + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -268,7 +264,7 @@ export function generateWidescreen(
       );
 
       // Divider line
-      const divX = imgX + minImgSize + 30;
+      const divX = margin + 35 + minImgSize + 30;
       draw
         .line(divX, margin + 35, divX, height - margin - 35)
         .stroke({
@@ -277,7 +273,7 @@ export function generateWidescreen(
           opacity: 0.6,
         });
 
-      const textX = divX + 30 + textOffsetX;
+      const textX = margin + 35 + minImgSize + 60 + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -309,6 +305,28 @@ export function generateWidescreen(
   // --------------------------------------------------------------------------
   // Variant 5: SPLIT (Default 2-column showcase)
   // --------------------------------------------------------------------------
+  if (options.splitBackground) {
+    const splitRatio = 0.38;
+    const panelWidth = Math.round(innerW * splitRatio);
+    const splitX = margin + panelWidth;
+    const bgClipId = `cardBgClip_${width}_${height}_${margin}_${radius}`;
+    renderPanelBackground(
+      draw,
+      options.splitBackground,
+      { x: margin, y: margin, width: panelWidth, height: innerH },
+      bgClipId,
+      "wsSplitBg",
+    );
+
+    // Inset vertical seam line
+    draw
+      .line(splitX, margin, splitX, height - margin)
+      .stroke({ color: "#000000", width: 1, opacity: 0.35 });
+    draw
+      .line(splitX + 1, margin, splitX + 1, height - margin)
+      .stroke({ color: "#ffffff", width: 1, opacity: 0.12 });
+  }
+
   const stdImgSize = Math.min(options.image.size || 200, Math.round(innerW * 0.5), innerH - 30);
   const { titleY, descY } = computeTextY(textCenterY, titleFontSize, descFontSize, 36, 36);
 
@@ -324,7 +342,7 @@ export function generateWidescreen(
       "wsLogo",
     );
 
-    const textX = imgX + stdImgSize + 35 + textOffsetX;
+    const textX = margin + 35 + stdImgSize + 35 + textOffsetX;
     renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
     if (numLines > 0) {
       renderMultilineDescription(

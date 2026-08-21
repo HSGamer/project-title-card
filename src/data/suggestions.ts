@@ -4,7 +4,7 @@ export interface SuggestionChip {
   description?: string;
 }
 
-export interface GradientPreset {
+export interface GradientPalette {
   id: string;
   name: string;
   start: string;
@@ -51,7 +51,7 @@ export const FONT_FAMILY_OPTIONS = [
   },
 ];
 
-export const GRADIENT_PRESETS: GradientPreset[] = [
+export const GRADIENT_PALETTES: GradientPalette[] = [
   {
     id: "sunset-aurora",
     name: "Sunset Aurora",

@@ -336,7 +336,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             min={16}
             max={72}
             step={2}
-            presets={[24, 34, 44, 52]}
+            quickValues={[24, 34, 44, 52]}
             onChange={(val) =>
               setOptions((prev) => ({
                 ...prev,
@@ -350,7 +350,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
             min={-2}
             max={10}
             step={1}
-            presets={[0, 1, 2, 4]}
+            quickValues={[0, 1, 2, 4]}
             onChange={(val) =>
               setOptions((prev) => ({
                 ...prev,
@@ -510,7 +510,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               min={12}
               max={44}
               step={2}
-              presets={[16, 20, 24, 28]}
+              quickValues={[16, 20, 24, 28]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -536,7 +536,7 @@ export const TypographyTab: FunctionalComponent<TypographyTabProps> = (
               max={20}
               step={1}
               unit="x"
-              presets={[11, 13, 15, 18]}
+              quickValues={[11, 13, 15, 18]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,

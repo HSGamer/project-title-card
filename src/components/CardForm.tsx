@@ -85,7 +85,6 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           ...base,
           generateType: "widescreen",
           layoutStyle: "split",
-          bannerVariant: "split",
           description: desc,
           descriptionFont: { ...descFont, fontSize: 22 },
           titleFont: { ...base.titleFont, fontSize: 40 },
@@ -102,7 +101,6 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
           badgeAutoSize: false,
           iconPosition: "left",
           badgeLabel: "BUILD",
-          labelBackground: "#1e293b",
           labelColor: "#94a3b8",
           splitPosition: 0,
           statusText: "OPERATIONAL",
@@ -277,7 +275,7 @@ export const CardForm: FunctionalComponent<CardFormProps> = ({
         )}
       </div>
 
-      {/* Bottom Import & Export Presets */}
+      {/* Bottom Import & Export */}
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 pt-4 mt-6 border-t border-base-300">
         <span class="text-xs text-base-content/60">
           Save or load card settings:

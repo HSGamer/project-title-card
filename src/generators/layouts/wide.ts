@@ -1,11 +1,12 @@
 import { WideCardOptions } from "../../types.ts";
 import { getCardDimensions } from "../../utils/dimensions.ts";
-import { createBaseSvg } from "../svg-base.ts";
+import { createBaseSvg, renderPanelBackground } from "../svg-base.ts";
 import {
   renderImage,
   renderMultilineDescription,
   renderTitle,
 } from "../elements.ts";
+import { computeVerticalStackPositions } from "../vertical-stack.ts";
 
 export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   const { width, height } = getCardDimensions(options);
@@ -34,10 +35,10 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
   const lineHeight = options.descriptionFont.lineHeight || 1.3;
   const vAlign = options.verticalAlign || "middle";
   const imgVAlign = options.image.verticalAlign || "middle";
-  const textOffsetY = options.verticalOffset || options.offsetY || 0;
-  const textOffsetX = options.horizontalOffset || options.offsetX || 0;
-  const imgOffsetY = options.image.verticalOffset || options.image.offsetY || 0;
-  const imgOffsetX = options.image.horizontalOffset || options.image.offsetX || 0;
+  const textOffsetY = options.verticalOffset || 0;
+  const textOffsetX = options.horizontalOffset || 0;
+  const imgOffsetY = options.image.verticalOffset || 0;
+  const imgOffsetX = options.image.horizontalOffset || 0;
 
   const descLines = options.description
     ? options.description.split("\n").filter((l) => l.trim().length > 0)
@@ -88,13 +89,21 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
 
     // Side panel background clipped inside card border
     const panelX = isRight ? splitX : margin;
-    draw
-      .rect(panelWidth, innerH)
-      .move(panelX, margin)
-      .attr({
-        fill: "#0b1329",
-        "clip-path": `url(#${bgClipId})`,
-      });
+    const splitBg = options.splitBackground || {
+      type: "solid",
+      color: "#0b1329",
+      gradientStart: "#0b1329",
+      gradientEnd: "#1e293b",
+      gradientDirection: "to-br",
+      opacity: 1,
+    };
+    renderPanelBackground(
+      draw,
+      splitBg,
+      { x: panelX, y: margin, width: panelWidth, height: innerH },
+      bgClipId,
+      "wideSplitBg",
+    );
 
     // Inset vertical seam line
     draw
@@ -149,31 +158,26 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       ? (numLines - 1) * (centeredDescSize * lineHeight) + centeredDescSize
       : 0;
 
-    const imgH = hasImage ? smallImg : 0;
     const gapImgTitle = hasImage ? 18 : 0;
     const gapTitleDesc = numLines > 0 ? 14 : 0;
     const textH = centeredTitleSize + (numLines > 0 ? gapTitleDesc + centeredDescH : 0);
-    const totalH = imgH + gapImgTitle + textH;
 
-    let imgY: number;
-    let titleY: number;
+    const pos = computeVerticalStackPositions({
+      cardH: height,
+      margin,
+      topPad: 18,
+      bottomPad: 18,
+      minGap: gapImgTitle,
+      hasImage,
+      imgSize: smallImg,
+      imgVAlign,
+      textH,
+      titleFontSize: centeredTitleSize,
+      vAlign,
+    });
 
-    if (hasImage && imgVAlign !== vAlign) {
-      imgY = computeImgY(smallImg, 18, 18);
-      const textPos = computeTextY(margin + innerH / 2, centeredTitleSize, centeredDescSize, 18, 18);
-      titleY = textPos.titleY;
-    } else {
-      const computeCenteredStartY = () => {
-        if (vAlign === "top") return margin + 20;
-        if (vAlign === "bottom") return height - margin - 20 - totalH;
-        return margin + Math.max(16, (innerH - totalH) / 2);
-      };
-      const startY = computeCenteredStartY();
-      imgY = startY + imgOffsetY;
-      titleY = (hasImage
-        ? imgY + smallImg + gapImgTitle + centeredTitleSize * 0.85
-        : startY + centeredTitleSize * 0.85) + textOffsetY;
-    }
+    const imgY = pos.imgY;
+    const titleY = pos.titleY;
 
     const imgX = (width - smallImg) / 2 + imgOffsetX;
 
@@ -181,7 +185,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       renderImage(
         draw,
         options.image,
-        { x: imgX, y: imgY },
+        { x: imgX, y: imgY + imgOffsetY },
         smallImg,
         smallImg,
         "wideCenteredLogo",
@@ -234,7 +238,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
       );
 
       // Divider line
-      const divX = isRight ? imgX - 25 : imgX + minImgSize + 25;
+      const divX = isRight ? width - margin - minImgSize - 60 : margin + 35 + minImgSize + 25;
       draw
         .line(divX, margin + 25, divX, height - margin - 25)
         .stroke({
@@ -243,7 +247,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
           opacity: 0.5,
         });
 
-      const textX = (isRight ? margin + 35 : divX + 30) + textOffsetX;
+      const textX = (isRight ? margin + 35 : margin + 35 + minImgSize + 55) + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -295,7 +299,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         "wideBadgeLogo",
       );
 
-      const textX = (isRight ? margin + 50 : imgX + badgeImgSize + 35) + textOffsetX;
+      const textX = (isRight ? margin + 50 : margin + 40 + badgeImgSize + 35) + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(
@@ -368,7 +372,7 @@ export function generateWidecard(options: WideCardOptions): SVGSVGElement {
         "wideLogo",
       );
 
-      const textX = imgX + stdImgSize + 32 + textOffsetX;
+      const textX = margin + 30 + stdImgSize + 32 + textOffsetX;
       renderTitle(draw, options.title, textX, titleY, { ...options.titleFont, fontSize: titleFontSize }, "start");
       if (numLines > 0) {
         renderMultilineDescription(

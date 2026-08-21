@@ -1,12 +1,13 @@
 import { FunctionalComponent } from "preact";
 import {
   BadgeCardOptions,
+  BadgeStatusStyle,
   BadgeVariant,
-  BannerVariant,
   CardOptions,
   CardVariant,
   GenerateType,
   StandardCardOptions,
+  StatusPosition,
   TextAlign,
   VerticalAlign,
   WideCardOptions,
@@ -18,6 +19,7 @@ import { FieldGuide } from "../FieldGuide.tsx";
 import { SliderControl } from "../SliderControl.tsx";
 import { ImageControls } from "./ImageControls.tsx";
 import { getCardDimensionsLabel } from "../../utils/dimensions.ts";
+import { DEFAULT_SPLIT_BACKGROUND } from "../../generators/defaults.ts";
 import {
   DESCRIPTION_SUGGESTIONS,
   TITLE_SUGGESTIONS,
@@ -192,7 +194,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               max={150}
               step={1}
               unit="px"
-              presets={[-30, -10, 0, 10, 30]}
+              quickValues={[-30, -10, 0, 10, 30]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -206,7 +208,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               max={150}
               step={1}
               unit="px"
-              presets={[-30, -10, 0, 10, 30]}
+              quickValues={[-30, -10, 0, 10, 30]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -334,7 +336,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               max={150}
               step={1}
               unit="px"
-              presets={[-30, -10, 0, 10, 30]}
+              quickValues={[-30, -10, 0, 10, 30]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -348,7 +350,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               max={150}
               step={1}
               unit="px"
-              presets={[-30, -10, 0, 10, 30]}
+              quickValues={[-30, -10, 0, 10, 30]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -380,8 +382,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                   type="button"
                   key={st.value}
                   class={`btn btn-sm text-[11px] sm:text-xs px-1.5 py-1 h-auto min-h-[32px] sm:min-h-[36px] text-center leading-tight flex items-center justify-center ${
-                    ((options as WidescreenCardOptions).bannerVariant ||
-                      (options as WidescreenCardOptions).layoutStyle ||
+                    ((options as WidescreenCardOptions).layoutStyle ||
                       "split") === st.value
                       ? "btn-active btn-primary shadow-xs font-semibold"
                       : "btn-ghost bg-base-200 hover:bg-base-300"
@@ -390,7 +391,6 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                     setOptions((prev) => ({
                       ...(prev as WidescreenCardOptions),
                       layoutStyle: st.value as WidescreenLayout,
-                      bannerVariant: st.value as BannerVariant,
                     }))}
                 >
                   <span>{st.label}</span>
@@ -437,7 +437,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               max={150}
               step={1}
               unit="px"
-              presets={[-30, -10, 0, 10, 30]}
+              quickValues={[-30, -10, 0, 10, 30]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -451,7 +451,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
               max={150}
               step={1}
               unit="px"
-              presets={[-30, -10, 0, 10, 30]}
+              quickValues={[-30, -10, 0, 10, 30]}
               onChange={(val) =>
                 setOptions((prev) => ({
                   ...prev,
@@ -584,40 +584,11 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                   </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                  <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-base-content/70">
-                      Left Compartment Background
-                    </label>
-                    <div class="flex items-center gap-1.5">
-                      <input
-                        type="color"
-                        class="w-7 h-7 rounded-md p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
-                        value={(options as BadgeCardOptions).labelBackground || "#1e293b"}
-                        onInput={(e) =>
-                          setOptions((prev) => ({
-                            ...(prev as BadgeCardOptions),
-                            labelBackground: e.currentTarget.value,
-                          }))}
-                      />
-                      <input
-                        type="text"
-                        class="input input-bordered input-sm flex-1 font-mono text-xs"
-                        value={(options as BadgeCardOptions).labelBackground || "#1e293b"}
-                        onInput={(e) =>
-                          setOptions((prev) => ({
-                            ...(prev as BadgeCardOptions),
-                            labelBackground: e.currentTarget.value,
-                          }))}
-                      />
-                    </div>
-                  </div>
-
-                  <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-base-content/70">
-                      Label Text Color
-                    </label>
-                    <div class="flex items-center gap-1.5">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-base-content/70">
+                    Label Text Color
+                  </label>
+                  <div class="flex items-center gap-1.5">
                       <input
                         type="color"
                         class="w-7 h-7 rounded-md p-0.5 cursor-pointer border border-base-300 bg-base-100 flex-shrink-0"
@@ -641,7 +612,6 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                     </div>
                   </div>
                 </div>
-              </div>
 
               <SliderControl
                 label="Split Position (0 for Auto)"
@@ -650,7 +620,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                 max={80}
                 step={5}
                 unit="%"
-                presets={[0, 25, 35, 50, 65]}
+                quickValues={[0, 25, 35, 50, 65]}
                 onChange={(val) =>
                   setOptions((prev) => ({
                     ...(prev as BadgeCardOptions),
@@ -809,36 +779,82 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                   />
                 </div>
               </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="form-control">
+                  <label class="label py-1">
+                    <span class="label-text text-xs font-semibold">
+                      Indicator Position
+                    </span>
+                  </label>
+                  <select
+                    class="select select-bordered select-sm text-xs"
+                    value={(options as BadgeCardOptions).statusPosition ||
+                      "left"}
+                    onChange={(e) =>
+                      setOptions((prev) => ({
+                        ...(prev as BadgeCardOptions),
+                        statusPosition: e.currentTarget
+                          .value as StatusPosition,
+                      }))}
+                  >
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                  </select>
+                </div>
+                <div class="form-control">
+                  <label class="label py-1">
+                    <span class="label-text text-xs font-semibold">
+                      Indicator Style
+                    </span>
+                  </label>
+                  <select
+                    class="select select-bordered select-sm text-xs"
+                    value={(options as BadgeCardOptions).statusStyle || "dot"}
+                    onChange={(e) =>
+                      setOptions((prev) => ({
+                        ...(prev as BadgeCardOptions),
+                        statusStyle: e.currentTarget.value as BadgeStatusStyle,
+                      }))}
+                  >
+                    <option value="dot">Dot</option>
+                    <option value="pill">Pill</option>
+                  </select>
+                </div>
+              </div>
             </div>
           )}
+        </div>
+      )}
 
-          {/* Badge Dimensions */}
-          <div class="flex flex-col gap-2.5 bg-base-100 p-3 rounded-lg border border-base-300">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-semibold text-base-content flex items-center gap-1.5">
-                <span>Badge Dimensions</span>
+      {/* Manual Dimensions for Badges (when badgeAutoSize is false) */}
+      {options.generateType === "badge" && (
+        <div class="bg-base-200 p-4 rounded-xl border border-base-300 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="font-bold text-xs">Custom Badge Dimensions</span>
+              <span class="text-[11px] text-base-content/60">
+                Override automatic content-based badge sizing
               </span>
-              <label class="label cursor-pointer gap-2 p-0">
-                <span class="text-xs font-medium text-base-content/80">Auto Fit Content</span>
-                <input
-                  type="checkbox"
-                  class="toggle toggle-primary toggle-sm"
-                  checked={Boolean((options as BadgeCardOptions).badgeAutoSize)}
-                  onChange={(e) =>
-                    setOptions((prev) => ({
-                      ...(prev as BadgeCardOptions),
-                      badgeAutoSize: e.currentTarget.checked,
-                    }))}
-                />
-              </label>
             </div>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary toggle-sm"
+              checked={!(options as BadgeCardOptions).badgeAutoSize}
+              onChange={(e) =>
+                setOptions((prev) => ({
+                  ...(prev as BadgeCardOptions),
+                  badgeAutoSize: !e.currentTarget.checked,
+                }))}
+            />
+          </div>
 
+          <div class="pt-1">
             {(options as BadgeCardOptions).badgeAutoSize ? (
-              <div class="text-xs text-base-content/70 bg-base-200 p-2.5 rounded-md flex items-center justify-between">
-                <span>Calculated size from text & icon:</span>
-                <span class="font-mono font-bold text-primary">
-                  {getCardDimensionsLabel(options)}
-                </span>
+              <div class="text-xs text-base-content/60 italic bg-base-100 p-2.5 rounded-lg border border-base-300">
+                Badge dimensions are automatically calculated based on content
+                length, font size, and logo dimensions. Toggle above to specify
+                fixed width/height.
               </div>
             ) : (
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start pt-1">
@@ -849,7 +865,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                   min={120}
                   max={1000}
                   step={10}
-                  presets={[250, 320, 400, 500, 600]}
+                  quickValues={[250, 320, 400, 500, 600]}
                   onChange={(val) =>
                     setOptions((prev) => ({
                       ...(prev as BadgeCardOptions),
@@ -863,7 +879,7 @@ export const LayoutTab: FunctionalComponent<LayoutTabProps> = ({
                   min={40}
                   max={300}
                   step={5}
-                  presets={[60, 80, 100, 120, 160]}
+                  quickValues={[60, 80, 100, 120, 160]}
                   onChange={(val) =>
                     setOptions((prev) => ({
                       ...(prev as BadgeCardOptions),

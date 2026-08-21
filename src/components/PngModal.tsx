@@ -40,7 +40,7 @@ export const PngModal: FunctionalComponent<PngModalProps> = (
     }
   };
 
-  const scalePresets = [50, 100, 150, 200];
+  const scaleOptions = [50, 100, 150, 200];
 
   return (
     <dialog class="modal modal-open modal-bottom sm:modal-middle">
@@ -108,7 +108,7 @@ export const PngModal: FunctionalComponent<PngModalProps> = (
             </div>
 
             <div class="flex flex-wrap items-center gap-1 pt-0.5">
-              {scalePresets.map((p) => (
+              {scaleOptions.map((p) => (
                 <button
                   type="button"
                   key={p}

@@ -9,7 +9,7 @@
 
 export * from "./types.ts";
 export * from "./generators/index.ts";
-export * from "./data/presets.ts";
+export * from "./data/themes.ts";
 export * from "./data/suggestions.ts";
 export * from "./utils/dimensions.ts";
 export * from "./utils/fonts.ts";

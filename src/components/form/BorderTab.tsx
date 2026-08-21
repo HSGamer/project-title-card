@@ -114,7 +114,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
           min={0}
           max={16}
           step={1}
-          presets={[0, 1, 2, 4]}
+          quickValues={[0, 1, 2, 4]}
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
@@ -128,7 +128,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
           min={0}
           max={60}
           step={2}
-          presets={[0, 8, 16, 24, 32]}
+          quickValues={[0, 8, 16, 24, 32]}
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
@@ -142,7 +142,7 @@ export const BorderTab: FunctionalComponent<BorderTabProps> = (
           min={0}
           max={40}
           step={2}
-          presets={[0, 5, 10, 15, 20]}
+          quickValues={[0, 5, 10, 15, 20]}
           onChange={(val) =>
             setOptions((prev) => ({
               ...prev,
