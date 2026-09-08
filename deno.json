@@ -22,6 +22,6 @@
     "linkedom": "npm:linkedom@^0.18.13",
     "preact": "npm:preact@^10.29.8",
     "preact/hooks": "npm:preact@^10.29.8/hooks",
-    "zod": "npm:zod@^4.5.2"
+    "zod": "npm:zod@^4.5.4"
   }
 }
