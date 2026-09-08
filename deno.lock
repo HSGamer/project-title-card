@@ -12,7 +12,7 @@
     "npm:linkedom@~0.18.13": "0.18.13",
     "npm:preact@^10.25.0": "10.29.8",
     "npm:preact@^10.29.8": "10.29.8",
-    "npm:zod@^4.5.2": "4.5.4"
+    "npm:zod@^4.5.4": "4.5.4"
   },
   "jsr": {
     "@std/cli@1.0.32": {
@@ -404,7 +404,7 @@
       "npm:@tabler/icons-preact@^3.46.0",
       "npm:linkedom@~0.18.13",
       "npm:preact@^10.29.8",
-      "npm:zod@^4.5.2"
+      "npm:zod@^4.5.4"
     ]
   }
 }
