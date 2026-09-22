@@ -7,12 +7,12 @@
     "jsr:@std/path@1.0.8": "1.0.8",
     "npm:@resvg/resvg-js@^2.6.2": "2.6.2",
     "npm:@svgdotjs/svg.js@^3.2.8": "3.2.8",
-    "npm:@tabler/icons-preact@^3.46.0": "3.46.0_preact@10.29.8",
+    "npm:@tabler/icons-preact@^3.47.0": "3.47.0_preact@10.29.8",
     "npm:esbuild@0.25.0": "0.25.0",
     "npm:linkedom@~0.18.13": "0.18.13",
     "npm:preact@^10.25.0": "10.29.8",
     "npm:preact@^10.29.8": "10.29.8",
-    "npm:zod@^4.6.2": "4.6.5"
+    "npm:zod@^4.6.5": "4.6.5"
   },
   "jsr": {
     "@std/cli@1.0.32": {
@@ -238,15 +238,15 @@
     "@svgdotjs/svg.js@3.2.8": {
       "integrity": "sha512-NUdbI/7FDdqGpzKmqr09IQoy9MUcrAC/3bC8gLgXi6OfJuyri450zMLvJekFUhuq3iN5gpdPjoSoStNl9Eijfg=="
     },
-    "@tabler/icons-preact@3.46.0_preact@10.29.8": {
-      "integrity": "sha512-Iju43zMyymXyRlEAbAls4R57npWfkq37ikqkuFieQeKRls/e556ptvceGoR1ZPFujBNrdIUdS97CBbKxyj/iLg==",
+    "@tabler/icons-preact@3.47.0_preact@10.29.8": {
+      "integrity": "sha512-09XoIUNM4LV4bT7A1FMdLNgAvARCQ2Z1dCJtbnqQjeQh9zblDD97OSHASXTEQ7n1qJVF2h1sKe3AN7ZbqIDfcw==",
       "dependencies": [
         "@tabler/icons",
         "preact"
       ]
     },
-    "@tabler/icons@3.46.0": {
-      "integrity": "sha512-f2RYFl3fzPwj5WO82x6en0dmkjefxEfOm16D1ByM6cj/McNiwOkL4VaPUoP9VVIrXAD9WnTSVFr70px703b//A=="
+    "@tabler/icons@3.47.0": {
+      "integrity": "sha512-aCbSemVrGvSA3w0sJi8mka6QrnQCN8wCD1jKNXXIR/h6Q4ffov/yFPyzjTULDM8ETtK4DABUZhWdYlygqy3npA=="
     },
     "boolbase@2.0.0": {
       "integrity": "sha512-DkVaaQHymRhpYEYo9x1oo7Q7B0Y6KJUsjm3c9eTyFDby4MHLBTwZ6ZDWBel5zrYxj1WsZgC5oLpiz+93MluXeA=="
@@ -401,10 +401,10 @@
       "jsr:@std/cli@^1.0.32",
       "npm:@resvg/resvg-js@^2.6.2",
       "npm:@svgdotjs/svg.js@^3.2.8",
-      "npm:@tabler/icons-preact@^3.46.0",
+      "npm:@tabler/icons-preact@^3.47.0",
       "npm:linkedom@~0.18.13",
       "npm:preact@^10.29.8",
-      "npm:zod@^4.6.2"
+      "npm:zod@^4.6.5"
     ]
   }
 }
