@@ -7,10 +7,10 @@
     "jsr:@std/path@1.0.8": "1.0.8",
     "npm:@resvg/resvg-js@^2.6.2": "2.6.2",
     "npm:@svgdotjs/svg.js@^3.2.8": "3.2.8",
-    "npm:@tabler/icons-preact@^3.48.0": "3.48.0_preact@10.29.8",
+    "npm:@tabler/icons-preact@^3.49.0": "3.49.0_preact@11.0.0",
     "npm:esbuild@0.25.0": "0.25.0",
     "npm:linkedom@~0.18.13": "0.18.13",
-    "npm:preact@11": "11.0.0",
+    "npm:preact@^11.0.1": "11.0.1",
     "npm:zod@^4.6.5": "4.6.5"
   },
   "jsr": {
@@ -237,15 +237,15 @@
     "@svgdotjs/svg.js@3.2.8": {
       "integrity": "sha512-NUdbI/7FDdqGpzKmqr09IQoy9MUcrAC/3bC8gLgXi6OfJuyri450zMLvJekFUhuq3iN5gpdPjoSoStNl9Eijfg=="
     },
-    "@tabler/icons-preact@3.48.0_preact@10.29.8": {
-      "integrity": "sha512-QeIBevr6sjQEEJexkmVWMBMf01aVn5YvLk0F8wVbZ+WGO1EpJKsVMP0+XZEW3jvy7eA2PY3AX3W1b/skW6yvvQ==",
+    "@tabler/icons-preact@3.49.0_preact@11.0.0": {
+      "integrity": "sha512-AQJKL5UoWOBjEH+lbNxwcvp5DGhECbZ+8WZ3wdWXbW8rHItQxATnsEO7FJrnjFOBUn+yLu6FbtF3p0cjLYt6RA==",
       "dependencies": [
         "@tabler/icons",
-        "preact@10.29.8"
+        "preact@11.0.0"
       ]
     },
-    "@tabler/icons@3.48.0": {
-      "integrity": "sha512-lQk06gVHNVBnJp0UOgtth54mcZBJM7rdYKsAxKOProj1bbSAx+/xiuOWfHlyvgdL3M+Y+I0HINrjHa3ygp8eXQ=="
+    "@tabler/icons@3.49.0": {
+      "integrity": "sha512-l+GnSkFETx0U26icxv1VUFnxxiTqXfCcVRiRAnyMwibupM2S2L/hSaZ9gmSgz01rkrsH/93NvLsxykqdanc6lw=="
     },
     "boolbase@2.0.0": {
       "integrity": "sha512-DkVaaQHymRhpYEYo9x1oo7Q7B0Y6KJUsjm3c9eTyFDby4MHLBTwZ6ZDWBel5zrYxj1WsZgC5oLpiz+93MluXeA=="
@@ -385,11 +385,11 @@
         "boolbase"
       ]
     },
-    "preact@10.29.8": {
-      "integrity": "sha512-ej2aVZ+vZ8WO7tvlQWRM9N63A0KzF9q4mWJfDUHgYaIofWY9hu74QdnQrjoPMmZi2/nZ5gN0bJCQF49xQqx09Q=="
-    },
     "preact@11.0.0": {
       "integrity": "sha512-LRTLKuSe6VYPhvBDjwFaX+nuZnpsw6IN2GSboisAvhGsncylBmrbDCERhgKDn6yP2mAwbGvsB5OVyTe33M8gBg=="
+    },
+    "preact@11.0.1": {
+      "integrity": "sha512-TNNwEq++jYNHy747LziCjPRVgEwnLSOIOAw/oYcjI3Tdnubx2EXtt76I0an8PATvUWtx/DX1kFIg1eFN+O/fkw=="
     },
     "uhyphen@0.2.0": {
       "integrity": "sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA=="
@@ -403,9 +403,9 @@
       "jsr:@std/cli@^1.0.32",
       "npm:@resvg/resvg-js@^2.6.2",
       "npm:@svgdotjs/svg.js@^3.2.8",
-      "npm:@tabler/icons-preact@^3.48.0",
+      "npm:@tabler/icons-preact@^3.49.0",
       "npm:linkedom@~0.18.13",
-      "npm:preact@11",
+      "npm:preact@^11.0.1",
       "npm:zod@^4.6.5"
     ]
   }
