@@ -11,7 +11,7 @@
     "npm:esbuild@0.25.0": "0.25.0",
     "npm:linkedom@~0.18.13": "0.18.13",
     "npm:preact@^11.0.1": "11.0.1",
-    "npm:zod@^4.6.5": "4.6.5"
+    "npm:zod@^4.6.7": "4.6.7"
   },
   "jsr": {
     "@std/cli@1.0.32": {
@@ -394,8 +394,8 @@
     "uhyphen@0.2.0": {
       "integrity": "sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA=="
     },
-    "zod@4.6.5": {
-      "integrity": "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q=="
+    "zod@4.6.7": {
+      "integrity": "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg=="
     }
   },
   "workspace": {
@@ -406,7 +406,7 @@
       "npm:@tabler/icons-preact@^3.49.0",
       "npm:linkedom@~0.18.13",
       "npm:preact@^11.0.1",
-      "npm:zod@^4.6.5"
+      "npm:zod@^4.6.7"
     ]
   }
 }
